@@ -66,9 +66,13 @@ export function AuthProvider(props: { children: ReactNode }) {
     try {
       const me = await fetchMe()
       setUser(me)
-    } catch {
-      setToken(null)
-      setUser(null)
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : ''
+      // Only drop the session when the token is rejected — not on transient/network errors.
+      if (/Unauthorized|Invalid token|^Not found$/i.test(msg)) {
+        setToken(null)
+        setUser(null)
+      }
     }
   }, [])
 
@@ -82,10 +86,13 @@ export function AuthProvider(props: { children: ReactNode }) {
       try {
         const me = await fetchMe()
         if (!cancelled) setUser(me)
-      } catch {
+      } catch (e) {
         if (!cancelled) {
-          setToken(null)
-          setUser(null)
+          const msg = e instanceof Error ? e.message : ''
+          if (/Unauthorized|Invalid token|^Not found$/i.test(msg)) {
+            setToken(null)
+            setUser(null)
+          }
         }
       } finally {
         if (!cancelled) setLoading(false)

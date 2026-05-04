@@ -5,6 +5,8 @@ import cors from 'cors'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import multer from 'multer'
+
+const MulterError = multer.MulterError
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
@@ -326,44 +328,56 @@ app.get('/api/profile/avatar', authMiddleware, async (req, res) => {
   }
 })
 
-app.post('/api/profile/avatar', authMiddleware, avatarUploadMiddleware, async (req, res) => {
-  if (vercelNeedsRemoteFiles()) {
-    return res.status(503).json({
-      error:
-        'Avatar uploads on Vercel need Supabase Storage. Set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, and SUPABASE_STORAGE_BUCKET.',
+app.post('/api/profile/avatar', authMiddleware, avatarUploadMiddleware, async (req, res, next) => {
+  try {
+    if (vercelNeedsRemoteFiles()) {
+      return res.status(503).json({
+        error:
+          'Avatar uploads on Vercel need Supabase Storage. Set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, and SUPABASE_STORAGE_BUCKET.',
+      })
+    }
+    if (!req.file) {
+      return res.status(400).json({ error: 'Image file required' })
+    }
+    const current = await prisma.user.findUnique({
+      where: { id: req.userId },
+      select: { avatarStoragePath: true },
     })
+    let storedPath
+    if (useRemoteFiles()) {
+      const ext = path.extname(req.file.originalname || '').toLowerCase()
+      const safeExt = ext && ext.length < 8 ? ext : '.jpg'
+      storedPath = `avatars/${req.userId}/avatar${safeExt}`
+      await remotePut(storedPath, req.file.buffer, req.file.mimetype)
+    } else {
+      storedPath = path.relative(projectRoot(), req.file.path).replace(/\\/g, '/')
+    }
+    if (current?.avatarStoragePath && current.avatarStoragePath !== storedPath) {
+      await removeStoredPath(current.avatarStoragePath)
+    }
+    await prisma.user.update({
+      where: { id: req.userId },
+      data: { avatarStoragePath: storedPath },
+    })
+    res.json({ ok: true, hasAvatar: true })
+  } catch (err) {
+    if (useRemoteFiles()) {
+      console.error('avatar upload storage/db:', err)
+      return res.status(502).json({
+        error:
+          'Could not save your photo to Supabase Storage. In Supabase: create a bucket with that exact name, set it to non-public if you prefer (the server uses the service role). Verify SUPABASE_STORAGE_BUCKET, SUPABASE_URL, and SUPABASE_SERVICE_ROLE_KEY on Vercel.',
+      })
+    }
+    next(err)
   }
-  if (!req.file) {
-    return res.status(400).json({ error: 'Image file required' })
-  }
-  const current = await prisma.user.findUnique({
-    where: { id: req.userId },
-    select: { avatarStoragePath: true },
-  })
-  let storedPath
-  if (useRemoteFiles()) {
-    const ext = path.extname(req.file.originalname || '').toLowerCase()
-    const safeExt = ext && ext.length < 8 ? ext : '.jpg'
-    storedPath = `avatars/${req.userId}/avatar${safeExt}`
-    await remotePut(storedPath, req.file.buffer, req.file.mimetype)
-  } else {
-    storedPath = path.relative(projectRoot(), req.file.path).replace(/\\/g, '/')
-  }
-  if (current?.avatarStoragePath && current.avatarStoragePath !== storedPath) {
-    await removeStoredPath(current.avatarStoragePath)
-  }
-  await prisma.user.update({
-    where: { id: req.userId },
-    data: { avatarStoragePath: storedPath },
-  })
-  res.json({ ok: true, hasAvatar: true })
 })
 
 app.get('/api/profile', authMiddleware, async (req, res) => {
-  let profile = await prisma.profile.findUnique({ where: { userId: req.userId } })
-  if (!profile) {
-    profile = await prisma.profile.create({ data: { userId: req.userId } })
-  }
+  const profile = await prisma.profile.upsert({
+    where: { userId: req.userId },
+    update: {},
+    create: { userId: req.userId },
+  })
   res.json(profile)
 })
 
@@ -394,12 +408,11 @@ app.put('/api/profile', authMiddleware, async (req, res) => {
 })
 
 app.get('/api/application', authMiddleware, async (req, res) => {
-  let draft = await prisma.applicationDraft.findUnique({ where: { userId: req.userId } })
-  if (!draft) {
-    draft = await prisma.applicationDraft.create({
-      data: { userId: req.userId, payload: '{}', stepIndex: 0 },
-    })
-  }
+  const draft = await prisma.applicationDraft.upsert({
+    where: { userId: req.userId },
+    update: {},
+    create: { userId: req.userId, payload: '{}', stepIndex: 0 },
+  })
   let parsed = {}
   try {
     parsed = JSON.parse(draft.payload || '{}')
@@ -511,45 +524,56 @@ app.put('/api/inbox/:id/reply', authMiddleware, async (req, res) => {
   res.json(updated)
 })
 
-app.post('/api/documents', authMiddleware, documentUploadMiddleware, async (req, res) => {
-  if (vercelNeedsRemoteFiles()) {
-    return res.status(503).json({
-      error:
-        'Document uploads on Vercel need Supabase Storage. Set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, and SUPABASE_STORAGE_BUCKET.',
+app.post('/api/documents', authMiddleware, documentUploadMiddleware, async (req, res, next) => {
+  try {
+    if (vercelNeedsRemoteFiles()) {
+      return res.status(503).json({
+        error:
+          'Document uploads on Vercel need Supabase Storage. Set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, and SUPABASE_STORAGE_BUCKET.',
+      })
+    }
+    const category = String(req.body?.category || 'other')
+    if (!req.file) {
+      return res.status(400).json({ error: 'file required' })
+    }
+    let storagePath
+    if (useRemoteFiles()) {
+      const safe = req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_')
+      storagePath = `documents/${req.userId}/${Date.now()}-${safe}`
+      await remotePut(storagePath, req.file.buffer, req.file.mimetype)
+    } else {
+      const relPath = path.relative(path.join(__dirname, '..'), req.file.path)
+      storagePath = relPath.replace(/\\/g, '/')
+    }
+    const doc = await prisma.document.create({
+      data: {
+        userId: req.userId,
+        category,
+        filename: req.file.originalname,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        storagePath,
+      },
+      select: {
+        id: true,
+        category: true,
+        filename: true,
+        mimeType: true,
+        size: true,
+        createdAt: true,
+      },
     })
+    res.status(201).json(doc)
+  } catch (err) {
+    if (useRemoteFiles()) {
+      console.error('document upload storage/db:', err)
+      return res.status(502).json({
+        error:
+          'Could not save the file to Supabase Storage. Create the bucket named in SUPABASE_STORAGE_BUCKET and confirm env vars on Vercel.',
+      })
+    }
+    next(err)
   }
-  const category = String(req.body?.category || 'other')
-  if (!req.file) {
-    return res.status(400).json({ error: 'file required' })
-  }
-  let storagePath
-  if (useRemoteFiles()) {
-    const safe = req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_')
-    storagePath = `documents/${req.userId}/${Date.now()}-${safe}`
-    await remotePut(storagePath, req.file.buffer, req.file.mimetype)
-  } else {
-    const relPath = path.relative(path.join(__dirname, '..'), req.file.path)
-    storagePath = relPath.replace(/\\/g, '/')
-  }
-  const doc = await prisma.document.create({
-    data: {
-      userId: req.userId,
-      category,
-      filename: req.file.originalname,
-      mimeType: req.file.mimetype,
-      size: req.file.size,
-      storagePath,
-    },
-    select: {
-      id: true,
-      category: true,
-      filename: true,
-      mimeType: true,
-      size: true,
-      createdAt: true,
-    },
-  })
-  res.status(201).json(doc)
 })
 
 app.get('/api/admin/students', adminMiddleware, async (_req, res) => {
@@ -689,6 +713,19 @@ app.post('/api/admin/inbox', adminMiddleware, async (req, res) => {
 
 app.use((err, _req, res, _next) => {
   console.error(err)
+  if (err instanceof MulterError) {
+    const hint =
+      err.code === 'LIMIT_FILE_SIZE'
+        ? 'File is too large'
+        : err.code === 'LIMIT_UNEXPECTED_FILE'
+          ? 'Unexpected file field (use field name "file")'
+          : err.message || err.code
+    return res.status(400).json({ error: hint })
+  }
+  const msg = err instanceof Error ? err.message : String(err)
+  if (/Only JPEG|PNG|WebP|GIF/i.test(msg)) {
+    return res.status(400).json({ error: msg })
+  }
   res.status(500).json({ error: 'Server error' })
 })
 

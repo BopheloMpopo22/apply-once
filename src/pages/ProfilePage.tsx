@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { api, getToken, uploadAvatar } from '../api/client'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
@@ -64,6 +72,28 @@ export function ProfilePage() {
   const [avatarBusy, setAvatarBusy] = useState(false)
   const [replyBusyId, setReplyBusyId] = useState<string | null>(null)
   const [draftReply, setDraftReply] = useState<Record<string, string>>({})
+  /** Tracks blob: URLs so we revoke them and avoid leaking object URLs across uploads. */
+  const avatarBlobRef = useRef<string | null>(null)
+
+  const setAvatarPreview = useCallback((url: string | null) => {
+    if (avatarBlobRef.current) {
+      URL.revokeObjectURL(avatarBlobRef.current)
+      avatarBlobRef.current = null
+    }
+    if (url?.startsWith('blob:')) {
+      avatarBlobRef.current = url
+    }
+    setBlobUrl(url)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (avatarBlobRef.current) {
+        URL.revokeObjectURL(avatarBlobRef.current)
+        avatarBlobRef.current = null
+      }
+    }
+  }, [])
 
   const load = useCallback(async () => {
     setError(null)
@@ -86,11 +116,10 @@ export function ProfilePage() {
   }, [load])
 
   useEffect(() => {
-    let revoked: string | null = null
     let cancelled = false
     async function loadPhoto() {
       if (!user?.hasAvatar) {
-        setBlobUrl(null)
+        setAvatarPreview(null)
         return
       }
       const token = getToken()
@@ -98,18 +127,23 @@ export function ProfilePage() {
       const res = await fetch('/api/profile/avatar', {
         headers: { Authorization: `Bearer ${token}` },
       })
-      if (!res.ok || cancelled) return
+      if (cancelled) return
+      if (!res.ok) {
+        if (user?.hasAvatar && res.status !== 401) {
+          setError((prev) => prev ?? 'Could not load your photo from storage.')
+        }
+        return
+      }
       const blob = await res.blob()
+      if (cancelled) return
       const url = URL.createObjectURL(blob)
-      revoked = url
-      setBlobUrl(url)
+      setAvatarPreview(url)
     }
     loadPhoto()
     return () => {
       cancelled = true
-      if (revoked) URL.revokeObjectURL(revoked)
     }
-  }, [user?.hasAvatar, user?.id])
+  }, [user?.hasAvatar, user?.id, setAvatarPreview])
 
   const initials = useMemo(() => {
     const f = user?.firstName?.trim()?.[0]
@@ -135,11 +169,14 @@ export function ProfilePage() {
     if (!file) return
     setAvatarBusy(true)
     setError(null)
+    const preview = URL.createObjectURL(file)
+    setAvatarPreview(preview)
     try {
       await uploadAvatar(file)
       await refreshSession()
       await load()
     } catch (e) {
+      setAvatarPreview(null)
       setError(e instanceof Error ? e.message : 'Could not upload photo')
     } finally {
       setAvatarBusy(false)
@@ -185,7 +222,10 @@ export function ProfilePage() {
                   accept="image/jpeg,image/png,image/webp,image/gif"
                   className="profileHeroAvatarInput"
                   disabled={avatarBusy}
-                  onChange={(ev) => void onAvatarChange(ev.target.files)}
+                  onChange={(ev) => {
+                    void onAvatarChange(ev.target.files)
+                    ev.target.value = ''
+                  }}
                 />
                 <span className="profileHeroAvatar">
                   {blobUrl ? (
