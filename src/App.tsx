@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import { ApplicationGate, ApplicationPage } from './pages/ApplicationPage'
+import { AuthCallbackPage } from './pages/AuthCallbackPage'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
 import { ProfileGate, ProfilePage } from './pages/ProfilePage'
@@ -11,6 +12,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/admin" element={<AdminPage />} />
+      <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route

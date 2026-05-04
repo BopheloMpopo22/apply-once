@@ -17,6 +17,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const prisma = new PrismaClient()
 const app = express()
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-insecure-secret'
+/** Same value as Supabase Dashboard → Project Settings → API → JWT Secret (signs Auth users’ access tokens). */
+const SUPABASE_JWT_SECRET = process.env.SUPABASE_JWT_SECRET || ''
 const ADMIN_SECRET = String(process.env.ADMIN_SECRET || '').trim()
 
 /** Vercel serverless FS is read-only except /tmp — creating ./uploads crashes the whole function at import time. */
@@ -86,7 +88,56 @@ app.use((req, _res, next) => {
   next()
 })
 
-function authMiddleware(req, res, next) {
+async function ensureAppUserFromSupabase(authId, jwtPayload) {
+  const email =
+    typeof jwtPayload.email === 'string'
+      ? jwtPayload.email.trim().toLowerCase()
+      : typeof jwtPayload.user_metadata?.email === 'string'
+        ? String(jwtPayload.user_metadata.email).trim().toLowerCase()
+        : ''
+
+  let user = await prisma.user.findUnique({ where: { supabaseAuthId: authId } })
+  if (user) return user
+
+  if (email) {
+    const byEmail = await prisma.user.findUnique({ where: { email } })
+    if (byEmail) {
+      if (byEmail.supabaseAuthId && byEmail.supabaseAuthId !== authId) {
+        const err = new Error('CONFLICT_EMAIL_AUTH')
+        throw err
+      }
+      return prisma.user.update({
+        where: { id: byEmail.id },
+        data: { supabaseAuthId: authId },
+      })
+    }
+  }
+
+  const syntheticEmail =
+    email || `oauth-${authId.replace(/-/g, '')}@oauth.apply-once.invalid`
+
+  user = await prisma.user.create({
+    data: {
+      email: syntheticEmail,
+      passwordHash: null,
+      supabaseAuthId: authId,
+      profile: { create: {} },
+      application: { create: { payload: '{}' } },
+    },
+  })
+  await prisma.profileInboxItem.create({
+    data: {
+      userId: user.id,
+      title: 'Your profile hub is live',
+      body: 'Use your profile to upload a photo, track your application, and respond when we need something extra for a bursary (essays, documents, and more).',
+      kind: 'application_status',
+      requiresResponse: false,
+    },
+  })
+  return user
+}
+
+async function authMiddleware(req, res, next) {
   const header = req.headers.authorization
   const token = header?.startsWith('Bearer ') ? header.slice(7) : null
   if (!token) {
@@ -95,7 +146,36 @@ function authMiddleware(req, res, next) {
   try {
     const payload = jwt.verify(token, JWT_SECRET)
     req.userId = payload.sub
-    next()
+    return next()
+  } catch {
+    /* try Supabase Auth JWT */
+  }
+  if (!SUPABASE_JWT_SECRET) {
+    return res.status(401).json({ error: 'Invalid token' })
+  }
+  try {
+    const payload = jwt.verify(token, SUPABASE_JWT_SECRET, {
+      algorithms: ['HS256'],
+      audience: 'authenticated',
+    })
+    const authId = payload.sub
+    if (!authId || typeof authId !== 'string') {
+      return res.status(401).json({ error: 'Invalid token' })
+    }
+    try {
+      const user = await ensureAppUserFromSupabase(authId, payload)
+      req.userId = user.id
+      return next()
+    } catch (e) {
+      if (e instanceof Error && e.message === 'CONFLICT_EMAIL_AUTH') {
+        return res.status(409).json({
+          error:
+            'This email is already linked to another account. Sign in with email/password or contact support.',
+        })
+      }
+      console.error(e)
+      return res.status(401).json({ error: 'Invalid token' })
+    }
   } catch {
     return res.status(401).json({ error: 'Invalid token' })
   }
@@ -235,6 +315,7 @@ app.get('/api/health', (req, res) => {
     path: req.url,
     originalUrl: req.originalUrl,
     jwtSecretSet: Boolean(process.env.JWT_SECRET && String(process.env.JWT_SECRET).length >= 16),
+    supabaseJwtSecretSet: Boolean(SUPABASE_JWT_SECRET && SUPABASE_JWT_SECRET.length >= 32),
     databasePoolerOk: !poolerMisconfigured,
     ...(poolerMisconfigured
       ? {
@@ -285,7 +366,15 @@ app.post('/api/auth/login', async (req, res) => {
     .toLowerCase()
   const password = String(req.body?.password || '')
   const user = await prisma.user.findUnique({ where: { email } })
-  if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid email or password' })
+  }
+  if (!user.passwordHash) {
+    return res.status(401).json({
+      error: 'This account uses Google sign-in—use “Continue with Google”.',
+    })
+  }
+  if (!(await bcrypt.compare(password, user.passwordHash))) {
     return res.status(401).json({ error: 'Invalid email or password' })
   }
   const token = jwt.sign({ sub: user.id }, JWT_SECRET, { expiresIn: '14d' })

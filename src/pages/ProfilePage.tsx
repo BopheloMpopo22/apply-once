@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
-import { api, getToken, uploadAvatar } from '../api/client'
+import { api, getBearerToken, uploadAvatar } from '../api/client'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { Navbar } from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
@@ -122,7 +122,7 @@ export function ProfilePage() {
         setAvatarPreview(null)
         return
       }
-      const token = getToken()
+      const token = await getBearerToken()
       if (!token) return
       const res = await fetch('/api/profile/avatar', {
         headers: { Authorization: `Bearer ${token}` },

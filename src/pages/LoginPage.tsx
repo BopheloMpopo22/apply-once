@@ -3,9 +3,10 @@ import { Link, Navigate, useLocation } from 'react-router-dom'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { Navbar } from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
+import { isOAuthConfigured } from '../lib/supabaseClient'
 
 export function LoginPage() {
-  const { login, user } = useAuth()
+  const { login, loginWithGoogle, user } = useAuth()
   const location = useLocation()
   const from = (location.state as { from?: string } | null)?.from ?? '/profile'
 
@@ -16,6 +17,18 @@ export function LoginPage() {
 
   if (user) {
     return <Navigate to={from} replace />
+  }
+
+  async function onGoogle() {
+    setError(null)
+    setBusy(true)
+    try {
+      sessionStorage.setItem('oauth_redirect', from)
+      await loginWithGoogle()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Google sign-in failed')
+      setBusy(false)
+    }
   }
 
   async function onSubmit(e: FormEvent) {
@@ -45,6 +58,16 @@ export function LoginPage() {
           <h1 className="formTitle">Sign in</h1>
           <p className="formLead">Access your saved profile and application.</p>
           {error ? <div className="formError">{error}</div> : null}
+          {isOAuthConfigured() ? (
+            <>
+              <div className="formActions">
+                <button type="button" className="btn btnOutline" disabled={busy} onClick={() => void onGoogle()}>
+                  {busy ? 'Redirecting…' : 'Continue with Google'}
+                </button>
+              </div>
+              <p className="formOAuthDivider">or sign in with email</p>
+            </>
+          ) : null}
           <form className="formFields" onSubmit={onSubmit}>
             <div className="field">
               <label htmlFor="login-email">Email</label>

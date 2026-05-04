@@ -7,8 +7,9 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { api, getToken, setToken } from '../api/client'
+import { api, getBearerToken, setToken } from '../api/client'
 import { HAS_ACCOUNT_STORAGE_KEY } from '../constants'
+import { supabase } from '../lib/supabaseClient'
 
 export type SessionUser = {
   id: string
@@ -24,8 +25,9 @@ type AuthState = {
   loading: boolean
   refreshSession: () => Promise<void>
   login: (email: string, password: string) => Promise<void>
+  loginWithGoogle: () => Promise<void>
   register: (email: string, password: string) => Promise<void>
-  logout: () => void
+  logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthState | null>(null)
@@ -53,13 +55,15 @@ export function AuthProvider(props: { children: ReactNode }) {
   const [user, setUser] = useState<SessionUser | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
     setToken(null)
     setUser(null)
+    await supabase?.auth.signOut()
   }, [])
 
   const refreshSession = useCallback(async () => {
-    if (!getToken()) {
+    const token = await getBearerToken()
+    if (!token) {
       setUser(null)
       return
     }
@@ -68,10 +72,10 @@ export function AuthProvider(props: { children: ReactNode }) {
       setUser(me)
     } catch (e) {
       const msg = e instanceof Error ? e.message : ''
-      // Only drop the session when the token is rejected — not on transient/network errors.
       if (/Unauthorized|Invalid token|^Not found$/i.test(msg)) {
         setToken(null)
         setUser(null)
+        await supabase?.auth.signOut()
       }
     }
   }, [])
@@ -79,7 +83,8 @@ export function AuthProvider(props: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false
     async function boot() {
-      if (!getToken()) {
+      const token = await getBearerToken()
+      if (!token) {
         setLoading(false)
         return
       }
@@ -92,6 +97,7 @@ export function AuthProvider(props: { children: ReactNode }) {
           if (/Unauthorized|Invalid token|^Not found$/i.test(msg)) {
             setToken(null)
             setUser(null)
+            await supabase?.auth.signOut()
           }
         }
       } finally {
@@ -104,7 +110,41 @@ export function AuthProvider(props: { children: ReactNode }) {
     }
   }, [])
 
+  useEffect(() => {
+    if (!supabase) return
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        setToken(null)
+        setUser(null)
+        return
+      }
+      if (session.access_token) {
+        setToken(session.access_token)
+        await refreshSession()
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [refreshSession])
+
+  const loginWithGoogle = useCallback(async () => {
+    if (!supabase) {
+      throw new Error(
+        'Google sign-in is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
+      )
+    }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+    if (error) throw error
+  }, [])
+
   const login = useCallback(async (email: string, password: string) => {
+    await supabase?.auth.signOut()
     const res = await api<AuthTokenResponse>('/api/auth/login', {
       method: 'POST',
       json: { email, password },
@@ -121,6 +161,7 @@ export function AuthProvider(props: { children: ReactNode }) {
   }, [])
 
   const register = useCallback(async (email: string, password: string) => {
+    await supabase?.auth.signOut()
     const res = await api<AuthTokenResponse>('/api/auth/register', {
       method: 'POST',
       json: { email, password },
@@ -137,8 +178,16 @@ export function AuthProvider(props: { children: ReactNode }) {
   }, [])
 
   const value = useMemo(
-    () => ({ user, loading, refreshSession, login, register, logout }),
-    [user, loading, refreshSession, login, register, logout],
+    () => ({
+      user,
+      loading,
+      refreshSession,
+      login,
+      loginWithGoogle,
+      register,
+      logout,
+    }),
+    [user, loading, refreshSession, login, loginWithGoogle, register, logout],
   )
 
   return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>

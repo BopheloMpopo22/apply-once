@@ -1,3 +1,5 @@
+import { supabase } from '../lib/supabaseClient'
+
 const TOKEN_KEY = 'apply_once_token'
 
 export const API_UNAVAILABLE_HINT =
@@ -25,6 +27,19 @@ export function setToken(token: string | null) {
   else localStorage.removeItem(TOKEN_KEY)
 }
 
+/** Prefer a fresh Supabase session access token; fall back to our stored API JWT. */
+export async function getBearerToken(): Promise<string | null> {
+  if (supabase) {
+    const { data } = await supabase.auth.getSession()
+    const t = data.session?.access_token
+    if (t) {
+      localStorage.setItem(TOKEN_KEY, t)
+      return t
+    }
+  }
+  return localStorage.getItem(TOKEN_KEY)
+}
+
 export async function api<T>(
   path: string,
   options: RequestInit & { json?: unknown } = {},
@@ -33,7 +48,7 @@ export async function api<T>(
   if (options.json !== undefined) {
     headers.set('Content-Type', 'application/json')
   }
-  const token = getToken()
+  const token = await getBearerToken()
   if (token) {
     headers.set('Authorization', `Bearer ${token}`)
   }
@@ -60,7 +75,7 @@ export async function api<T>(
 export async function uploadAvatar(file: File) {
   const fd = new FormData()
   fd.append('file', file)
-  const token = getToken()
+  const token = await getBearerToken()
   const headers: HeadersInit = {}
   if (token) headers.Authorization = `Bearer ${token}`
   const res = await fetch('/api/profile/avatar', {
@@ -84,7 +99,7 @@ export async function uploadDocument(category: string, file: File) {
   const fd = new FormData()
   fd.append('category', category)
   fd.append('file', file)
-  const token = getToken()
+  const token = await getBearerToken()
   const headers: HeadersInit = {}
   if (token) headers.Authorization = `Bearer ${token}`
   const res = await fetch('/api/documents', {

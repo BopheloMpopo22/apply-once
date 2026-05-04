@@ -3,9 +3,10 @@ import { Link, Navigate } from 'react-router-dom'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { Navbar } from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
+import { isOAuthConfigured } from '../lib/supabaseClient'
 
 export function RegisterPage() {
-  const { register, user } = useAuth()
+  const { register, loginWithGoogle, user } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -13,6 +14,18 @@ export function RegisterPage() {
 
   if (user) {
     return <Navigate to="/profile" replace />
+  }
+
+  async function onGoogle() {
+    setError(null)
+    setBusy(true)
+    try {
+      sessionStorage.setItem('oauth_redirect', '/profile')
+      await loginWithGoogle()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Google sign-in failed')
+      setBusy(false)
+    }
   }
 
   async function onSubmit(e: FormEvent) {
@@ -42,6 +55,16 @@ export function RegisterPage() {
           <h1 className="formTitle">Create your account</h1>
           <p className="formLead">Save your profile and one application you can reuse for bursaries.</p>
           {error ? <div className="formError">{error}</div> : null}
+          {isOAuthConfigured() ? (
+            <>
+              <div className="formActions">
+                <button type="button" className="btn btnOutline" disabled={busy} onClick={() => void onGoogle()}>
+                  {busy ? 'Redirecting…' : 'Continue with Google'}
+                </button>
+              </div>
+              <p className="formOAuthDivider">or register with email</p>
+            </>
+          ) : null}
           <form className="formFields" onSubmit={onSubmit}>
             <div className="field">
               <label htmlFor="reg-email">Email</label>

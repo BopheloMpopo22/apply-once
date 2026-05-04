@@ -10,12 +10,15 @@ datasource db {
 }
 
 model User {
-  id                String             @id @default(cuid())
-  email             String             @unique
-  passwordHash      String
+  id                String   @id @default(cuid())
+  email             String   @unique
+  /// Null when the account only signs in with Supabase Auth (e.g. Google).
+  passwordHash      String?
+  /// Matches auth.users.id — enables Supabase Dashboard → Authentication users.
+  supabaseAuthId    String?  @unique @db.Uuid
   avatarStoragePath String?
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
   profile           Profile?
   application       ApplicationDraft?
   documents         Document[]

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getToken } from '../api/client'
+import { getBearerToken } from '../api/client'
 import { HAS_ACCOUNT_STORAGE_KEY } from '../constants'
 import { useAuth } from '../context/AuthContext'
 
@@ -25,7 +25,7 @@ export function ProfileNavAvatar() {
         setBlobUrl(null)
         return
       }
-      const token = getToken()
+      const token = await getBearerToken()
       if (!token) return
       const res = await fetch('/api/profile/avatar', {
         headers: { Authorization: `Bearer ${token}` },
