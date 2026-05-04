@@ -219,13 +219,29 @@ function vercelNeedsRemoteFiles() {
   return Boolean(process.env.VERCEL) && process.env.VERCEL !== '0' && !useRemoteFiles()
 }
 
+/** Supabase transaction pooler (6543) + Prisma without `pgbouncer=true` → Postgres 42P05 prepared statement errors. */
+function supabaseTransactionPoolerMissingPgbouncer() {
+  const dbUrl = process.env.DATABASE_URL || ''
+  if (!dbUrl.includes('pooler.supabase.com')) return false
+  if (!/:6543(\/|\?|$)/.test(dbUrl)) return false
+  return !/[?&]pgbouncer=true(?:&|$)/.test(dbUrl)
+}
+
 app.get('/api/health', (req, res) => {
+  const poolerMisconfigured = supabaseTransactionPoolerMissingPgbouncer()
   res.json({
     ok: true,
     vercel: Boolean(process.env.VERCEL),
     path: req.url,
     originalUrl: req.originalUrl,
     jwtSecretSet: Boolean(process.env.JWT_SECRET && String(process.env.JWT_SECRET).length >= 16),
+    databasePoolerOk: !poolerMisconfigured,
+    ...(poolerMisconfigured
+      ? {
+          databaseFix:
+            'Set DATABASE_URL to include ?pgbouncer=true (e.g. ...6543/postgres?pgbouncer=true). Keeps Prisma compatible with Supabase transaction pooling and fixes error 42P05.',
+        }
+      : {}),
   })
 })
 
