@@ -34,6 +34,21 @@ async function fetchMe(): Promise<SessionUser> {
   return api<SessionUser>('/api/me')
 }
 
+type AuthTokenResponse = {
+  token: string
+  user?: { id: string; email: string }
+}
+
+function minimalUser(u: { id: string; email: string }): SessionUser {
+  return {
+    id: u.id,
+    email: u.email,
+    firstName: null,
+    lastName: null,
+    hasAvatar: false,
+  }
+}
+
 export function AuthProvider(props: { children: ReactNode }) {
   const [user, setUser] = useState<SessionUser | null>(null)
   const [loading, setLoading] = useState(true)
@@ -83,25 +98,35 @@ export function AuthProvider(props: { children: ReactNode }) {
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
-    const res = await api<{ token: string }>('/api/auth/login', {
+    const res = await api<AuthTokenResponse>('/api/auth/login', {
       method: 'POST',
       json: { email, password },
     })
     setToken(res.token)
     localStorage.setItem(HAS_ACCOUNT_STORAGE_KEY, '1')
-    const me = await fetchMe()
-    setUser(me)
+    if (res.user) setUser(minimalUser(res.user))
+    try {
+      const me = await fetchMe()
+      setUser(me)
+    } catch {
+      if (!res.user) throw new Error('Signed in but could not load your profile. Try again.')
+    }
   }, [])
 
   const register = useCallback(async (email: string, password: string) => {
-    const res = await api<{ token: string }>('/api/auth/register', {
+    const res = await api<AuthTokenResponse>('/api/auth/register', {
       method: 'POST',
       json: { email, password },
     })
     setToken(res.token)
     localStorage.setItem(HAS_ACCOUNT_STORAGE_KEY, '1')
-    const me = await fetchMe()
-    setUser(me)
+    if (res.user) setUser(minimalUser(res.user))
+    try {
+      const me = await fetchMe()
+      setUser(me)
+    } catch {
+      if (!res.user) throw new Error('Account created but could not load your profile. Try signing in.')
+    }
   }, [])
 
   const value = useMemo(

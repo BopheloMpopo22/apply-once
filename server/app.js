@@ -32,11 +32,41 @@ if (!fs.existsSync(uploadsRoot)) {
 app.use(cors({ origin: true, credentials: true }))
 app.use(express.json({ limit: '2mb' }))
 
-/** After Vercel rewrites `/api/*` → `/server`, match handlers using the browser path. */
+/**
+ * Vercel rewrites `/api/*` → `/server`. `req.url` / `originalUrl` may point at `/server`;
+ * Express routes are registered as `/api/...`, so recover the real path from headers fallbacks.
+ */
+function restoreVercelApiUrl(req) {
+  if (!process.env.VERCEL) return
+  const candidates = [
+    req.originalUrl,
+    req.headers['x-invoke-path'],
+    req.headers['x-forwarded-uri'],
+    req.headers['x-vercel-original-url'],
+    req.headers['x-url'],
+    req.headers['x-matched-path'],
+  ].filter((v) => typeof v === 'string')
+
+  for (const raw of candidates) {
+    let p = raw.split('#')[0]
+    if (p.includes('://')) {
+      try {
+        const u = new URL(p)
+        p = u.pathname + u.search
+      } catch {
+        continue
+      }
+    }
+    if (!p.startsWith('/')) p = `/${p}`
+    if (p.startsWith('/api')) {
+      req.url = p
+      return
+    }
+  }
+}
+
 app.use((req, _res, next) => {
-  if (!process.env.VERCEL) return next()
-  const orig = req.originalUrl?.split('#')[0]
-  if (orig?.startsWith('/api')) req.url = orig
+  restoreVercelApiUrl(req)
   next()
 })
 
