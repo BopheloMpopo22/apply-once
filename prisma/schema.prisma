@@ -1,0 +1,83 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                String             @id @default(cuid())
+  email             String             @unique
+  passwordHash      String
+  avatarStoragePath String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  profile           Profile?
+  application       ApplicationDraft?
+  documents         Document[]
+  inboxItems        ProfileInboxItem[]
+}
+
+/// Updates on application progress + optional requests for extra info (essay, docs, etc.).
+model ProfileInboxItem {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title            String
+  body             String
+  kind             String
+  requiresResponse Boolean   @default(false)
+  studentResponse  String?
+  respondedAt      DateTime?
+  readAt           DateTime?
+  createdAt        DateTime  @default(now())
+
+  @@index([userId, createdAt])
+}
+
+/// Saved once — typical SA bursary “profile” fields (expand later).
+model Profile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName          String?
+  lastName           String?
+  phone              String?
+  dateOfBirth        String?
+  idNumber           String?
+  gender             String?
+  citizenship        String?
+  disability         Boolean  @default(false)
+  disabilityNotes    String?
+  homeLanguage       String?
+  residentialAddress String?
+  postalAddress      String?
+  updatedAt          DateTime @updatedAt
+}
+
+/// Flexible JSON for academics, household, financials, essays — universal application layer.
+model ApplicationDraft {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stepIndex Int      @default(0)
+  /// JSON string (SQLite-friendly).
+  payload   String   @default("{}")
+  updatedAt DateTime @updatedAt
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    String
+  filename    String
+  mimeType    String
+  size        Int
+  storagePath String
+  createdAt   DateTime @default(now())
+}

@@ -1,0 +1,45 @@
+import { Link } from 'react-router-dom'
+import { HAS_ACCOUNT_STORAGE_KEY } from '../constants'
+import { useAuth } from '../context/AuthContext'
+import { ProfileNavAvatar } from './ProfileNavAvatar'
+
+function readHasAccountFlag() {
+  return localStorage.getItem(HAS_ACCOUNT_STORAGE_KEY) === '1'
+}
+
+export function NavAuth() {
+  const { user, loading, logout } = useAuth()
+  const hasAccountFlag = readHasAccountFlag()
+
+  if (loading) {
+    return (
+      <div className="navAuth">
+        <ProfileNavAvatar />
+        <span className="navMuted">Loading…</span>
+      </div>
+    )
+  }
+
+  return (
+    <div className="navAuth">
+      <ProfileNavAvatar />
+      {!user ? (
+        <Link className="btn btnPrimary btnSmall" to={hasAccountFlag ? '/login' : '/register'}>
+          {hasAccountFlag ? 'Login' : 'Register'}
+        </Link>
+      ) : (
+        <>
+          <Link className="btn btnGhost btnSmall" to="/profile">
+            Profile
+          </Link>
+          <Link className="btn btnGhost btnSmall" to="/application">
+            Application
+          </Link>
+          <button type="button" className="btn btnPrimary btnSmall" onClick={() => logout()}>
+            Sign out
+          </button>
+        </>
+      )}
+    </div>
+  )
+}
