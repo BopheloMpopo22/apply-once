@@ -17,7 +17,10 @@ const app = express()
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-insecure-secret'
 const ADMIN_SECRET = String(process.env.ADMIN_SECRET || '').trim()
 
-const uploadsRoot = path.join(__dirname, '..', 'uploads')
+/** Vercel serverless FS is read-only except /tmp — creating ./uploads crashes the whole function at import time. */
+const uploadsRoot = process.env.VERCEL
+  ? path.join('/tmp', 'apply-once-uploads')
+  : path.join(__dirname, '..', 'uploads')
 
 function ensureUploadsDir(userId) {
   const dir = path.join(uploadsRoot, userId)
@@ -25,8 +28,12 @@ function ensureUploadsDir(userId) {
   return dir
 }
 
-if (!fs.existsSync(uploadsRoot)) {
-  fs.mkdirSync(uploadsRoot, { recursive: true })
+try {
+  if (!fs.existsSync(uploadsRoot)) {
+    fs.mkdirSync(uploadsRoot, { recursive: true })
+  }
+} catch (e) {
+  console.error('Could not create uploads root:', uploadsRoot, e)
 }
 
 app.use(cors({ origin: true, credentials: true }))
