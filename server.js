@@ -1,6 +1,6 @@
 /**
- * Vercel Fluid Compute entry (Express default export).
- * Local dev uses `npm run dev` → `server/index.js` + Vite separately.
+ * Vercel Express entry — routed via vercel.json (`/api/*` → `/server`).
+ * Local dev: use `npm run dev` → `server/index.js` + Vite.
  */
 import 'dotenv/config'
 

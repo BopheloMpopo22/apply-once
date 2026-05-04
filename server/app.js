@@ -32,6 +32,14 @@ if (!fs.existsSync(uploadsRoot)) {
 app.use(cors({ origin: true, credentials: true }))
 app.use(express.json({ limit: '2mb' }))
 
+/** After Vercel rewrites `/api/*` → `/server`, match handlers using the browser path. */
+app.use((req, _res, next) => {
+  if (!process.env.VERCEL) return next()
+  const orig = req.originalUrl?.split('#')[0]
+  if (orig?.startsWith('/api')) req.url = orig
+  next()
+})
+
 function authMiddleware(req, res, next) {
   const header = req.headers.authorization
   const token = header?.startsWith('Bearer ') ? header.slice(7) : null
@@ -628,18 +636,6 @@ app.post('/api/admin/inbox', adminMiddleware, async (req, res) => {
   })
   res.status(201).json(item)
 })
-
-/** Production on Vercel: serve Vite build + SPA fallback from one Fluid Compute handler (see root server.js). */
-if (process.env.VERCEL) {
-  const dist = path.join(projectRoot(), 'dist')
-  app.use(express.static(dist))
-  app.use((req, res, next) => {
-    if (req.method !== 'GET' || req.path.startsWith('/api')) return next()
-    res.sendFile(path.join(dist, 'index.html'), (err) => {
-      if (err) next(err)
-    })
-  })
-}
 
 app.use((err, _req, res, _next) => {
   console.error(err)
