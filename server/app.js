@@ -33,8 +33,8 @@ app.use(cors({ origin: true, credentials: true }))
 app.use(express.json({ limit: '2mb' }))
 
 /**
- * Vercel rewrites `/api/*` → `/server`. `req.url` / `originalUrl` may point at `/server`;
- * Express routes are registered as `/api/...`, so recover the real path from headers fallbacks.
+ * Vercel rewrites `/api/*` → `/api` (see `api/index.js`). Incoming `req.url` may be stripped
+ * (e.g. `/auth/register` instead of `/api/auth/register`) — normalize so `/api/...` routes match.
  */
 function restoreVercelApiUrl(req) {
   if (!process.env.VERCEL) return
@@ -62,6 +62,13 @@ function restoreVercelApiUrl(req) {
       req.url = p
       return
     }
+  }
+
+  const raw = req.url.split('#')[0]
+  const pathOnly = raw.split('?')[0]
+  const search = raw.includes('?') ? raw.slice(raw.indexOf('?')) : ''
+  if (!pathOnly.startsWith('/api') && pathOnly.length > 1) {
+    req.url = `/api${pathOnly.startsWith('/') ? pathOnly : `/${pathOnly}`}${search}`
   }
 }
 
@@ -203,8 +210,14 @@ function vercelNeedsRemoteFiles() {
   return Boolean(process.env.VERCEL) && process.env.VERCEL !== '0' && !useRemoteFiles()
 }
 
-app.get('/api/health', (_req, res) => {
-  res.json({ ok: true })
+app.get('/api/health', (req, res) => {
+  res.json({
+    ok: true,
+    vercel: Boolean(process.env.VERCEL),
+    path: req.url,
+    originalUrl: req.originalUrl,
+    jwtSecretSet: Boolean(process.env.JWT_SECRET && String(process.env.JWT_SECRET).length >= 16),
+  })
 })
 
 app.post('/api/auth/register', async (req, res) => {
