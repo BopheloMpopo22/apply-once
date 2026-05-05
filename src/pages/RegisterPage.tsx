@@ -68,19 +68,6 @@ export function RegisterPage() {
           <h1 className="formTitle">Create or open your account</h1>
           <p className="formLead">No passwords. Use Google, Facebook, or email link.</p>
           {error ? <div className="formError">{error}</div> : null}
-          {isOAuthConfigured() ? (
-            <>
-              <div className="formActions">
-                <button type="button" className="btn btnOutline" disabled={busy} onClick={() => void onGoogle()}>
-                  {busy ? 'Redirecting…' : 'Continue with Google'}
-                </button>
-                <button type="button" className="btn btnOutline" disabled={busy} onClick={() => void onFacebook()}>
-                  {busy ? 'Redirecting…' : 'Continue with Facebook'}
-                </button>
-              </div>
-              <p className="formOAuthDivider">or</p>
-            </>
-          ) : null}
           <div className="formFields">
             <div className="field">
               <label htmlFor="reg-email">Email</label>
@@ -108,6 +95,26 @@ export function RegisterPage() {
             </div>
             {emailSent ? (
               <p className="formLead">Check your email. Open the link to finish signing in.</p>
+            ) : null}
+
+            {isOAuthConfigured() ? (
+              <>
+                <p className="formOAuthDivider">or</p>
+                <div className="formActions">
+                  <button type="button" className="btn btnOutline btnProvider" disabled={busy} onClick={() => void onGoogle()}>
+                    <span className="providerIcon" aria-hidden="true">
+                      G
+                    </span>
+                    {busy ? 'Redirecting…' : 'Continue with Google'}
+                  </button>
+                  <button type="button" className="btn btnOutline btnProvider" disabled={busy} onClick={() => void onFacebook()}>
+                    <span className="providerIcon" aria-hidden="true">
+                      f
+                    </span>
+                    {busy ? 'Redirecting…' : 'Continue with Facebook'}
+                  </button>
+                </div>
+              </>
             ) : null}
           </div>
         </div>

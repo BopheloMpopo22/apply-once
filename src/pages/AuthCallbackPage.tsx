@@ -5,7 +5,7 @@ import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { Navbar } from '../components/Navbar'
 import { supabase } from '../lib/supabaseClient'
 
-/** OAuth redirect target — Supabase returns here with tokens in the URL hash; client exchanges session. */
+/** OAuth redirect target for Supabase Auth (Google, email link, etc.). */
 export function AuthCallbackPage() {
   const navigate = useNavigate()
   const [failed, setFailed] = useState(false)
@@ -19,6 +19,22 @@ export function AuthCallbackPage() {
     const sb = client
     let cancelled = false
     async function run() {
+      // Supabase may return with either:
+      // - PKCE code in query string (?code=...), which requires exchangeCodeForSession
+      // - Tokens in URL hash (implicit), which getSession can pick up after detectSessionInUrl
+      const url = new URL(window.location.href)
+      const code = url.searchParams.get('code')
+      if (code) {
+        const { data, error } = await sb.auth.exchangeCodeForSession(window.location.href)
+        if (cancelled) return
+        if (error || !data.session?.access_token) {
+          setFailed(true)
+          return
+        }
+        // Clean URL (remove code) after a successful exchange.
+        window.history.replaceState({}, document.title, url.origin + url.pathname)
+      }
+
       const { data, error } = await sb.auth.getSession()
       if (cancelled) return
       if (error || !data.session?.access_token) {

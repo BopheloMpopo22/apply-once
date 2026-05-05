@@ -72,29 +72,6 @@ export function LoginPage() {
           <h1 className="formTitle">Sign in</h1>
           <p className="formLead">Choose a sign-in method. No passwords required.</p>
           {error ? <div className="formError">{error}</div> : null}
-          {oauthEnabled ? (
-            <>
-              <div className="formActions">
-                <button
-                  type="button"
-                  className="btn btnOutline"
-                  disabled={busy}
-                  onClick={() => void onGoogle()}
-                >
-                  {busy ? 'Redirecting…' : 'Continue with Google'}
-                </button>
-                <button
-                  type="button"
-                  className="btn btnOutline"
-                  disabled={busy}
-                  onClick={() => void onFacebook()}
-                >
-                  {busy ? 'Redirecting…' : 'Continue with Facebook'}
-                </button>
-              </div>
-              <p className="formOAuthDivider">or</p>
-            </>
-          ) : null}
           <div className="formFields">
             <div className="field">
               <label htmlFor="login-email">Email</label>
@@ -108,12 +85,47 @@ export function LoginPage() {
               />
             </div>
             <div className="formActions">
-              <button type="button" className="btn btnDark" disabled={busy || !email.trim()} onClick={() => void onEmailLink()}>
+              <button
+                type="button"
+                className="btn btnDark"
+                disabled={busy || !email.trim()}
+                onClick={() => void onEmailLink()}
+              >
                 {busy ? 'Sending…' : 'Email me a sign-in link'}
               </button>
             </div>
             {emailSent ? (
               <p className="formLead">Check your email. Open the link to finish signing in.</p>
+            ) : null}
+
+            {oauthEnabled ? (
+              <>
+                <p className="formOAuthDivider">or</p>
+                <div className="formActions">
+                  <button
+                    type="button"
+                    className="btn btnOutline btnProvider"
+                    disabled={busy}
+                    onClick={() => void onGoogle()}
+                  >
+                    <span className="providerIcon" aria-hidden="true">
+                      G
+                    </span>
+                    {busy ? 'Redirecting…' : 'Continue with Google'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btnOutline btnProvider"
+                    disabled={busy}
+                    onClick={() => void onFacebook()}
+                  >
+                    <span className="providerIcon" aria-hidden="true">
+                      f
+                    </span>
+                    {busy ? 'Redirecting…' : 'Continue with Facebook'}
+                  </button>
+                </div>
+              </>
             ) : null}
 
             <div className="formActions">

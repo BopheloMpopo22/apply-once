@@ -1217,6 +1217,24 @@ body {
   color: rgba(15, 23, 42, 0.45);
 }
 
+.btnProvider {
+  gap: 10px;
+}
+
+.providerIcon {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  line-height: 1;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(15, 23, 42, 0.04);
+  color: rgba(15, 23, 42, 0.8);
+}
+
 .formError {
   margin-top: var(--space-3);
   padding: var(--space-3);
