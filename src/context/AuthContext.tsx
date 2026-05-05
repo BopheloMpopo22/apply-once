@@ -24,9 +24,10 @@ type AuthState = {
   user: SessionUser | null
   loading: boolean
   refreshSession: () => Promise<void>
-  login: (email: string, password: string) => Promise<void>
   loginWithGoogle: () => Promise<void>
-  register: (email: string, password: string) => Promise<void>
+  sendEmailLink: (email: string) => Promise<void>
+  startPhoneSignIn: (phoneE164: string) => Promise<void>
+  verifyPhoneCode: (phoneE164: string, code: string) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -34,21 +35,6 @@ const AuthContext = createContext<AuthState | null>(null)
 
 async function fetchMe(): Promise<SessionUser> {
   return api<SessionUser>('/api/me')
-}
-
-type AuthTokenResponse = {
-  token: string
-  user?: { id: string; email: string }
-}
-
-function minimalUser(u: { id: string; email: string }): SessionUser {
-  return {
-    id: u.id,
-    email: u.email,
-    firstName: null,
-    lastName: null,
-    hasAvatar: false,
-  }
 }
 
 export function AuthProvider(props: { children: ReactNode }) {
@@ -143,51 +129,80 @@ export function AuthProvider(props: { children: ReactNode }) {
     if (error) throw error
   }, [])
 
-  const login = useCallback(async (email: string, password: string) => {
-    await supabase?.auth.signOut()
-    const res = await api<AuthTokenResponse>('/api/auth/login', {
-      method: 'POST',
-      json: { email, password },
-    })
-    setToken(res.token)
-    localStorage.setItem(HAS_ACCOUNT_STORAGE_KEY, '1')
-    if (res.user) setUser(minimalUser(res.user))
-    try {
-      const me = await fetchMe()
-      setUser(me)
-    } catch {
-      if (!res.user) throw new Error('Signed in but could not load your profile. Try again.')
+  const sendEmailLink = useCallback(async (email: string) => {
+    if (!supabase) {
+      throw new Error(
+        'Email sign-in is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
+      )
     }
+    const clean = email.trim().toLowerCase()
+    if (!clean) throw new Error('Email is required')
+    const { error } = await supabase.auth.signInWithOtp({
+      email: clean,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+    if (error) throw error
+    localStorage.setItem(HAS_ACCOUNT_STORAGE_KEY, '1')
   }, [])
 
-  const register = useCallback(async (email: string, password: string) => {
-    await supabase?.auth.signOut()
-    const res = await api<AuthTokenResponse>('/api/auth/register', {
-      method: 'POST',
-      json: { email, password },
-    })
-    setToken(res.token)
-    localStorage.setItem(HAS_ACCOUNT_STORAGE_KEY, '1')
-    if (res.user) setUser(minimalUser(res.user))
-    try {
-      const me = await fetchMe()
-      setUser(me)
-    } catch {
-      if (!res.user) throw new Error('Account created but could not load your profile. Try signing in.')
+  const startPhoneSignIn = useCallback(async (phoneE164: string) => {
+    if (!supabase) {
+      throw new Error(
+        'Phone sign-in is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
+      )
     }
+    const phone = phoneE164.trim()
+    if (!phone.startsWith('+')) {
+      throw new Error('Phone number must be in international format, e.g. +27XXXXXXXXX')
+    }
+    const { error } = await supabase.auth.signInWithOtp({ phone })
+    if (error) throw error
+    localStorage.setItem(HAS_ACCOUNT_STORAGE_KEY, '1')
   }, [])
+
+  const verifyPhoneCode = useCallback(async (phoneE164: string, code: string) => {
+    if (!supabase) {
+      throw new Error(
+        'Phone sign-in is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
+      )
+    }
+    const phone = phoneE164.trim()
+    const token = code.trim()
+    if (!phone.startsWith('+')) {
+      throw new Error('Phone number must be in international format, e.g. +27XXXXXXXXX')
+    }
+    if (!token) throw new Error('Code is required')
+    const { data, error } = await supabase.auth.verifyOtp({ phone, token, type: 'sms' })
+    if (error) throw error
+    if (data.session?.access_token) {
+      setToken(data.session.access_token)
+      await refreshSession()
+    }
+  }, [refreshSession])
 
   const value = useMemo(
     () => ({
       user,
       loading,
       refreshSession,
-      login,
       loginWithGoogle,
-      register,
+      sendEmailLink,
+      startPhoneSignIn,
+      verifyPhoneCode,
       logout,
     }),
-    [user, loading, refreshSession, login, loginWithGoogle, register, logout],
+    [
+      user,
+      loading,
+      refreshSession,
+      loginWithGoogle,
+      sendEmailLink,
+      startPhoneSignIn,
+      verifyPhoneCode,
+      logout,
+    ],
   )
 
   return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>

@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { Navbar } from '../components/Navbar'
@@ -6,15 +6,20 @@ import { useAuth } from '../context/AuthContext'
 import { isOAuthConfigured } from '../lib/supabaseClient'
 
 export function RegisterPage() {
-  const { register, loginWithGoogle, user } = useAuth()
+  const { loginWithGoogle, sendEmailLink, startPhoneSignIn, verifyPhoneCode, user } = useAuth()
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [emailSent, setEmailSent] = useState(false)
+  const [phone, setPhone] = useState('')
+  const [smsSent, setSmsSent] = useState(false)
+  const [smsCode, setSmsCode] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
   if (user) {
     return <Navigate to="/profile" replace />
   }
+
+  const phoneHint = useMemo(() => 'Use international format, e.g. +27XXXXXXXXX', [])
 
   async function onGoogle() {
     setError(null)
@@ -28,14 +33,40 @@ export function RegisterPage() {
     }
   }
 
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault()
+  async function onEmailLink() {
     setError(null)
     setBusy(true)
     try {
-      await register(email.trim(), password)
+      sessionStorage.setItem('oauth_redirect', '/profile')
+      await sendEmailLink(email)
+      setEmailSent(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not register')
+      setError(err instanceof Error ? err.message : 'Could not send sign-in email')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function onSendSms() {
+    setError(null)
+    setBusy(true)
+    try {
+      await startPhoneSignIn(phone)
+      setSmsSent(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not send SMS code')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function onVerifySms() {
+    setError(null)
+    setBusy(true)
+    try {
+      await verifyPhoneCode(phone, smsCode)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not verify code')
     } finally {
       setBusy(false)
     }
@@ -52,8 +83,8 @@ export function RegisterPage() {
       />
       <main className="formMain">
         <div className="formCard">
-          <h1 className="formTitle">Create your account</h1>
-          <p className="formLead">Save your profile and one application you can reuse for bursaries.</p>
+          <h1 className="formTitle">Create or open your account</h1>
+          <p className="formLead">No passwords. Use Google, email link, or phone.</p>
           {error ? <div className="formError">{error}</div> : null}
           {isOAuthConfigured() ? (
             <>
@@ -62,42 +93,98 @@ export function RegisterPage() {
                   {busy ? 'Redirecting…' : 'Continue with Google'}
                 </button>
               </div>
-              <p className="formOAuthDivider">or register with email</p>
+              <p className="formOAuthDivider">or</p>
             </>
           ) : null}
-          <form className="formFields" onSubmit={onSubmit}>
+          <div className="formFields">
             <div className="field">
               <label htmlFor="reg-email">Email</label>
               <input
                 id="reg-email"
                 type="email"
                 autoComplete="email"
-                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="reg-password">Password</label>
-              <input
-                id="reg-password"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={8}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                placeholder="you@example.com"
               />
             </div>
             <div className="formActions">
-              <button type="submit" className="btn btnDark" disabled={busy}>
-                {busy ? 'Creating…' : 'Create account'}
+              <button
+                type="button"
+                className="btn btnDark"
+                disabled={busy || !email.trim()}
+                onClick={() => void onEmailLink()}
+              >
+                {busy ? 'Sending…' : 'Email me a sign-in link'}
               </button>
               <Link className="btnOutline" to="/login">
-                Already have an account
+                Back to sign in
               </Link>
             </div>
-          </form>
+            {emailSent ? (
+              <p className="formLead">Check your email. Open the link to finish signing in.</p>
+            ) : null}
+
+            <p className="formOAuthDivider">or</p>
+
+            <div className="field">
+              <label htmlFor="reg-phone">Phone</label>
+              <input
+                id="reg-phone"
+                inputMode="tel"
+                autoComplete="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder={phoneHint}
+              />
+            </div>
+            {!smsSent ? (
+              <div className="formActions">
+                <button
+                  type="button"
+                  className="btn btnDark"
+                  disabled={busy || !phone.trim()}
+                  onClick={() => void onSendSms()}
+                >
+                  {busy ? 'Sending…' : 'Send SMS code'}
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="field">
+                  <label htmlFor="reg-sms">SMS code</label>
+                  <input
+                    id="reg-sms"
+                    inputMode="numeric"
+                    value={smsCode}
+                    onChange={(e) => setSmsCode(e.target.value)}
+                    placeholder="123456"
+                  />
+                </div>
+                <div className="formActions">
+                  <button
+                    type="button"
+                    className="btn btnDark"
+                    disabled={busy || !smsCode.trim()}
+                    onClick={() => void onVerifySms()}
+                  >
+                    {busy ? 'Verifying…' : 'Verify code'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btnOutline"
+                    disabled={busy}
+                    onClick={() => {
+                      setSmsSent(false)
+                      setSmsCode('')
+                    }}
+                  >
+                    Change number
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </main>
     </div>
