@@ -11,22 +11,16 @@ export function NavAuth() {
   const { user, loading, logout } = useAuth()
   const hasAccountFlag = readHasAccountFlag()
 
-  if (loading) {
-    return (
-      <div className="navAuth">
-        <ProfileNavAvatar />
-        <span className="navMuted">Loading…</span>
-      </div>
-    )
-  }
-
   return (
     <div className="navAuth">
       <ProfileNavAvatar />
       {!user ? (
-        <Link className="btn btnPrimary btnSmall" to={hasAccountFlag ? '/login' : '/register'}>
-          {hasAccountFlag ? 'Login' : 'Register'}
-        </Link>
+        <>
+          <Link className="btn btnPrimary btnSmall" to={hasAccountFlag ? '/login' : '/register'}>
+            {hasAccountFlag ? 'Login' : 'Register'}
+          </Link>
+          {loading ? <span className="navMuted">Restoring session…</span> : null}
+        </>
       ) : (
         <>
           <Link className="btn btnGhost btnSmall" to="/profile">

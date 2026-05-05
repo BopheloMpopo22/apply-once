@@ -11,6 +11,8 @@ import { api, getBearerToken, setToken } from '../api/client'
 import { HAS_ACCOUNT_STORAGE_KEY } from '../constants'
 import { supabase } from '../lib/supabaseClient'
 
+const ME_CACHE_KEY = 'apply_once_me_cache_v1'
+
 export type SessionUser = {
   id: string
   email: string
@@ -36,13 +38,44 @@ async function fetchMe(): Promise<SessionUser> {
   return api<SessionUser>('/api/me')
 }
 
+function readCachedMe(): SessionUser | null {
+  try {
+    const raw = localStorage.getItem(ME_CACHE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as unknown
+    if (!parsed || typeof parsed !== 'object') return null
+    const u = parsed as Partial<SessionUser>
+    if (!u.id || !u.email) return null
+    return {
+      id: String(u.id),
+      email: String(u.email),
+      createdAt: typeof u.createdAt === 'string' ? u.createdAt : undefined,
+      firstName: u.firstName ?? null,
+      lastName: u.lastName ?? null,
+      hasAvatar: Boolean(u.hasAvatar),
+    }
+  } catch {
+    return null
+  }
+}
+
+function writeCachedMe(me: SessionUser | null) {
+  try {
+    if (!me) localStorage.removeItem(ME_CACHE_KEY)
+    else localStorage.setItem(ME_CACHE_KEY, JSON.stringify(me))
+  } catch {
+    /* ignore */
+  }
+}
+
 export function AuthProvider(props: { children: ReactNode }) {
-  const [user, setUser] = useState<SessionUser | null>(null)
+  const [user, setUser] = useState<SessionUser | null>(() => readCachedMe())
   const [loading, setLoading] = useState(true)
 
   const logout = useCallback(async () => {
     setToken(null)
     setUser(null)
+    writeCachedMe(null)
     await supabase?.auth.signOut()
   }, [])
 
@@ -50,16 +83,19 @@ export function AuthProvider(props: { children: ReactNode }) {
     const token = await getBearerToken()
     if (!token) {
       setUser(null)
+      writeCachedMe(null)
       return
     }
     try {
       const me = await fetchMe()
       setUser(me)
+      writeCachedMe(me)
     } catch (e) {
       const msg = e instanceof Error ? e.message : ''
       if (/Unauthorized|Invalid token|^Not found$/i.test(msg)) {
         setToken(null)
         setUser(null)
+        writeCachedMe(null)
         await supabase?.auth.signOut()
       }
     }
@@ -76,12 +112,14 @@ export function AuthProvider(props: { children: ReactNode }) {
       try {
         const me = await fetchMe()
         if (!cancelled) setUser(me)
+        if (!cancelled) writeCachedMe(me)
       } catch (e) {
         if (!cancelled) {
           const msg = e instanceof Error ? e.message : ''
           if (/Unauthorized|Invalid token|^Not found$/i.test(msg)) {
             setToken(null)
             setUser(null)
+            writeCachedMe(null)
             await supabase?.auth.signOut()
           }
         }

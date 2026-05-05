@@ -29,6 +29,11 @@ export function setToken(token: string | null) {
 
 /** Prefer a fresh Supabase session access token; fall back to our stored API JWT. */
 export async function getBearerToken(): Promise<string | null> {
+  // Fast path: token already persisted locally.
+  const existing = localStorage.getItem(TOKEN_KEY)
+  if (existing) return existing
+
+  // Slow path: ask Supabase to restore session (async).
   if (supabase) {
     const { data } = await supabase.auth.getSession()
     const t = data.session?.access_token
@@ -37,7 +42,7 @@ export async function getBearerToken(): Promise<string | null> {
       return t
     }
   }
-  return localStorage.getItem(TOKEN_KEY)
+  return null
 }
 
 export async function api<T>(
