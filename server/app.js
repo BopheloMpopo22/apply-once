@@ -5,6 +5,7 @@ import cors from 'cors'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import multer from 'multer'
+import jwksRsa from 'jwks-rsa'
 
 const MulterError = multer.MulterError
 import path from 'path'
@@ -20,6 +21,57 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev-insecure-secret'
 /** Same value as Supabase Dashboard → Project Settings → API → JWT Secret (signs Auth users’ access tokens). */
 const SUPABASE_JWT_SECRET = process.env.SUPABASE_JWT_SECRET || ''
 const ADMIN_SECRET = String(process.env.ADMIN_SECRET || '').trim()
+
+function supabaseJwksUri() {
+  const base = String(process.env.SUPABASE_URL || '').replace(/\/+$/, '')
+  if (!base) return null
+  return `${base}/auth/v1/.well-known/jwks.json`
+}
+
+const supabaseJwks = jwksRsa({
+  cache: true,
+  cacheMaxEntries: 5,
+  cacheMaxAge: 60 * 60 * 1000,
+  jwksUri: supabaseJwksUri() || 'https://example.invalid/auth/v1/.well-known/jwks.json',
+})
+
+function verifySupabaseJwt(token) {
+  const decoded = jwt.decode(token, { complete: true })
+  const header = decoded && typeof decoded === 'object' ? decoded.header : null
+  const alg = header?.alg
+
+  if (!alg || typeof alg !== 'string') {
+    throw new Error('missing alg')
+  }
+
+  if (alg.startsWith('HS')) {
+    if (!SUPABASE_JWT_SECRET) throw new Error('SUPABASE_JWT_SECRET missing')
+    return jwt.verify(token, SUPABASE_JWT_SECRET, { algorithms: ['HS256', 'HS384', 'HS512'] })
+  }
+
+  if (alg.startsWith('RS')) {
+    const uri = supabaseJwksUri()
+    if (!uri) throw new Error('SUPABASE_URL missing for JWKS')
+    return new Promise((resolve, reject) => {
+      jwt.verify(
+        token,
+        (header, cb) => {
+          supabaseJwks.getSigningKey(header.kid, (err, key) => {
+            if (err) return cb(err)
+            cb(null, key.getPublicKey())
+          })
+        },
+        { algorithms: ['RS256', 'RS384', 'RS512'] },
+        (err, payload) => {
+          if (err) return reject(err)
+          resolve(payload)
+        },
+      )
+    })
+  }
+
+  throw new Error(`unsupported alg ${alg}`)
+}
 
 /** Vercel serverless FS is read-only except /tmp — creating ./uploads crashes the whole function at import time. */
 const uploadsRoot = process.env.VERCEL
@@ -150,11 +202,8 @@ async function authMiddleware(req, res, next) {
   } catch {
     /* try Supabase Auth JWT */
   }
-  if (!SUPABASE_JWT_SECRET) {
-    return res.status(401).json({ error: 'Invalid token' })
-  }
   try {
-    const payload = jwt.verify(token, SUPABASE_JWT_SECRET, { algorithms: ['HS256'] })
+    const payload = await verifySupabaseJwt(token)
     // Supabase access tokens typically include aud: "authenticated". Be lenient here because
     // libraries differ on how they interpret `audience` vs payload.aud (string/array).
     if (payload?.aud && payload.aud !== 'authenticated') {
@@ -179,7 +228,9 @@ async function authMiddleware(req, res, next) {
       return res.status(401).json({ error: 'Invalid token' })
     }
   } catch (e) {
-    console.error('Supabase JWT rejected:', e instanceof Error ? e.message : e)
+    const decoded = jwt.decode(token, { complete: true })
+    const alg = decoded && typeof decoded === 'object' ? decoded.header?.alg : undefined
+    console.error('Supabase JWT rejected:', e instanceof Error ? e.message : e, 'alg=', alg)
     return res.status(401).json({ error: 'Invalid token' })
   }
 }

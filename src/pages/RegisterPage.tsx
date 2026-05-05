@@ -6,9 +6,9 @@ import { useAuth } from '../context/AuthContext'
 import { isOAuthConfigured } from '../lib/supabaseClient'
 
 export function RegisterPage() {
-  const { loginWithGoogle, loginWithFacebook, sendEmailLink, user } = useAuth()
+  const { loginWithGoogle, loginWithFacebook, registerWithEmail, user } = useAuth()
   const [email, setEmail] = useState('')
-  const [emailSent, setEmailSent] = useState(false)
+  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
@@ -40,23 +40,17 @@ export function RegisterPage() {
     }
   }
 
-  async function onEmailLink() {
+  async function onEmailPassword(e: FormEvent) {
     setError(null)
     setBusy(true)
     try {
-      sessionStorage.setItem('oauth_redirect', '/profile')
-      await sendEmailLink(email)
-      setEmailSent(true)
+      e.preventDefault()
+      await registerWithEmail(email, password)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not send sign-in email')
+      setError(err instanceof Error ? err.message : 'Could not create account')
     } finally {
       setBusy(false)
     }
-  }
-
-  async function onEmailSubmit(e: FormEvent) {
-    e.preventDefault()
-    await onEmailLink()
   }
 
   return (
@@ -71,10 +65,10 @@ export function RegisterPage() {
       <main className="formMain">
         <div className="formCard">
           <h1 className="formTitle">Create or open your account</h1>
-          <p className="formLead">No passwords. Use Google, Facebook, or email link.</p>
+          <p className="formLead">Create an account with email/password, or use Google/Facebook.</p>
           {error ? <div className="formError">{error}</div> : null}
           <div className="formFields">
-            <form className="formFields" onSubmit={onEmailSubmit}>
+            <form className="formFields" onSubmit={onEmailPassword}>
               <div className="field">
                 <label htmlFor="reg-email">Email</label>
                 <input
@@ -87,18 +81,28 @@ export function RegisterPage() {
                   required
                 />
               </div>
+              <div className="field">
+                <label htmlFor="reg-password">Password</label>
+                <input
+                  id="reg-password"
+                  type="password"
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Create a password (min 8 chars)"
+                  required
+                  minLength={8}
+                />
+              </div>
               <div className="formActions">
                 <button type="submit" className="btn btnDark" disabled={busy || !email.trim()}>
-                  {busy ? 'Sending…' : 'Send sign-in link'}
+                  {busy ? 'Creating…' : 'Create account'}
                 </button>
                 <Link className="btnOutline" to="/login">
                   Back to sign in
                 </Link>
               </div>
             </form>
-            {emailSent ? (
-              <p className="formLead">Check your email. Open the link to finish signing in.</p>
-            ) : null}
 
             {isOAuthConfigured() ? (
               <>

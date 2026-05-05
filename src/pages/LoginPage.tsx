@@ -6,13 +6,13 @@ import { useAuth } from '../context/AuthContext'
 import { isOAuthConfigured } from '../lib/supabaseClient'
 
 export function LoginPage() {
-  const { loginWithGoogle, loginWithFacebook, sendEmailLink, user } = useAuth()
+  const { loginWithGoogle, loginWithFacebook, loginWithEmail, user } = useAuth()
   const location = useLocation()
   const from = (location.state as { from?: string } | null)?.from ?? '/profile'
 
   const oauthEnabled = isOAuthConfigured()
   const [email, setEmail] = useState('')
-  const [emailSent, setEmailSent] = useState(false)
+  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
@@ -44,23 +44,17 @@ export function LoginPage() {
     }
   }
 
-  async function onEmailLink() {
+  async function onEmailPassword(e: FormEvent) {
     setError(null)
     setBusy(true)
     try {
-      sessionStorage.setItem('oauth_redirect', from)
-      await sendEmailLink(email)
-      setEmailSent(true)
+      e.preventDefault()
+      await loginWithEmail(email, password)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not send sign-in email')
+      setError(err instanceof Error ? err.message : 'Could not sign in')
     } finally {
       setBusy(false)
     }
-  }
-
-  async function onEmailSubmit(e: FormEvent) {
-    e.preventDefault()
-    await onEmailLink()
   }
 
   return (
@@ -75,10 +69,10 @@ export function LoginPage() {
       <main className="formMain">
         <div className="formCard">
           <h1 className="formTitle">Sign in</h1>
-          <p className="formLead">Choose a sign-in method. No passwords required.</p>
+          <p className="formLead">Sign in with email/password, or use Google/Facebook.</p>
           {error ? <div className="formError">{error}</div> : null}
           <div className="formFields">
-            <form className="formFields" onSubmit={onEmailSubmit}>
+            <form className="formFields" onSubmit={onEmailPassword}>
               <div className="field">
                 <label htmlFor="login-email">Email</label>
                 <input
@@ -91,15 +85,25 @@ export function LoginPage() {
                   required
                 />
               </div>
+              <div className="field">
+                <label htmlFor="login-password">Password</label>
+                <input
+                  id="login-password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  minLength={8}
+                />
+              </div>
               <div className="formActions">
                 <button type="submit" className="btn btnDark" disabled={busy || !email.trim()}>
-                  {busy ? 'Sending…' : 'Send sign-in link'}
+                  {busy ? 'Signing in…' : 'Sign in'}
                 </button>
               </div>
             </form>
-            {emailSent ? (
-              <p className="formLead">Check your email. Open the link to finish signing in.</p>
-            ) : null}
 
             {oauthEnabled ? (
               <>

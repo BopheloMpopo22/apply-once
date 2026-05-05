@@ -26,7 +26,8 @@ type AuthState = {
   refreshSession: () => Promise<void>
   loginWithGoogle: () => Promise<void>
   loginWithFacebook: () => Promise<void>
-  sendEmailLink: (email: string) => Promise<void>
+  loginWithEmail: (email: string, password: string) => Promise<void>
+  registerWithEmail: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -143,7 +144,8 @@ export function AuthProvider(props: { children: ReactNode }) {
     if (error) throw error
   }, [])
 
-  const sendEmailLink = useCallback(async (email: string) => {
+  const loginWithEmail = useCallback(
+    async (email: string, password: string) => {
     if (!supabase) {
       throw new Error(
         'Email sign-in is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
@@ -151,15 +153,40 @@ export function AuthProvider(props: { children: ReactNode }) {
     }
     const clean = email.trim().toLowerCase()
     if (!clean) throw new Error('Email is required')
-    const { error } = await supabase.auth.signInWithOtp({
+    if (!password || password.length < 8) throw new Error('Password must be at least 8 characters')
+    const { data, error } = await supabase.auth.signInWithPassword({ email: clean, password })
+    if (error) throw error
+    if (data.session?.access_token) {
+      setToken(data.session.access_token)
+      localStorage.setItem(HAS_ACCOUNT_STORAGE_KEY, '1')
+      await refreshSession()
+    }
+    },
+    [refreshSession],
+  )
+
+  const registerWithEmail = useCallback(async (email: string, password: string) => {
+    if (!supabase) {
+      throw new Error(
+        'Email sign-in is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
+      )
+    }
+    const clean = email.trim().toLowerCase()
+    if (!clean) throw new Error('Email is required')
+    if (!password || password.length < 8) throw new Error('Password must be at least 8 characters')
+    const { data, error } = await supabase.auth.signUp({
       email: clean,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
     })
     if (error) throw error
     localStorage.setItem(HAS_ACCOUNT_STORAGE_KEY, '1')
-  }, [])
+    // If email confirmation is OFF, we'll have a session and can refresh immediately.
+    if (data.session?.access_token) {
+      setToken(data.session.access_token)
+      await refreshSession()
+    }
+  }, [refreshSession])
 
   const value = useMemo(
     () => ({
@@ -168,7 +195,8 @@ export function AuthProvider(props: { children: ReactNode }) {
       refreshSession,
       loginWithGoogle,
       loginWithFacebook,
-      sendEmailLink,
+      loginWithEmail,
+      registerWithEmail,
       logout,
     }),
     [
@@ -177,7 +205,8 @@ export function AuthProvider(props: { children: ReactNode }) {
       refreshSession,
       loginWithGoogle,
       loginWithFacebook,
-      sendEmailLink,
+      loginWithEmail,
+      registerWithEmail,
       logout,
     ],
   )
