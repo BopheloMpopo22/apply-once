@@ -154,10 +154,12 @@ async function authMiddleware(req, res, next) {
     return res.status(401).json({ error: 'Invalid token' })
   }
   try {
-    const payload = jwt.verify(token, SUPABASE_JWT_SECRET, {
-      algorithms: ['HS256'],
-      audience: 'authenticated',
-    })
+    const payload = jwt.verify(token, SUPABASE_JWT_SECRET, { algorithms: ['HS256'] })
+    // Supabase access tokens typically include aud: "authenticated". Be lenient here because
+    // libraries differ on how they interpret `audience` vs payload.aud (string/array).
+    if (payload?.aud && payload.aud !== 'authenticated') {
+      return res.status(401).json({ error: 'Invalid token' })
+    }
     const authId = payload.sub
     if (!authId || typeof authId !== 'string') {
       return res.status(401).json({ error: 'Invalid token' })
@@ -176,7 +178,8 @@ async function authMiddleware(req, res, next) {
       console.error(e)
       return res.status(401).json({ error: 'Invalid token' })
     }
-  } catch {
+  } catch (e) {
+    console.error('Supabase JWT rejected:', e instanceof Error ? e.message : e)
     return res.status(401).json({ error: 'Invalid token' })
   }
 }
