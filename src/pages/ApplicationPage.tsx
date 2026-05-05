@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { api, uploadDocument } from '../api/client'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { Navbar } from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
+import { computeCompletion } from '../utils/applicationCompletion'
 
 type Profile = {
   firstName?: string | null
@@ -25,40 +26,99 @@ type ApplicationPayload = {
     schoolName: string
     grade: string
     curriculum: string
-    intendedField: string
+    institutionName: string
+    qualificationName: string
+    yearOfStudy: string
+    intendedFieldsNotes: string
     subjectsNotes: string
+    achievementsNotes: string
+    nbtApsNotes: string
+  }
+  studyPlan: {
+    motivation: string
+    careerGoals: string
+    locationPreferences: string
+    bursaryPreferences: string
   }
   household: {
     guardianName: string
     relationship: string
     guardianPhone: string
     guardianEmail: string
+    householdMembersNotes: string
+    employmentNotes: string
   }
   financial: {
     incomeBand: string
+    incomeSourcesNotes: string
     expenseNotes: string
+    otherFundingNotes: string
+    nsfasStatus: string
+  }
+  fit: {
+    leadershipNotes: string
+    communityNotes: string
+    workExperienceNotes: string
+  }
+  compliance: {
+    consentPopia: boolean
+    declarationTruthful: boolean
   }
 }
 
-const STEP_LABELS = ['Profile', 'Academic', 'Household', 'Financial', 'Documents']
+const STEP_LABELS = [
+  'Profile',
+  'Academics',
+  'Study plan',
+  'Household',
+  'Financial need',
+  'Leadership & impact',
+  'Consent',
+  'Documents',
+]
 
 const emptyPayload = (): ApplicationPayload => ({
   academics: {
     schoolName: '',
     grade: '',
     curriculum: 'NSC',
-    intendedField: '',
+    institutionName: '',
+    qualificationName: '',
+    yearOfStudy: '',
+    intendedFieldsNotes: '',
     subjectsNotes: '',
+    achievementsNotes: '',
+    nbtApsNotes: '',
+  },
+  studyPlan: {
+    motivation: '',
+    careerGoals: '',
+    locationPreferences: '',
+    bursaryPreferences: '',
   },
   household: {
     guardianName: '',
     relationship: '',
     guardianPhone: '',
     guardianEmail: '',
+    householdMembersNotes: '',
+    employmentNotes: '',
   },
   financial: {
     incomeBand: '',
+    incomeSourcesNotes: '',
     expenseNotes: '',
+    otherFundingNotes: '',
+    nsfasStatus: '',
+  },
+  fit: {
+    leadershipNotes: '',
+    communityNotes: '',
+    workExperienceNotes: '',
+  },
+  compliance: {
+    consentPopia: false,
+    declarationTruthful: false,
   },
 })
 
@@ -98,6 +158,7 @@ export function ApplicationPage() {
   >([])
   const [saveBusy, setSaveBusy] = useState(false)
   const [docCategory, setDocCategory] = useState('id_proof')
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(null)
 
   const loadDocs = useCallback(async () => {
     const list = await api<
@@ -126,8 +187,11 @@ export function ApplicationPage() {
           ...emptyPayload(),
           ...d.payload,
           academics: { ...emptyPayload().academics, ...(d.payload?.academics ?? {}) },
+          studyPlan: { ...emptyPayload().studyPlan, ...(d.payload?.studyPlan ?? {}) },
           household: { ...emptyPayload().household, ...(d.payload?.household ?? {}) },
           financial: { ...emptyPayload().financial, ...(d.payload?.financial ?? {}) },
+          fit: { ...emptyPayload().fit, ...(d.payload?.fit ?? {}) },
+          compliance: { ...emptyPayload().compliance, ...(d.payload?.compliance ?? {}) },
         })
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Could not load')
@@ -142,7 +206,7 @@ export function ApplicationPage() {
   }, [])
 
   useEffect(() => {
-    if (step === 4 && !loading) {
+    if (step === STEP_LABELS.length - 1 && !loading) {
       loadDocs().catch(() => {})
     }
   }, [step, loading, loadDocs])
@@ -162,6 +226,7 @@ export function ApplicationPage() {
         json: { payload, stepIndex: nextStep },
       })
       setStep(nextStep)
+      setLastSavedAt(new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }))
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not save')
     } finally {
@@ -191,6 +256,21 @@ export function ApplicationPage() {
     }
   }
 
+  const completion = useMemo(() => computeCompletion({ profile, payload }), [profile, payload])
+
+  function appendTemplate(path: 'academics.intendedFieldsNotes' | 'academics.achievementsNotes') {
+    const next =
+      path === 'academics.intendedFieldsNotes'
+        ? `${payload.academics.intendedFieldsNotes.trim() ? `${payload.academics.intendedFieldsNotes.trim()}\n` : ''}- Option ${Math.max(2, (payload.academics.intendedFieldsNotes.match(/^- Option/gm)?.length ?? 0) + 1)}: `
+        : `${payload.academics.achievementsNotes.trim() ? `${payload.academics.achievementsNotes.trim()}\n` : ''}- Achievement: (year) (what) (your role) (impact)\n`
+
+    if (path === 'academics.intendedFieldsNotes') {
+      setPayload((p) => ({ ...p, academics: { ...p.academics, intendedFieldsNotes: next } }))
+    } else {
+      setPayload((p) => ({ ...p, academics: { ...p.academics, achievementsNotes: next } }))
+    }
+  }
+
   return (
     <div className="formShell">
       <Navbar
@@ -204,8 +284,16 @@ export function ApplicationPage() {
         <div className="formCard formCardWide">
           <h1 className="formTitle">Your application</h1>
           <p className="formLead">
-            Step-by-step profile and application answers — autosaved when you move between steps.
+            Step-by-step profile and bursary answers — saved when you move between steps.
           </p>
+          <div className="progressRow">
+            <div className="progressBar" role="progressbar" aria-valuenow={completion.percent} aria-valuemin={0} aria-valuemax={100}>
+              <div className="progressFill" style={{ width: `${completion.percent}%` }} />
+            </div>
+            <div className="progressMeta">
+              <strong>{completion.percent}%</strong> complete{lastSavedAt ? ` · Saved ${lastSavedAt}` : ''}
+            </div>
+          </div>
           {error ? <div className="formError">{error}</div> : null}
 
           <div className="wizardBar" role="tablist" aria-label="Application steps">
@@ -349,6 +437,13 @@ export function ApplicationPage() {
 
               {step === 1 ? (
                 <>
+                  <div className="tipBox">
+                    <strong>Tips</strong>
+                    <ul>
+                      <li>Most bursaries ask for your institution, qualification, and your latest results.</li>
+                      <li>If you are still in school, use your latest report card and list your subjects + marks.</li>
+                    </ul>
+                  </div>
                   <div className="field">
                     <label htmlFor="school">School name</label>
                     <input
@@ -396,18 +491,69 @@ export function ApplicationPage() {
                       </select>
                     </div>
                   </div>
+                  <div className="fieldRow">
+                    <div className="field">
+                      <label htmlFor="inst">Institution (if known)</label>
+                      <input
+                        id="inst"
+                        placeholder="e.g. University of Pretoria"
+                        value={payload.academics.institutionName}
+                        onChange={(e) =>
+                          setPayload({
+                            ...payload,
+                            academics: { ...payload.academics, institutionName: e.target.value },
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="field">
+                      <label htmlFor="qual">Qualification / programme</label>
+                      <input
+                        id="qual"
+                        placeholder="e.g. BEng Electrical Engineering"
+                        value={payload.academics.qualificationName}
+                        onChange={(e) =>
+                          setPayload({
+                            ...payload,
+                            academics: { ...payload.academics, qualificationName: e.target.value },
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
                   <div className="field">
-                    <label htmlFor="field">Intended field of study</label>
+                    <label htmlFor="year">Year of study (if already at university)</label>
                     <input
-                      id="field"
-                      value={payload.academics.intendedField}
+                      id="year"
+                      placeholder="e.g. 1st year"
+                      value={payload.academics.yearOfStudy}
                       onChange={(e) =>
                         setPayload({
                           ...payload,
-                          academics: { ...payload.academics, intendedField: e.target.value },
+                          academics: { ...payload.academics, yearOfStudy: e.target.value },
                         })
                       }
                     />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="fields">Intended field(s) of study</label>
+                    <textarea
+                      id="fields"
+                      placeholder="- Option 1: \n- Option 2: "
+                      value={payload.academics.intendedFieldsNotes}
+                      onChange={(e) =>
+                        setPayload({
+                          ...payload,
+                          academics: { ...payload.academics, intendedFieldsNotes: e.target.value },
+                        })
+                      }
+                    />
+                    <div className="fieldHelpRow">
+                      <button type="button" className="btn btnOutline btnSmall" onClick={() => appendTemplate('academics.intendedFieldsNotes')}>
+                        Add more
+                      </button>
+                      <span className="fieldHelp">Many bursaries allow multiple preferences (e.g. Accounting, Finance, Engineering).</span>
+                    </div>
                   </div>
                   <div className="field">
                     <label htmlFor="subj">Subjects & marks (paste from report or type)</label>
@@ -423,10 +569,106 @@ export function ApplicationPage() {
                       }
                     />
                   </div>
+                  <div className="field">
+                    <label htmlFor="nbt">NBT / APS / entrance scores (optional)</label>
+                    <textarea
+                      id="nbt"
+                      placeholder="e.g. NBT: AQL 62, MAT 58, QL 64. APS: 38"
+                      value={payload.academics.nbtApsNotes}
+                      onChange={(e) =>
+                        setPayload({
+                          ...payload,
+                          academics: { ...payload.academics, nbtApsNotes: e.target.value },
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="ach">Achievements (optional)</label>
+                    <textarea
+                      id="ach"
+                      placeholder="- Achievement: (year) (what) (your role) (impact)"
+                      value={payload.academics.achievementsNotes}
+                      onChange={(e) =>
+                        setPayload({
+                          ...payload,
+                          academics: { ...payload.academics, achievementsNotes: e.target.value },
+                        })
+                      }
+                    />
+                    <div className="fieldHelpRow">
+                      <button type="button" className="btn btnOutline btnSmall" onClick={() => appendTemplate('academics.achievementsNotes')}>
+                        Add more
+                      </button>
+                      <span className="fieldHelp">Include leadership, awards, Olympiads, sport, debate, volunteering.</span>
+                    </div>
+                  </div>
                 </>
               ) : null}
 
               {step === 2 ? (
+                <>
+                  <div className="tipBox">
+                    <strong>Tips</strong>
+                    <ul>
+                      <li>Good motivations are specific: what you want to study, why, and how you will use it.</li>
+                      <li>Use short paragraphs. Mention your background and what support you need.</li>
+                    </ul>
+                  </div>
+                  <div className="field">
+                    <label htmlFor="mot">Motivation (why this bursary should support you)</label>
+                    <textarea
+                      id="mot"
+                      placeholder="Write 6–12 sentences. Include your goals and why you need support."
+                      value={payload.studyPlan.motivation}
+                      onChange={(e) =>
+                        setPayload({ ...payload, studyPlan: { ...payload.studyPlan, motivation: e.target.value } })
+                      }
+                    />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="goals">Career goals</label>
+                    <textarea
+                      id="goals"
+                      placeholder="What job/industry do you want, and what impact do you want to have?"
+                      value={payload.studyPlan.careerGoals}
+                      onChange={(e) =>
+                        setPayload({ ...payload, studyPlan: { ...payload.studyPlan, careerGoals: e.target.value } })
+                      }
+                    />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="loc">Location preferences (optional)</label>
+                    <textarea
+                      id="loc"
+                      placeholder="e.g. Prefer Gauteng or Western Cape. Willing to relocate."
+                      value={payload.studyPlan.locationPreferences}
+                      onChange={(e) =>
+                        setPayload({
+                          ...payload,
+                          studyPlan: { ...payload.studyPlan, locationPreferences: e.target.value },
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="bpref">Bursary preferences (optional)</label>
+                    <textarea
+                      id="bpref"
+                      placeholder="e.g. Banking bursaries, engineering bursaries, accounting bursaries."
+                      value={payload.studyPlan.bursaryPreferences}
+                      onChange={(e) =>
+                        setPayload({
+                          ...payload,
+                          studyPlan: { ...payload.studyPlan, bursaryPreferences: e.target.value },
+                        })
+                      }
+                    />
+                  </div>
+                </>
+              ) : null}
+
+              {step === 3 ? (
                 <>
                   <div className="field">
                     <label htmlFor="gname">Parent / guardian full name</label>
@@ -484,11 +726,46 @@ export function ApplicationPage() {
                       />
                     </div>
                   </div>
+                  <div className="field">
+                    <label htmlFor="members">Household members & dependents (optional)</label>
+                    <textarea
+                      id="members"
+                      placeholder="- Person: (relationship) (age) (school/university) (supported by household?)"
+                      value={payload.household.householdMembersNotes}
+                      onChange={(e) =>
+                        setPayload({
+                          ...payload,
+                          household: { ...payload.household, householdMembersNotes: e.target.value },
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="emp">Guardian employment status & notes (optional)</label>
+                    <textarea
+                      id="emp"
+                      placeholder="e.g. Employed/unemployed, employer (if comfortable), any special circumstances."
+                      value={payload.household.employmentNotes}
+                      onChange={(e) =>
+                        setPayload({
+                          ...payload,
+                          household: { ...payload.household, employmentNotes: e.target.value },
+                        })
+                      }
+                    />
+                  </div>
                 </>
               ) : null}
 
-              {step === 3 ? (
+              {step === 4 ? (
                 <>
+                  <div className="tipBox">
+                    <strong>Tips</strong>
+                    <ul>
+                      <li>Banks and institutions often do a financial means test. Be honest and approximate if needed.</li>
+                      <li>If you don’t know exact amounts, describe the sources (salary, grant, informal work).</li>
+                    </ul>
+                  </div>
                   <div className="field">
                     <label htmlFor="band">Approximate household income (annual)</label>
                     <select
@@ -510,7 +787,21 @@ export function ApplicationPage() {
                     </select>
                   </div>
                   <div className="field">
-                    <label htmlFor="exp">Monthly expenses / notes (optional)</label>
+                    <label htmlFor="incomeSources">Income sources (optional)</label>
+                    <textarea
+                      id="incomeSources"
+                      placeholder="e.g. Parent salary, SASSA grant, piece jobs, small business."
+                      value={payload.financial.incomeSourcesNotes}
+                      onChange={(e) =>
+                        setPayload({
+                          ...payload,
+                          financial: { ...payload.financial, incomeSourcesNotes: e.target.value },
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="exp">Expenses / notes (optional)</label>
                     <textarea
                       id="exp"
                       value={payload.financial.expenseNotes}
@@ -522,10 +813,126 @@ export function ApplicationPage() {
                       }
                     />
                   </div>
+                  <div className="field">
+                    <label htmlFor="otherfund">Other funding (optional)</label>
+                    <textarea
+                      id="otherfund"
+                      placeholder="e.g. NSFAS applied/approved, other bursaries, family support."
+                      value={payload.financial.otherFundingNotes}
+                      onChange={(e) =>
+                        setPayload({
+                          ...payload,
+                          financial: { ...payload.financial, otherFundingNotes: e.target.value },
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="nsfas">NSFAS status (optional)</label>
+                    <select
+                      id="nsfas"
+                      value={payload.financial.nsfasStatus}
+                      onChange={(e) =>
+                        setPayload({
+                          ...payload,
+                          financial: { ...payload.financial, nsfasStatus: e.target.value },
+                        })
+                      }
+                    >
+                      <option value="">Select…</option>
+                      <option value="not_applied">Not applied</option>
+                      <option value="applied">Applied</option>
+                      <option value="approved">Approved</option>
+                      <option value="declined">Declined</option>
+                      <option value="unknown">Not sure</option>
+                    </select>
+                  </div>
                 </>
               ) : null}
 
-              {step === 4 ? (
+              {step === 5 ? (
+                <>
+                  <div className="tipBox">
+                    <strong>Tips</strong>
+                    <ul>
+                      <li>Many corporate and bank bursaries look for leadership and community involvement.</li>
+                      <li>Use the STAR method: Situation → Task → Action → Result.</li>
+                    </ul>
+                  </div>
+                  <div className="field">
+                    <label htmlFor="lead">Leadership (optional)</label>
+                    <textarea
+                      id="lead"
+                      placeholder="e.g. Class rep, team captain, club leader — what you did and the outcome."
+                      value={payload.fit.leadershipNotes}
+                      onChange={(e) => setPayload({ ...payload, fit: { ...payload.fit, leadershipNotes: e.target.value } })}
+                    />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="comm">Community service / volunteering (optional)</label>
+                    <textarea
+                      id="comm"
+                      placeholder="What you did, how often, and who benefited."
+                      value={payload.fit.communityNotes}
+                      onChange={(e) => setPayload({ ...payload, fit: { ...payload.fit, communityNotes: e.target.value } })}
+                    />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="work">Work experience / exposure (optional)</label>
+                    <textarea
+                      id="work"
+                      placeholder="Holiday job, job shadowing, internships, volunteering."
+                      value={payload.fit.workExperienceNotes}
+                      onChange={(e) =>
+                        setPayload({ ...payload, fit: { ...payload.fit, workExperienceNotes: e.target.value } })
+                      }
+                    />
+                  </div>
+                </>
+              ) : null}
+
+              {step === 6 ? (
+                <>
+                  <div className="tipBox">
+                    <strong>Note</strong>
+                    <ul>
+                      <li>Some bursaries require consent for processing your personal information (POPIA).</li>
+                      <li>Only submit information you believe is accurate.</li>
+                    </ul>
+                  </div>
+                  <div className="field">
+                    <label htmlFor="pop">
+                      <input
+                        id="pop"
+                        type="checkbox"
+                        checked={payload.compliance.consentPopia}
+                        onChange={(e) =>
+                          setPayload({ ...payload, compliance: { ...payload.compliance, consentPopia: e.target.checked } })
+                        }
+                      />{' '}
+                      I consent to processing my information for bursary applications (POPIA)
+                    </label>
+                  </div>
+                  <div className="field">
+                    <label htmlFor="truth">
+                      <input
+                        id="truth"
+                        type="checkbox"
+                        checked={payload.compliance.declarationTruthful}
+                        onChange={(e) =>
+                          setPayload({
+                            ...payload,
+                            compliance: { ...payload.compliance, declarationTruthful: e.target.checked },
+                          })
+                        }
+                      />{' '}
+                      I declare the information I provided is truthful to the best of my knowledge
+                    </label>
+                  </div>
+                </>
+              ) : null}
+
+              {step === 7 ? (
                 <>
                   <div className="field">
                     <label htmlFor="cat">Document type</label>
@@ -554,6 +961,16 @@ export function ApplicationPage() {
                         e.target.value = ''
                       }}
                     />
+                  </div>
+                  <div className="tipBox">
+                    <strong>Common bursary documents</strong>
+                    <ul>
+                      <li>Certified ID</li>
+                      <li>Latest academic record (Grade 11/12 report or university transcript)</li>
+                      <li>Proof of household income (payslips/affidavit/bank statement)</li>
+                      <li>Proof of residence</li>
+                      <li>University acceptance / registration (if available)</li>
+                    </ul>
                   </div>
                   <div className="docList">
                     {docs.length === 0 ? (

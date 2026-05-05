@@ -12,8 +12,18 @@ import { api, getBearerToken, uploadAvatar } from '../api/client'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { Navbar } from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
+import { computeCompletion } from '../utils/applicationCompletion'
 
-const STEP_LABELS = ['Profile', 'Academic', 'Household', 'Financial', 'Documents']
+const STEP_LABELS = [
+  'Profile',
+  'Academics',
+  'Study plan',
+  'Household',
+  'Financial need',
+  'Leadership & impact',
+  'Consent',
+  'Documents',
+]
 
 type InboxItem = {
   id: string
@@ -69,6 +79,7 @@ export function ProfilePage() {
   const [blobUrl, setBlobUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [draftPayload, setDraftPayload] = useState<Record<string, unknown>>({})
   const [avatarBusy, setAvatarBusy] = useState(false)
   const [replyBusyId, setReplyBusyId] = useState<string | null>(null)
   const [draftReply, setDraftReply] = useState<Record<string, string>>({})
@@ -100,10 +111,15 @@ export function ProfilePage() {
     try {
       const [inboxList, draft] = await Promise.all([
         api<InboxItem[]>('/api/inbox'),
-        api<{ stepIndex: number }>('/api/application'),
+        api<{ stepIndex: number; payload?: unknown }>('/api/application'),
       ])
       setItems(inboxList)
       setDraftStep(typeof draft.stepIndex === 'number' ? draft.stepIndex : 0)
+      setDraftPayload(
+        draft && typeof draft === 'object' && (draft as { payload?: unknown }).payload && typeof (draft as { payload?: unknown }).payload === 'object'
+          ? ((draft as { payload: unknown }).payload as Record<string, unknown>)
+          : {},
+      )
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not load profile')
     } finally {
@@ -160,6 +176,24 @@ export function ProfilePage() {
 
   const stepLabel =
     STEP_LABELS[Math.min(Math.max(draftStep, 0), STEP_LABELS.length - 1)] ?? STEP_LABELS[0]
+
+  const completion = useMemo(
+    () =>
+      computeCompletion({
+        profile: {
+          firstName: user?.firstName ?? null,
+          lastName: user?.lastName ?? null,
+          // We intentionally compute completion from what’s saved in the application draft,
+          // not from the AuthContext user. (Those extra profile fields are stored on /api/profile.)
+          phone: null,
+          dateOfBirth: null,
+          idNumber: null,
+          residentialAddress: null,
+        },
+        payload: draftPayload as unknown as Parameters<typeof computeCompletion>[0]['payload'],
+      }),
+    [draftPayload, user?.firstName, user?.lastName],
+  )
 
   const statusItems = items.filter((i) => i.kind === 'application_status')
   const latestStatus = statusItems[0]
@@ -257,6 +291,20 @@ export function ProfilePage() {
               <p className="profileMuted">Loading…</p>
             ) : (
               <>
+                <div className="progressRow">
+                  <div
+                    className="progressBar"
+                    role="progressbar"
+                    aria-valuenow={completion.percent}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  >
+                    <div className="progressFill" style={{ width: `${completion.percent}%` }} />
+                  </div>
+                  <div className="progressMeta">
+                    <strong>{completion.percent}%</strong> complete
+                  </div>
+                </div>
                 <p className="profileSectionLead">
                   You’re on step{' '}
                   <strong>
@@ -265,6 +313,16 @@ export function ProfilePage() {
                   — <strong>{stepLabel}</strong>. Finish once and reuse your answers everywhere you
                   apply.
                 </p>
+                {completion.missing.length ? (
+                  <div className="tipBox">
+                    <strong>Next to fill in</strong>
+                    <ul>
+                      {completion.missing.slice(0, 6).map((m) => (
+                        <li key={m}>{m}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
                 <div className="profileActionsRow">
                   <Link className="btn btnDark btnSmall" to="/application">
                     Continue application
