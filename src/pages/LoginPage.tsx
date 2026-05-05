@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { Navbar } from '../components/Navbar'
@@ -58,6 +58,11 @@ export function LoginPage() {
     }
   }
 
+  async function onEmailSubmit(e: FormEvent) {
+    e.preventDefault()
+    await onEmailLink()
+  }
+
   return (
     <div className="formShell">
       <Navbar
@@ -73,27 +78,25 @@ export function LoginPage() {
           <p className="formLead">Choose a sign-in method. No passwords required.</p>
           {error ? <div className="formError">{error}</div> : null}
           <div className="formFields">
-            <div className="field">
-              <label htmlFor="login-email">Email</label>
-              <input
-                id="login-email"
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-              />
-            </div>
-            <div className="formActions">
-              <button
-                type="button"
-                className="btn btnDark"
-                disabled={busy || !email.trim()}
-                onClick={() => void onEmailLink()}
-              >
-                {busy ? 'Sending…' : 'Email me a sign-in link'}
-              </button>
-            </div>
+            <form className="formFields" onSubmit={onEmailSubmit}>
+              <div className="field">
+                <label htmlFor="login-email">Email</label>
+                <input
+                  id="login-email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  required
+                />
+              </div>
+              <div className="formActions">
+                <button type="submit" className="btn btnDark" disabled={busy || !email.trim()}>
+                  {busy ? 'Sending…' : 'Send sign-in link'}
+                </button>
+              </div>
+            </form>
             {emailSent ? (
               <p className="formLead">Check your email. Open the link to finish signing in.</p>
             ) : null}
