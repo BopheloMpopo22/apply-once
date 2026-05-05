@@ -189,10 +189,17 @@ async function authMiddleware(req, res, next) {
   }
   try {
     const payload = await verifySupabaseJwt(token)
-    // Supabase access tokens typically include aud: "authenticated". Be lenient here because
-    // libraries differ on how they interpret `audience` vs payload.aud (string/array).
-    if (payload?.aud && payload.aud !== 'authenticated') {
-      return res.status(401).json({ error: 'Invalid token' })
+    // Supabase access tokens typically include aud: "authenticated" (string) or ["authenticated"] (array).
+    // Be lenient here because libraries differ on how they represent `aud`.
+    const aud = payload?.aud
+    if (aud) {
+      const ok =
+        aud === 'authenticated' ||
+        (Array.isArray(aud) && aud.map(String).includes('authenticated'))
+      if (!ok) {
+        console.error('Supabase JWT aud rejected:', aud)
+        return res.status(401).json({ error: 'Invalid token' })
+      }
     }
     const authId = payload.sub
     if (!authId || typeof authId !== 'string') {
@@ -215,7 +222,12 @@ async function authMiddleware(req, res, next) {
   } catch (e) {
     const decoded = jwt.decode(token, { complete: true })
     const alg = decoded && typeof decoded === 'object' ? decoded.header?.alg : undefined
-    console.error('Supabase JWT rejected:', e instanceof Error ? e.message : e, 'alg=', alg)
+    console.error(
+      'Supabase JWT rejected:',
+      e instanceof Error ? e.message : e,
+      'alg=',
+      alg,
+    )
     return res.status(401).json({ error: 'Invalid token' })
   }
 }
