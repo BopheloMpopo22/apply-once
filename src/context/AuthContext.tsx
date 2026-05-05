@@ -25,9 +25,8 @@ type AuthState = {
   loading: boolean
   refreshSession: () => Promise<void>
   loginWithGoogle: () => Promise<void>
+  loginWithFacebook: () => Promise<void>
   sendEmailLink: (email: string) => Promise<void>
-  startPhoneSignIn: (phoneE164: string) => Promise<void>
-  verifyPhoneCode: (phoneE164: string, code: string) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -129,6 +128,21 @@ export function AuthProvider(props: { children: ReactNode }) {
     if (error) throw error
   }, [])
 
+  const loginWithFacebook = useCallback(async () => {
+    if (!supabase) {
+      throw new Error(
+        'Facebook sign-in is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
+      )
+    }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'facebook',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+    if (error) throw error
+  }, [])
+
   const sendEmailLink = useCallback(async (email: string) => {
     if (!supabase) {
       throw new Error(
@@ -147,50 +161,14 @@ export function AuthProvider(props: { children: ReactNode }) {
     localStorage.setItem(HAS_ACCOUNT_STORAGE_KEY, '1')
   }, [])
 
-  const startPhoneSignIn = useCallback(async (phoneE164: string) => {
-    if (!supabase) {
-      throw new Error(
-        'Phone sign-in is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
-      )
-    }
-    const phone = phoneE164.trim()
-    if (!phone.startsWith('+')) {
-      throw new Error('Phone number must be in international format, e.g. +27XXXXXXXXX')
-    }
-    const { error } = await supabase.auth.signInWithOtp({ phone })
-    if (error) throw error
-    localStorage.setItem(HAS_ACCOUNT_STORAGE_KEY, '1')
-  }, [])
-
-  const verifyPhoneCode = useCallback(async (phoneE164: string, code: string) => {
-    if (!supabase) {
-      throw new Error(
-        'Phone sign-in is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
-      )
-    }
-    const phone = phoneE164.trim()
-    const token = code.trim()
-    if (!phone.startsWith('+')) {
-      throw new Error('Phone number must be in international format, e.g. +27XXXXXXXXX')
-    }
-    if (!token) throw new Error('Code is required')
-    const { data, error } = await supabase.auth.verifyOtp({ phone, token, type: 'sms' })
-    if (error) throw error
-    if (data.session?.access_token) {
-      setToken(data.session.access_token)
-      await refreshSession()
-    }
-  }, [refreshSession])
-
   const value = useMemo(
     () => ({
       user,
       loading,
       refreshSession,
       loginWithGoogle,
+      loginWithFacebook,
       sendEmailLink,
-      startPhoneSignIn,
-      verifyPhoneCode,
       logout,
     }),
     [
@@ -198,9 +176,8 @@ export function AuthProvider(props: { children: ReactNode }) {
       loading,
       refreshSession,
       loginWithGoogle,
+      loginWithFacebook,
       sendEmailLink,
-      startPhoneSignIn,
-      verifyPhoneCode,
       logout,
     ],
   )
