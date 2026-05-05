@@ -5,7 +5,7 @@ import cors from 'cors'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import multer from 'multer'
-import { createRemoteJWKSet, jwtVerify } from 'jose'
+import { createClient } from '@supabase/supabase-js'
 
 const MulterError = multer.MulterError
 import path from 'path'
@@ -18,44 +18,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const prisma = new PrismaClient()
 const app = express()
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-insecure-secret'
-/** Same value as Supabase Dashboard → Project Settings → API → JWT Secret (signs Auth users’ access tokens). */
-const SUPABASE_JWT_SECRET = process.env.SUPABASE_JWT_SECRET || ''
 const ADMIN_SECRET = String(process.env.ADMIN_SECRET || '').trim()
 
-function supabaseJwksUri() {
-  const base = String(process.env.SUPABASE_URL || '').replace(/\/+$/, '')
-  if (!base) return null
-  return `${base}/auth/v1/.well-known/jwks.json`
-}
-
-function supabaseRemoteJwks() {
-  const uri = supabaseJwksUri()
-  if (!uri) return null
-  return createRemoteJWKSet(new URL(uri))
-}
-
-async function verifySupabaseJwt(token) {
-  const decoded = jwt.decode(token, { complete: true })
-  const header = decoded && typeof decoded === 'object' ? decoded.header : null
-  const alg = header?.alg
-
-  if (!alg || typeof alg !== 'string') {
-    throw new Error('missing alg')
-  }
-
-  if (alg.startsWith('HS')) {
-    if (!SUPABASE_JWT_SECRET) throw new Error('SUPABASE_JWT_SECRET missing')
-    return jwt.verify(token, SUPABASE_JWT_SECRET, { algorithms: ['HS256', 'HS384', 'HS512'] })
-  }
-
-  if (alg.startsWith('RS')) {
-    const jwks = supabaseRemoteJwks()
-    if (!jwks) throw new Error('SUPABASE_URL missing for JWKS')
-    const { payload } = await jwtVerify(token, jwks, { algorithms: ['RS256', 'RS384', 'RS512'] })
-    return payload
-  }
-
-  throw new Error(`unsupported alg ${alg}`)
+function supabaseAdmin() {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return null
+  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  })
 }
 
 /** Vercel serverless FS is read-only except /tmp — creating ./uploads crashes the whole function at import time. */
@@ -188,25 +157,28 @@ async function authMiddleware(req, res, next) {
     /* try Supabase Auth JWT */
   }
   try {
-    const payload = await verifySupabaseJwt(token)
-    // Supabase access tokens typically include aud: "authenticated" (string) or ["authenticated"] (array).
-    // Be lenient here because libraries differ on how they represent `aud`.
-    const aud = payload?.aud
-    if (aud) {
-      const ok =
-        aud === 'authenticated' ||
-        (Array.isArray(aud) && aud.map(String).includes('authenticated'))
-      if (!ok) {
-        console.error('Supabase JWT aud rejected:', aud)
-        return res.status(401).json({ error: 'Invalid token' })
-      }
+    const sb = supabaseAdmin()
+    if (!sb) {
+      return res.status(503).json({
+        error:
+          'Supabase Auth not configured on server. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY on Vercel.',
+      })
     }
-    const authId = payload.sub
-    if (!authId || typeof authId !== 'string') {
+
+    const { data, error } = await sb.auth.getUser(token)
+    if (error || !data?.user?.id) {
+      console.error('Supabase auth.getUser failed:', error?.message || error)
       return res.status(401).json({ error: 'Invalid token' })
     }
+
+    const authId = data.user.id
+    const payloadLike = {
+      sub: authId,
+      email: data.user.email ?? null,
+      user_metadata: data.user.user_metadata ?? {},
+    }
     try {
-      const user = await ensureAppUserFromSupabase(authId, payload)
+      const user = await ensureAppUserFromSupabase(authId, payloadLike)
       req.userId = user.id
       return next()
     } catch (e) {
@@ -220,14 +192,7 @@ async function authMiddleware(req, res, next) {
       return res.status(401).json({ error: 'Invalid token' })
     }
   } catch (e) {
-    const decoded = jwt.decode(token, { complete: true })
-    const alg = decoded && typeof decoded === 'object' ? decoded.header?.alg : undefined
-    console.error(
-      'Supabase JWT rejected:',
-      e instanceof Error ? e.message : e,
-      'alg=',
-      alg,
-    )
+    console.error('Supabase token validation error:', e instanceof Error ? e.message : e)
     return res.status(401).json({ error: 'Invalid token' })
   }
 }
@@ -366,7 +331,7 @@ app.get('/api/health', (req, res) => {
     path: req.url,
     originalUrl: req.originalUrl,
     jwtSecretSet: Boolean(process.env.JWT_SECRET && String(process.env.JWT_SECRET).length >= 16),
-    supabaseJwtSecretSet: Boolean(SUPABASE_JWT_SECRET && SUPABASE_JWT_SECRET.length >= 32),
+    supabaseServiceRoleSet: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
     databasePoolerOk: !poolerMisconfigured,
     ...(poolerMisconfigured
       ? {
