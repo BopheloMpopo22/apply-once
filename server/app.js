@@ -5,7 +5,7 @@ import cors from 'cors'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import multer from 'multer'
-import jwksRsa from 'jwks-rsa'
+import { createRemoteJWKSet, jwtVerify } from 'jose'
 
 const MulterError = multer.MulterError
 import path from 'path'
@@ -28,14 +28,13 @@ function supabaseJwksUri() {
   return `${base}/auth/v1/.well-known/jwks.json`
 }
 
-const supabaseJwks = jwksRsa({
-  cache: true,
-  cacheMaxEntries: 5,
-  cacheMaxAge: 60 * 60 * 1000,
-  jwksUri: supabaseJwksUri() || 'https://example.invalid/auth/v1/.well-known/jwks.json',
-})
+function supabaseRemoteJwks() {
+  const uri = supabaseJwksUri()
+  if (!uri) return null
+  return createRemoteJWKSet(new URL(uri))
+}
 
-function verifySupabaseJwt(token) {
+async function verifySupabaseJwt(token) {
   const decoded = jwt.decode(token, { complete: true })
   const header = decoded && typeof decoded === 'object' ? decoded.header : null
   const alg = header?.alg
@@ -50,24 +49,10 @@ function verifySupabaseJwt(token) {
   }
 
   if (alg.startsWith('RS')) {
-    const uri = supabaseJwksUri()
-    if (!uri) throw new Error('SUPABASE_URL missing for JWKS')
-    return new Promise((resolve, reject) => {
-      jwt.verify(
-        token,
-        (header, cb) => {
-          supabaseJwks.getSigningKey(header.kid, (err, key) => {
-            if (err) return cb(err)
-            cb(null, key.getPublicKey())
-          })
-        },
-        { algorithms: ['RS256', 'RS384', 'RS512'] },
-        (err, payload) => {
-          if (err) return reject(err)
-          resolve(payload)
-        },
-      )
-    })
+    const jwks = supabaseRemoteJwks()
+    if (!jwks) throw new Error('SUPABASE_URL missing for JWKS')
+    const { payload } = await jwtVerify(token, jwks, { algorithms: ['RS256', 'RS384', 'RS512'] })
+    return payload
   }
 
   throw new Error(`unsupported alg ${alg}`)

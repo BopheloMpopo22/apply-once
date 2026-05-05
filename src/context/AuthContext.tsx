@@ -25,7 +25,6 @@ type AuthState = {
   loading: boolean
   refreshSession: () => Promise<void>
   loginWithGoogle: () => Promise<void>
-  loginWithFacebook: () => Promise<void>
   loginWithEmail: (email: string, password: string) => Promise<void>
   registerWithEmail: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
@@ -129,21 +128,6 @@ export function AuthProvider(props: { children: ReactNode }) {
     if (error) throw error
   }, [])
 
-  const loginWithFacebook = useCallback(async () => {
-    if (!supabase) {
-      throw new Error(
-        'Facebook sign-in is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
-      )
-    }
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'facebook',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
-    if (error) throw error
-  }, [])
-
   const loginWithEmail = useCallback(
     async (email: string, password: string) => {
     if (!supabase) {
@@ -194,7 +178,6 @@ export function AuthProvider(props: { children: ReactNode }) {
       loading,
       refreshSession,
       loginWithGoogle,
-      loginWithFacebook,
       loginWithEmail,
       registerWithEmail,
       logout,
@@ -204,7 +187,6 @@ export function AuthProvider(props: { children: ReactNode }) {
       loading,
       refreshSession,
       loginWithGoogle,
-      loginWithFacebook,
       loginWithEmail,
       registerWithEmail,
       logout,

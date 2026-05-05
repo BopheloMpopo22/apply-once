@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext'
 import { isOAuthConfigured } from '../lib/supabaseClient'
 
 export function LoginPage() {
-  const { loginWithGoogle, loginWithFacebook, loginWithEmail, user } = useAuth()
+  const { loginWithGoogle, loginWithEmail, user } = useAuth()
   const location = useLocation()
   const from = (location.state as { from?: string } | null)?.from ?? '/profile'
 
@@ -28,18 +28,6 @@ export function LoginPage() {
       await loginWithGoogle()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Google sign-in failed')
-      setBusy(false)
-    }
-  }
-
-  async function onFacebook() {
-    setError(null)
-    setBusy(true)
-    try {
-      sessionStorage.setItem('oauth_redirect', from)
-      await loginWithFacebook()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Facebook sign-in failed')
       setBusy(false)
     }
   }
@@ -119,17 +107,6 @@ export function LoginPage() {
                       G
                     </span>
                     {busy ? 'Redirecting…' : 'Continue with Google'}
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btnOutline btnProvider"
-                    disabled={busy}
-                    onClick={() => void onFacebook()}
-                  >
-                    <span className="providerIcon" aria-hidden="true">
-                      f
-                    </span>
-                    {busy ? 'Redirecting…' : 'Continue with Facebook'}
                   </button>
                 </div>
               </>
