@@ -1,4 +1,5 @@
 import { parseJsonResponse } from './client'
+import { getBearerToken } from './client'
 
 const ADMIN_SESSION_KEY = 'apply_once_admin_token'
 
@@ -19,10 +20,13 @@ export async function adminApi<T>(
   if (options.json !== undefined) {
     headers.set('Content-Type', 'application/json')
   }
-  const token = getAdminToken()
-  if (token) {
-    headers.set('X-Admin-Token', token)
-  }
+  // Prefer Supabase bearer token (admin is just a normal signed-in user).
+  const bearer = await getBearerToken()
+  if (bearer) headers.set('Authorization', `Bearer ${bearer}`)
+
+  // Legacy fallback (older deployments).
+  const legacy = getAdminToken()
+  if (legacy) headers.set('X-Admin-Token', legacy)
   const res = await fetch(path, {
     ...options,
     headers,

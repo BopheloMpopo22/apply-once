@@ -7,6 +7,8 @@ import { isOAuthConfigured } from '../lib/supabaseClient'
 
 export function RegisterPage() {
   const { loginWithGoogle, registerWithEmail, user } = useAuth()
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -33,7 +35,7 @@ export function RegisterPage() {
     setBusy(true)
     try {
       e.preventDefault()
-      await registerWithEmail(email, password)
+      await registerWithEmail(email, password, { firstName, lastName })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not create account')
     } finally {
@@ -57,6 +59,26 @@ export function RegisterPage() {
           {error ? <div className="formError">{error}</div> : null}
           <div className="formFields">
             <form className="formFields" onSubmit={onEmailPassword}>
+              <div className="fieldRow">
+                <div className="field">
+                  <label htmlFor="reg-first">First name</label>
+                  <input
+                    id="reg-first"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor="reg-last">Last name</label>
+                  <input
+                    id="reg-last"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
               <div className="field">
                 <label htmlFor="reg-email">Email</label>
                 <input

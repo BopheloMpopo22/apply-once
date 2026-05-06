@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { adminApi, getAdminToken, setAdminToken } from '../api/adminClient'
+import { ChatThread, type ChatMessage } from '../components/ChatThread'
 
 type StudentRow = {
   id: string
@@ -63,9 +64,11 @@ export function AdminPage() {
   const [msgKind, setMsgKind] = useState('information_request')
   const [msgNeedsReply, setMsgNeedsReply] = useState(true)
   const [sendBusy, setSendBusy] = useState(false)
+  const [chat, setChat] = useState<ChatMessage[]>([])
+  const [chatDraft, setChatDraft] = useState('')
+  const [chatBusy, setChatBusy] = useState(false)
 
   const refreshList = useCallback(async () => {
-    if (!getAdminToken()) return
     setListBusy(true)
     setError(null)
     try {
@@ -75,7 +78,7 @@ export function AdminPage() {
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Could not load students'
       setError(msg)
-      if (/invalid admin token/i.test(msg)) {
+      if (/invalid admin token|not an admin/i.test(msg)) {
         setAdminToken(null)
         setUnlocked(false)
         setStudents([])
@@ -93,8 +96,13 @@ export function AdminPage() {
     try {
       const d = await adminApi<StudentDetail>(`/api/admin/students/${encodeURIComponent(id)}`)
       setDetail(d)
+      const msgs = await adminApi<ChatMessage[]>(
+        `/api/admin/students/${encodeURIComponent(id)}/chat`,
+      )
+      setChat(msgs)
     } catch (e) {
       setDetail(null)
+      setChat([])
       setError(e instanceof Error ? e.message : 'Could not load student')
     } finally {
       setDetailBusy(false)
@@ -102,13 +110,11 @@ export function AdminPage() {
   }, [])
 
   useEffect(() => {
-    if (getAdminToken()) {
-      refreshList().catch(() => {})
-    }
+    refreshList().catch(() => {})
   }, [refreshList])
 
   useEffect(() => {
-    if (!selectedId || !getAdminToken()) {
+    if (!selectedId) {
       setDetail(null)
       return
     }
@@ -158,6 +164,30 @@ export function AdminPage() {
     }
   }
 
+  async function onChatSend(e: FormEvent) {
+    e.preventDefault()
+    if (!selectedId) return
+    const text = chatDraft.trim()
+    if (!text) return
+    setChatBusy(true)
+    setError(null)
+    try {
+      await adminApi(`/api/admin/students/${encodeURIComponent(selectedId)}/chat`, {
+        method: 'POST',
+        json: { body: text },
+      })
+      setChatDraft('')
+      const msgs = await adminApi<ChatMessage[]>(
+        `/api/admin/students/${encodeURIComponent(selectedId)}/chat`,
+      )
+      setChat(msgs)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not send message')
+    } finally {
+      setChatBusy(false)
+    }
+  }
+
   function displayName(row: StudentRow) {
     const n = [row.firstName, row.lastName].filter(Boolean).join(' ').trim()
     return n || row.email
@@ -184,11 +214,10 @@ export function AdminPage() {
       <main className="adminMain container">
         {!unlocked ? (
           <section className="adminCard">
-            <h2 className="adminCardTitle">Unlock dashboard</h2>
+            <h2 className="adminCardTitle">Admin access</h2>
             <p className="adminCardLead">
-              Enter the same value as <code className="adminCode">ADMIN_SECRET</code> in your server{' '}
-              <code className="adminCode">.env</code>, then restart <code className="adminCode">npm run dev</code>{' '}
-              after changing it.
+              Sign in with your admin email on the main site, then return here. If you still use the legacy admin token,
+              you can unlock below.
             </p>
             <form className="adminUnlockForm" onSubmit={(ev) => void onUnlock(ev)}>
               <label className="field">
@@ -373,6 +402,26 @@ export function AdminPage() {
                       <div className="formActions">
                         <button type="submit" className="btn btnDark btnSmall" disabled={sendBusy}>
                           {sendBusy ? 'Sending…' : 'Send to inbox'}
+                        </button>
+                      </div>
+                    </form>
+
+                    <h3 className="adminSubheading">Private chat</h3>
+                    <ChatThread messages={chat} role="admin" />
+                    <form className="adminCompose" onSubmit={(ev) => void onChatSend(ev)}>
+                      <label className="field">
+                        <span>Chat message</span>
+                        <textarea
+                          required
+                          rows={4}
+                          value={chatDraft}
+                          onChange={(ev) => setChatDraft(ev.target.value)}
+                          placeholder="Write to the student…"
+                        />
+                      </label>
+                      <div className="formActions">
+                        <button type="submit" className="btn btnDark btnSmall" disabled={chatBusy}>
+                          {chatBusy ? 'Sending…' : 'Send in chat'}
                         </button>
                       </div>
                     </form>

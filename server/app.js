@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import multer from 'multer'
 import { createClient } from '@supabase/supabase-js'
+import PDFDocument from 'pdfkit'
 
 const MulterError = multer.MulterError
 import path from 'path'
@@ -19,6 +20,10 @@ const prisma = new PrismaClient()
 const app = express()
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-insecure-secret'
 const ADMIN_SECRET = String(process.env.ADMIN_SECRET || '').trim()
+const ADMIN_EMAILS = String(process.env.ADMIN_EMAILS || '')
+  .split(',')
+  .map((s) => s.trim().toLowerCase())
+  .filter(Boolean)
 
 function supabaseAdmin() {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return null
@@ -102,6 +107,19 @@ async function ensureAppUserFromSupabase(authId, jwtPayload) {
         ? String(jwtPayload.user_metadata.email).trim().toLowerCase()
         : ''
 
+  const firstName =
+    typeof jwtPayload.user_metadata?.firstName === 'string'
+      ? jwtPayload.user_metadata.firstName.trim()
+      : typeof jwtPayload.user_metadata?.first_name === 'string'
+        ? jwtPayload.user_metadata.first_name.trim()
+        : ''
+  const lastName =
+    typeof jwtPayload.user_metadata?.lastName === 'string'
+      ? jwtPayload.user_metadata.lastName.trim()
+      : typeof jwtPayload.user_metadata?.last_name === 'string'
+        ? jwtPayload.user_metadata.last_name.trim()
+        : ''
+
   let user = await prisma.user.findUnique({ where: { supabaseAuthId: authId } })
   if (user) return user
 
@@ -114,7 +132,21 @@ async function ensureAppUserFromSupabase(authId, jwtPayload) {
       }
       return prisma.user.update({
         where: { id: byEmail.id },
-        data: { supabaseAuthId: authId },
+        data: {
+          supabaseAuthId: authId,
+          profile:
+            firstName || lastName
+              ? {
+                  upsert: {
+                    create: { firstName: firstName || null, lastName: lastName || null },
+                    update: {
+                      ...(firstName ? { firstName } : {}),
+                      ...(lastName ? { lastName } : {}),
+                    },
+                  },
+                }
+              : undefined,
+        },
       })
     }
   }
@@ -127,7 +159,7 @@ async function ensureAppUserFromSupabase(authId, jwtPayload) {
       email: syntheticEmail,
       passwordHash: null,
       supabaseAuthId: authId,
-      profile: { create: {} },
+      profile: { create: { firstName: firstName || undefined, lastName: lastName || undefined } },
       application: { create: { payload: '{}' } },
     },
   })
@@ -172,6 +204,7 @@ async function authMiddleware(req, res, next) {
     }
 
     const authId = data.user.id
+    req.supabaseEmail = (data.user.email || '').trim().toLowerCase()
     const payloadLike = {
       sub: authId,
       email: data.user.email ?? null,
@@ -198,15 +231,22 @@ async function authMiddleware(req, res, next) {
 }
 
 function adminMiddleware(req, res, next) {
-  if (!ADMIN_SECRET) {
+  // Backward compatible: allow either:
+  // - legacy X-Admin-Token == ADMIN_SECRET
+  // - Supabase-authenticated admin email allowlist (ADMIN_EMAILS)
+  const legacy = req.get('x-admin-token')
+  if (ADMIN_SECRET && legacy && legacy === ADMIN_SECRET) return next()
+
+  if (!ADMIN_EMAILS.length) {
     return res.status(503).json({
       error:
-        'Admin API disabled: add ADMIN_SECRET to your .env file on the server, then restart the API.',
+        'Admin API disabled: set ADMIN_EMAILS (comma-separated) or keep using ADMIN_SECRET with X-Admin-Token.',
     })
   }
-  const token = req.get('x-admin-token')
-  if (!token || token !== ADMIN_SECRET) {
-    return res.status(401).json({ error: 'Invalid admin token' })
+
+  const email = String(req.supabaseEmail || '').trim().toLowerCase()
+  if (!email || !ADMIN_EMAILS.includes(email)) {
+    return res.status(401).json({ error: 'Not an admin account' })
   }
   next()
 }
@@ -573,6 +613,168 @@ app.put('/api/application', authMiddleware, async (req, res) => {
   res.json({ ...draft, payload: parsed })
 })
 
+async function buildApplicationSnapshot(userId) {
+  const [profile, draft, docs, user] = await Promise.all([
+    prisma.profile.findUnique({ where: { userId } }),
+    prisma.applicationDraft.findUnique({ where: { userId } }),
+    prisma.document.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      select: { category: true, filename: true, size: true, createdAt: true },
+    }),
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true, createdAt: true },
+    }),
+  ])
+
+  let payload = {}
+  try {
+    payload = JSON.parse(draft?.payload || '{}')
+  } catch {
+    payload = {}
+  }
+
+  return {
+    email: user?.email ?? '',
+    createdAt: user?.createdAt ?? null,
+    profile: profile ?? null,
+    stepIndex: draft?.stepIndex ?? 0,
+    payload,
+    documents: docs,
+  }
+}
+
+function writeSection(doc, title, lines) {
+  doc.moveDown(0.6)
+  doc.fontSize(13).fillColor('#0f172a').text(title, { underline: true })
+  doc.moveDown(0.25)
+  doc.fontSize(10).fillColor('#0f172a')
+  for (const line of lines) {
+    if (!line) continue
+    doc.text(`• ${line}`)
+  }
+}
+
+function safeText(v) {
+  if (v === null || v === undefined) return ''
+  if (typeof v === 'string') return v.trim()
+  return String(v)
+}
+
+async function generateApplicationPdfBuffer(snapshot) {
+  const doc = new PDFDocument({ size: 'A4', margin: 48 })
+  const chunks = []
+  doc.on('data', (c) => chunks.push(c))
+
+  doc.fontSize(18).fillColor('#0f172a').text('Apply Once — Student Application Snapshot')
+  doc.moveDown(0.25)
+  doc.fontSize(10).fillColor('#334155').text(`Generated: ${new Date().toLocaleString()}`)
+  doc.fontSize(10).fillColor('#334155').text(`Student email: ${snapshot.email || '—'}`)
+  doc.fontSize(10).fillColor('#334155').text(
+    `Progress step index: ${snapshot.stepIndex} (saved draft)`,
+  )
+
+  const p = snapshot.profile || {}
+  writeSection(doc, 'Profile', [
+    `Name: ${[safeText(p.firstName), safeText(p.lastName)].filter(Boolean).join(' ') || '—'}`,
+    `Phone: ${safeText(p.phone) || '—'}`,
+    `Date of birth: ${safeText(p.dateOfBirth) || '—'}`,
+    `ID number: ${safeText(p.idNumber) || '—'}`,
+    `Citizenship: ${safeText(p.citizenship) || '—'}`,
+    `Gender: ${safeText(p.gender) || '—'}`,
+    `Home language: ${safeText(p.homeLanguage) || '—'}`,
+    `Residential address: ${safeText(p.residentialAddress) || '—'}`,
+    `Postal address: ${safeText(p.postalAddress) || '—'}`,
+    `Disability: ${p.disability ? 'Yes' : 'No'}`,
+    p.disability ? `Disability notes: ${safeText(p.disabilityNotes) || '—'}` : '',
+  ])
+
+  const a = snapshot.payload?.academics || {}
+  writeSection(doc, 'Academics', [
+    `School: ${safeText(a.schoolName) || '—'}`,
+    `Grade/year: ${safeText(a.grade) || '—'}`,
+    `Curriculum: ${safeText(a.curriculum) || '—'}`,
+    `Institution: ${safeText(a.institutionName) || '—'}`,
+    `Qualification: ${safeText(a.qualificationName) || '—'}`,
+    `Year of study: ${safeText(a.yearOfStudy) || '—'}`,
+    `Intended fields: ${safeText(a.intendedFieldsNotes) || '—'}`,
+    `Subjects & marks: ${safeText(a.subjectsNotes) || '—'}`,
+    `NBT/APS: ${safeText(a.nbtApsNotes) || '—'}`,
+    `Achievements: ${safeText(a.achievementsNotes) || '—'}`,
+  ])
+
+  const sp = snapshot.payload?.studyPlan || {}
+  writeSection(doc, 'Study plan', [
+    `Motivation: ${safeText(sp.motivation) || '—'}`,
+    `Career goals: ${safeText(sp.careerGoals) || '—'}`,
+    `Location preferences: ${safeText(sp.locationPreferences) || '—'}`,
+    `Bursary preferences: ${safeText(sp.bursaryPreferences) || '—'}`,
+  ])
+
+  const h = snapshot.payload?.household || {}
+  writeSection(doc, 'Household', [
+    `Guardian name: ${safeText(h.guardianName) || '—'}`,
+    `Relationship: ${safeText(h.relationship) || '—'}`,
+    `Guardian phone: ${safeText(h.guardianPhone) || '—'}`,
+    `Guardian email: ${safeText(h.guardianEmail) || '—'}`,
+    `Household members: ${safeText(h.householdMembersNotes) || '—'}`,
+    `Employment notes: ${safeText(h.employmentNotes) || '—'}`,
+  ])
+
+  const f = snapshot.payload?.financial || {}
+  writeSection(doc, 'Financial need', [
+    `Income band: ${safeText(f.incomeBand) || '—'}`,
+    `Income sources: ${safeText(f.incomeSourcesNotes) || '—'}`,
+    `Expenses: ${safeText(f.expenseNotes) || '—'}`,
+    `Other funding: ${safeText(f.otherFundingNotes) || '—'}`,
+    `NSFAS status: ${safeText(f.nsfasStatus) || '—'}`,
+  ])
+
+  const fit = snapshot.payload?.fit || {}
+  writeSection(doc, 'Leadership & impact', [
+    `Leadership: ${safeText(fit.leadershipNotes) || '—'}`,
+    `Community: ${safeText(fit.communityNotes) || '—'}`,
+    `Work experience: ${safeText(fit.workExperienceNotes) || '—'}`,
+  ])
+
+  const c = snapshot.payload?.compliance || {}
+  writeSection(doc, 'Consent', [
+    `POPIA consent: ${c.consentPopia ? 'Yes' : 'No'}`,
+    `Truthful declaration: ${c.declarationTruthful ? 'Yes' : 'No'}`,
+  ])
+
+  writeSection(
+    doc,
+    'Uploaded documents (metadata)',
+    (snapshot.documents || []).map(
+      (d) =>
+        `${d.category}: ${d.filename} (${Math.round((d.size || 0) / 1024)} KB) — ${new Date(
+          d.createdAt,
+        ).toLocaleDateString()}`,
+    ),
+  )
+
+  doc.end()
+  return await new Promise((resolve, reject) => {
+    doc.on('end', () => resolve(Buffer.concat(chunks)))
+    doc.on('error', reject)
+  })
+}
+
+app.get('/api/application/pdf', authMiddleware, async (req, res, next) => {
+  try {
+    const snapshot = await buildApplicationSnapshot(req.userId)
+    const buf = await generateApplicationPdfBuffer(snapshot)
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition', 'attachment; filename="apply-once-application.pdf"')
+    res.setHeader('Cache-Control', 'private, max-age=0, no-cache')
+    res.send(buf)
+  } catch (e) {
+    next(e)
+  }
+})
+
 app.get('/api/documents', authMiddleware, async (req, res) => {
   const docs = await prisma.document.findMany({
     where: { userId: req.userId },
@@ -605,6 +807,25 @@ app.get('/api/inbox', authMiddleware, async (req, res) => {
     },
   })
   res.json(items)
+})
+
+app.get('/api/chat', authMiddleware, async (req, res) => {
+  const rows = await prisma.chatMessage.findMany({
+    where: { userId: req.userId },
+    orderBy: { createdAt: 'asc' },
+    select: { id: true, sender: true, body: true, createdAt: true },
+  })
+  res.json(rows)
+})
+
+app.post('/api/chat', authMiddleware, async (req, res) => {
+  const body = String(req.body?.body ?? '').trim()
+  if (!body) return res.status(400).json({ error: 'Message text required' })
+  const row = await prisma.chatMessage.create({
+    data: { userId: req.userId, sender: 'student', body },
+    select: { id: true, sender: true, body: true, createdAt: true },
+  })
+  res.status(201).json(row)
 })
 
 app.put('/api/inbox/:id/reply', authMiddleware, async (req, res) => {
@@ -796,6 +1017,31 @@ app.get('/api/admin/students/:id', adminMiddleware, async (req, res) => {
     documents: user.documents,
     inboxItems: user.inboxItems,
   })
+})
+
+app.get('/api/admin/students/:id/chat', adminMiddleware, async (req, res) => {
+  const id = String(req.params.id || '')
+  const exists = await prisma.user.findUnique({ where: { id }, select: { id: true } })
+  if (!exists) return res.status(404).json({ error: 'Student not found' })
+  const rows = await prisma.chatMessage.findMany({
+    where: { userId: id },
+    orderBy: { createdAt: 'asc' },
+    select: { id: true, sender: true, body: true, createdAt: true },
+  })
+  res.json(rows)
+})
+
+app.post('/api/admin/students/:id/chat', adminMiddleware, async (req, res) => {
+  const id = String(req.params.id || '')
+  const body = String(req.body?.body ?? '').trim()
+  if (!body) return res.status(400).json({ error: 'Message text required' })
+  const exists = await prisma.user.findUnique({ where: { id }, select: { id: true } })
+  if (!exists) return res.status(404).json({ error: 'Student not found' })
+  const row = await prisma.chatMessage.create({
+    data: { userId: id, sender: 'admin', body },
+    select: { id: true, sender: true, body: true, createdAt: true },
+  })
+  res.status(201).json(row)
 })
 
 app.post('/api/admin/inbox', adminMiddleware, async (req, res) => {

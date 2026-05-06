@@ -28,7 +28,7 @@ type AuthState = {
   refreshSession: () => Promise<void>
   loginWithGoogle: () => Promise<void>
   loginWithEmail: (email: string, password: string) => Promise<void>
-  registerWithEmail: (email: string, password: string) => Promise<void>
+  registerWithEmail: (email: string, password: string, name?: { firstName: string; lastName: string }) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -187,7 +187,7 @@ export function AuthProvider(props: { children: ReactNode }) {
     [refreshSession],
   )
 
-  const registerWithEmail = useCallback(async (email: string, password: string) => {
+  const registerWithEmail = useCallback(async (email: string, password: string, name?: { firstName: string; lastName: string }) => {
     if (!supabase) {
       throw new Error(
         'Email sign-in is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
@@ -199,7 +199,15 @@ export function AuthProvider(props: { children: ReactNode }) {
     const { data, error } = await supabase.auth.signUp({
       email: clean,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        data: name
+          ? {
+              firstName: name.firstName.trim(),
+              lastName: name.lastName.trim(),
+            }
+          : undefined,
+      },
     })
     if (error) throw error
     localStorage.setItem(HAS_ACCOUNT_STORAGE_KEY, '1')

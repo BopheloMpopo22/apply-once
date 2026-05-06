@@ -1304,6 +1304,65 @@ body {
   color: rgba(15, 23, 42, 0.8);
 }
 
+.chatThread {
+  margin-top: var(--space-3);
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  max-height: 320px;
+  overflow: auto;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.chatBubble {
+  max-width: 90%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.chatBubbleSelf {
+  margin-left: auto;
+  background: rgba(37, 99, 235, 0.1);
+  border-color: rgba(37, 99, 235, 0.18);
+}
+
+.chatBubbleOther {
+  margin-right: auto;
+}
+
+.chatBody {
+  white-space: pre-wrap;
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.86);
+}
+
+.chatMeta {
+  margin-top: 6px;
+  font-size: 11px;
+  color: rgba(15, 23, 42, 0.55);
+}
+
+.chatComposer {
+  margin-top: var(--space-3);
+  display: grid;
+  gap: var(--space-2);
+}
+
+.chatInput {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  padding: 11px 12px;
+  min-height: 84px;
+  resize: vertical;
+  font: inherit;
+  background: rgba(255, 255, 255, 0.98);
+}
+
 .formError {
   margin-top: var(--space-3);
   padding: var(--space-3);

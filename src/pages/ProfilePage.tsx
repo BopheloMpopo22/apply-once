@@ -10,6 +10,7 @@ import {
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { api, getBearerToken, uploadAvatar } from '../api/client'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
+import { ChatThread, type ChatMessage } from '../components/ChatThread'
 import { Navbar } from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
 import { computeCompletion } from '../utils/applicationCompletion'
@@ -80,6 +81,9 @@ export function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [draftPayload, setDraftPayload] = useState<Record<string, unknown>>({})
+  const [chat, setChat] = useState<ChatMessage[]>([])
+  const [chatDraft, setChatDraft] = useState('')
+  const [chatBusy, setChatBusy] = useState(false)
   const [avatarBusy, setAvatarBusy] = useState(false)
   const [replyBusyId, setReplyBusyId] = useState<string | null>(null)
   const [draftReply, setDraftReply] = useState<Record<string, string>>({})
@@ -109,9 +113,10 @@ export function ProfilePage() {
   const load = useCallback(async () => {
     setError(null)
     try {
-      const [inboxList, draft] = await Promise.all([
+      const [inboxList, draft, chatList] = await Promise.all([
         api<InboxItem[]>('/api/inbox'),
         api<{ stepIndex: number; payload?: unknown }>('/api/application'),
+        api<ChatMessage[]>('/api/chat'),
       ])
       setItems(inboxList)
       setDraftStep(typeof draft.stepIndex === 'number' ? draft.stepIndex : 0)
@@ -120,6 +125,7 @@ export function ProfilePage() {
           ? ((draft as { payload: unknown }).payload as Record<string, unknown>)
           : {},
       )
+      setChat(chatList)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not load profile')
     } finally {
@@ -237,6 +243,24 @@ export function ProfilePage() {
     }
   }
 
+  async function onChatSend(e: FormEvent) {
+    e.preventDefault()
+    const text = chatDraft.trim()
+    if (!text) return
+    setChatBusy(true)
+    setError(null)
+    try {
+      await api<ChatMessage>('/api/chat', { method: 'POST', json: { body: text } })
+      setChatDraft('')
+      const list = await api<ChatMessage[]>('/api/chat')
+      setChat(list)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not send message')
+    } finally {
+      setChatBusy(false)
+    }
+  }
+
   return (
     <div className="formShell">
       <Navbar
@@ -275,8 +299,8 @@ export function ProfilePage() {
               <h1 className="formTitle">{displayName}</h1>
               <p className="formLead profileHeroEmail">{user?.email}</p>
               <p className="profileHeroHelp">
-                Your photo appears in the nav circle — it helps make Apply Once feel personal while
-                you track requests from bursaries.
+                This is your student hub. We’ll message you here if we need anything (documents,
+                essays, or extra details) and keep you updated on bursaries we apply for.
               </p>
             </div>
           </div>
@@ -430,6 +454,30 @@ export function ProfilePage() {
                 ) : null}
               </div>
             )}
+          </section>
+
+          <section className="profileSection" aria-labelledby="profile-chat-heading">
+            <h2 id="profile-chat-heading" className="profileSectionTitle">
+              Private chat with Apply Once
+            </h2>
+            <p className="profileSectionLead">
+              Send a message anytime. Use this space to ask questions, share missing information, or
+              tell us which bursaries you want to apply for.
+            </p>
+            <ChatThread messages={chat} role="student" />
+            <form className="chatComposer" onSubmit={(ev) => void onChatSend(ev)}>
+              <textarea
+                className="chatInput"
+                placeholder="Type your message…"
+                value={chatDraft}
+                onChange={(e) => setChatDraft(e.target.value)}
+              />
+              <div className="profileActionsRow">
+                <button type="submit" className="btn btnDark btnSmall" disabled={chatBusy}>
+                  {chatBusy ? 'Sending…' : 'Send'}
+                </button>
+              </div>
+            </form>
           </section>
         </div>
       </main>
