@@ -8,7 +8,7 @@
     "dev:web": "vite",
     "dev:api": "node server/index.js",
     "dev:full": "npm run dev",
-    "postinstall": "prisma generate",
+    "postinstall": "echo \"postinstall skipped (Prisma runs in build)\"",
     "build": "prisma generate && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
