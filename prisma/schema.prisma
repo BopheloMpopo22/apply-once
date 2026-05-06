@@ -23,6 +23,7 @@ model User {
   application       ApplicationDraft?
   documents         Document[]
   inboxItems        ProfileInboxItem[]
+  chatMessages      ChatMessage[]
 }
 
 /// Updates on application progress + optional requests for extra info (essay, docs, etc.).
