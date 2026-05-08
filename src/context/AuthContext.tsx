@@ -25,6 +25,7 @@ export type SessionUser = {
 type AuthState = {
   user: SessionUser | null
   loading: boolean
+  isAdmin: boolean
   refreshSession: () => Promise<void>
   loginWithGoogle: () => Promise<void>
   loginWithEmail: (email: string, password: string) => Promise<void>
@@ -71,11 +72,22 @@ function writeCachedMe(me: SessionUser | null) {
 export function AuthProvider(props: { children: ReactNode }) {
   const [user, setUser] = useState<SessionUser | null>(() => readCachedMe())
   const [loading, setLoading] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  const refreshAdmin = useCallback(async () => {
+    try {
+      await api('/api/admin/me')
+      setIsAdmin(true)
+    } catch {
+      setIsAdmin(false)
+    }
+  }, [])
 
   const logout = useCallback(async () => {
     setToken(null)
     setUser(null)
     writeCachedMe(null)
+    setIsAdmin(false)
     await supabase?.auth.signOut()
   }, [])
 
@@ -90,16 +102,18 @@ export function AuthProvider(props: { children: ReactNode }) {
       const me = await fetchMe()
       setUser(me)
       writeCachedMe(me)
+      await refreshAdmin()
     } catch (e) {
       const msg = e instanceof Error ? e.message : ''
       if (/Unauthorized|Invalid token|^Not found$/i.test(msg)) {
         setToken(null)
         setUser(null)
         writeCachedMe(null)
+        setIsAdmin(false)
         await supabase?.auth.signOut()
       }
     }
-  }, [])
+  }, [refreshAdmin])
 
   useEffect(() => {
     let cancelled = false
@@ -113,6 +127,7 @@ export function AuthProvider(props: { children: ReactNode }) {
         const me = await fetchMe()
         if (!cancelled) setUser(me)
         if (!cancelled) writeCachedMe(me)
+        if (!cancelled) await refreshAdmin()
       } catch (e) {
         if (!cancelled) {
           const msg = e instanceof Error ? e.message : ''
@@ -120,6 +135,7 @@ export function AuthProvider(props: { children: ReactNode }) {
             setToken(null)
             setUser(null)
             writeCachedMe(null)
+            setIsAdmin(false)
             await supabase?.auth.signOut()
           }
         }
@@ -222,6 +238,7 @@ export function AuthProvider(props: { children: ReactNode }) {
     () => ({
       user,
       loading,
+      isAdmin,
       refreshSession,
       loginWithGoogle,
       loginWithEmail,
@@ -231,6 +248,7 @@ export function AuthProvider(props: { children: ReactNode }) {
     [
       user,
       loading,
+      isAdmin,
       refreshSession,
       loginWithGoogle,
       loginWithEmail,

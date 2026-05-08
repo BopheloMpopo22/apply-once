@@ -954,6 +954,10 @@ app.get('/api/admin/students', adminMiddleware, async (_req, res) => {
   )
 })
 
+app.get('/api/admin/me', authMiddleware, adminMiddleware, async (req, res) => {
+  res.json({ ok: true, email: String(req.supabaseEmail || '') })
+})
+
 app.get('/api/admin/students/:id', adminMiddleware, async (req, res) => {
   const id = String(req.params.id || '')
   const user = await prisma.user.findUnique({
@@ -1029,6 +1033,22 @@ app.get('/api/admin/students/:id/chat', adminMiddleware, async (req, res) => {
     select: { id: true, sender: true, body: true, createdAt: true },
   })
   res.json(rows)
+})
+
+app.get('/api/admin/students/:id/application/pdf', authMiddleware, adminMiddleware, async (req, res, next) => {
+  try {
+    const id = String(req.params.id || '')
+    const exists = await prisma.user.findUnique({ where: { id }, select: { id: true } })
+    if (!exists) return res.status(404).json({ error: 'Student not found' })
+    const snapshot = await buildApplicationSnapshot(id)
+    const buf = await generateApplicationPdfBuffer(snapshot)
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition', 'attachment; filename=\"apply-once-application.pdf\"')
+    res.setHeader('Cache-Control', 'private, max-age=0, no-cache')
+    res.send(buf)
+  } catch (e) {
+    next(e)
+  }
 })
 
 app.post('/api/admin/students/:id/chat', adminMiddleware, async (req, res) => {

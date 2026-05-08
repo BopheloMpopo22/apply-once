@@ -8,7 +8,7 @@ function readHasAccountFlag() {
 }
 
 export function NavAuth() {
-  const { user, loading, logout } = useAuth()
+  const { user, loading, isAdmin, logout } = useAuth()
   const hasAccountFlag = readHasAccountFlag()
 
   return (
@@ -23,6 +23,11 @@ export function NavAuth() {
         </>
       ) : (
         <>
+          {isAdmin ? (
+            <Link className="btn btnOutline btnSmall" to="/admin">
+              Admin dashboard
+            </Link>
+          ) : null}
           <Link className="btn btnGhost btnSmall" to="/profile">
             Profile
           </Link>

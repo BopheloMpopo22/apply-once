@@ -351,6 +351,9 @@ export function ProfilePage() {
                   <Link className="btn btnDark btnSmall" to="/application">
                     Continue application
                   </Link>
+                  <a className="btn btnOutline btnSmall" href="/api/application/pdf">
+                    Download PDF
+                  </a>
                 </div>
               </>
             )}

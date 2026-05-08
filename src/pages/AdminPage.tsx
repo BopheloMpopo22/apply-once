@@ -310,6 +310,14 @@ export function AdminPage() {
                         </>
                       ) : null}
                     </p>
+                    <div className="formActions">
+                      <a
+                        className="btn btnOutline btnSmall"
+                        href={`/api/admin/students/${encodeURIComponent(detail.id)}/application/pdf`}
+                      >
+                        Download application PDF
+                      </a>
+                    </div>
 
                     <h3 className="adminSubheading">Saved profile</h3>
                     <pre className="adminJson">{JSON.stringify(detail.profile ?? {}, null, 2)}</pre>
