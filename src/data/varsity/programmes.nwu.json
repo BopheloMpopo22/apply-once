@@ -1,0 +1,112 @@
+[
+  {
+    "id": "nwu-eng",
+    "name": "Engineering (General)",
+    "faculty": "Engineering",
+    "minAps": 34,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 },
+      { "subject": "English", "minLevel": 4 }
+    ]
+  },
+  {
+    "id": "nwu-bsc",
+    "name": "BSc (Science)",
+    "faculty": "Science",
+    "minAps": 26,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 4 }]
+  },
+  {
+    "id": "nwu-it",
+    "name": "BSc (IT)",
+    "faculty": "Science",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+  },
+  {
+    "id": "nwu-bcom",
+    "name": "BCom (General)",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 26,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "nwu-acc",
+    "name": "BCom (Accounting)",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+  },
+  {
+    "id": "nwu-law",
+    "name": "LLB",
+    "faculty": "Law",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "nwu-ba",
+    "name": "BA",
+    "faculty": "Humanities",
+    "minAps": 24,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 3 }]
+  },
+  {
+    "id": "nwu-bed",
+    "name": "BEd",
+    "faculty": "Education",
+    "minAps": 24,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 3 }]
+  },
+  {
+    "id": "nwu-health",
+    "name": "Health Sciences (General)",
+    "faculty": "Health Sciences",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "nwu-agri",
+    "name": "Agriculture (General)",
+    "faculty": "Natural & Agricultural Sciences",
+    "minAps": 24,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 3 }]
+  },
+  {
+    "id": "nwu-bsc-maths",
+    "name": "BSc (Mathematics)",
+    "faculty": "Science",
+    "minAps": 26,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+  },
+  {
+    "id": "nwu-bsc-stats",
+    "name": "BSc (Statistics)",
+    "faculty": "Science",
+    "minAps": 26,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+  },
+  {
+    "id": "nwu-built",
+    "name": "Built Environment (General)",
+    "faculty": "Engineering",
+    "minAps": 26,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 4 }]
+  },
+  {
+    "id": "nwu-econ",
+    "name": "Economics (General)",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 26,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 4 }]
+  },
+  {
+    "id": "nwu-comms",
+    "name": "Communication / Media (General)",
+    "faculty": "Humanities",
+    "minAps": 24,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  }
+]
+

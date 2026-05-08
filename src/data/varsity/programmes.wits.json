@@ -1,0 +1,148 @@
+[
+  {
+    "id": "wits-bsc-eng",
+    "name": "BSc Engineering",
+    "faculty": "Engineering & Built Environment",
+    "minAps": 42,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ],
+    "notes": "Engineering is competitive; meeting minimums does not guarantee admission."
+  },
+  {
+    "id": "wits-bsc",
+    "name": "BSc (Science)",
+    "faculty": "Science",
+    "minAps": 36,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 5 }
+    ],
+    "notes": "Some majors require Physical Sciences."
+  },
+  {
+    "id": "wits-bcom-gen",
+    "name": "BCom (General)",
+    "faculty": "Commerce, Law & Management",
+    "minAps": 34,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 5 }
+    ],
+    "notes": "Mathematical Literacy is usually not accepted for Commerce at Wits."
+  },
+  {
+    "id": "wits-bcom-acc",
+    "name": "BCom (Accounting Sciences)",
+    "faculty": "Commerce, Law & Management",
+    "minAps": 38,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 6 }
+    ]
+  },
+  {
+    "id": "wits-llb",
+    "name": "LLB",
+    "faculty": "Law",
+    "minAps": 37,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 5 }],
+    "notes": "Some law programmes allow Maths Lit, but requirements vary."
+  },
+  {
+    "id": "wits-ba",
+    "name": "BA (Humanities)",
+    "faculty": "Humanities",
+    "minAps": 32,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "wits-bed",
+    "name": "BEd",
+    "faculty": "Education",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "wits-bsc-it",
+    "name": "BSc (Computer Science / IT)",
+    "faculty": "Science",
+    "minAps": 38,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 6 }
+    ]
+  },
+  {
+    "id": "wits-bpharm",
+    "name": "BPharm",
+    "faculty": "Health Sciences",
+    "minAps": 38,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ]
+  },
+  {
+    "id": "wits-bnurs",
+    "name": "Bachelor of Nursing",
+    "faculty": "Health Sciences",
+    "minAps": 34,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "wits-barch",
+    "name": "BAS / Architecture-related",
+    "faculty": "Engineering & Built Environment",
+    "minAps": 34,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 }
+    ],
+    "notes": "Portfolio/selection tasks may apply."
+  },
+  {
+    "id": "wits-bsc-act",
+    "name": "BSc (Actuarial Science)",
+    "faculty": "Science",
+    "minAps": 42,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 7 }
+    ]
+  },
+  {
+    "id": "wits-bcom-econ",
+    "name": "BCom (Economics)",
+    "faculty": "Commerce, Law & Management",
+    "minAps": 36,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 5 }
+    ]
+  },
+  {
+    "id": "wits-bsc-med",
+    "name": "BSc (Biological Sciences)",
+    "faculty": "Science",
+    "minAps": 34,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 }
+    ]
+  },
+  {
+    "id": "wits-bcom-mgmt",
+    "name": "BCom (Management)",
+    "faculty": "Commerce, Law & Management",
+    "minAps": 34,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 5 }
+    ]
+  }
+]
+

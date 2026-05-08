@@ -1,0 +1,120 @@
+[
+  {
+    "id": "sun-beng",
+    "name": "BEng (Engineering)",
+    "faculty": "Engineering",
+    "minAps": 38,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minLevel": 6 },
+      { "subject": "Physical Sciences", "minLevel": 5 },
+      { "subject": "English", "minLevel": 4 }
+    ],
+    "notes": "Stellenbosch requirements vary by programme; use as guidance."
+  },
+  {
+    "id": "sun-bsc",
+    "name": "BSc (Science)",
+    "faculty": "Science",
+    "minAps": 32,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+  },
+  {
+    "id": "sun-bsc-cs",
+    "name": "BSc (Computer Science)",
+    "faculty": "Science",
+    "minAps": 34,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+  },
+  {
+    "id": "sun-bcom",
+    "name": "BCom",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 32,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+  },
+  {
+    "id": "sun-acc",
+    "name": "BAcc (Accounting)",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 36,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+  },
+  {
+    "id": "sun-llb",
+    "name": "LLB",
+    "faculty": "Law",
+    "minAps": 34,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "sun-ba",
+    "name": "BA",
+    "faculty": "Arts & Social Sciences",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "sun-bed",
+    "name": "BEd",
+    "faculty": "Education",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "sun-medicine",
+    "name": "Health Sciences (General)",
+    "faculty": "Medicine & Health Sciences",
+    "minAps": 40,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minLevel": 6 },
+      { "subject": "Physical Sciences", "minLevel": 6 },
+      { "subject": "English", "minLevel": 5 }
+    ]
+  },
+  {
+    "id": "sun-agri",
+    "name": "Agriculture (General)",
+    "faculty": "AgriSciences",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "sun-bsc-maths",
+    "name": "BSc (Mathematics)",
+    "faculty": "Science",
+    "minAps": 32,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+  },
+  {
+    "id": "sun-bsc-phys",
+    "name": "BSc (Physics)",
+    "faculty": "Science",
+    "minAps": 32,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ]
+  },
+  {
+    "id": "sun-built",
+    "name": "Built Environment (General)",
+    "faculty": "Engineering",
+    "minAps": 32,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+  },
+  {
+    "id": "sun-bcom-econ",
+    "name": "BCom (Economics)",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 32,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+  },
+  {
+    "id": "sun-data",
+    "name": "Data/Stats (General)",
+    "faculty": "Science",
+    "minAps": 34,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+  }
+]
+

@@ -1,0 +1,120 @@
+[
+  {
+    "id": "uct-eng",
+    "name": "BSc Engineering (EBE)",
+    "faculty": "Engineering & the Built Environment",
+    "minAps": 42,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 80 },
+      { "subject": "Physical Sciences", "minPercent": 70 },
+      { "subject": "English", "minLevel": 4 }
+    ],
+    "notes": "UCT uses a points system; some programmes require very high Maths/Science marks."
+  },
+  {
+    "id": "uct-bsc",
+    "name": "BSc (Science)",
+    "faculty": "Science",
+    "minAps": 36,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+  },
+  {
+    "id": "uct-bsc-cs",
+    "name": "BSc (Computer Science)",
+    "faculty": "Science",
+    "minAps": 38,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+  },
+  {
+    "id": "uct-bcom",
+    "name": "BCom",
+    "faculty": "Commerce",
+    "minAps": 36,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+  },
+  {
+    "id": "uct-bcom-acc",
+    "name": "BCom (Accounting)",
+    "faculty": "Commerce",
+    "minAps": 38,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+  },
+  {
+    "id": "uct-llb",
+    "name": "LLB",
+    "faculty": "Law",
+    "minAps": 38,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 5 }]
+  },
+  {
+    "id": "uct-ba",
+    "name": "BA",
+    "faculty": "Humanities",
+    "minAps": 34,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "uct-bed",
+    "name": "Bachelor of Education",
+    "faculty": "Humanities",
+    "minAps": 34,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "uct-health",
+    "name": "Health Sciences (General)",
+    "faculty": "Health Sciences",
+    "minAps": 40,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 5 }
+    ],
+    "notes": "Specific degrees have specific subject requirements."
+  },
+  {
+    "id": "uct-bsc-maths",
+    "name": "BSc (Mathematics)",
+    "faculty": "Science",
+    "minAps": 36,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+  },
+  {
+    "id": "uct-bsc-stats",
+    "name": "BSc (Statistics / Data Science)",
+    "faculty": "Science",
+    "minAps": 36,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+  },
+  {
+    "id": "uct-bcom-econ",
+    "name": "BCom (Economics)",
+    "faculty": "Commerce",
+    "minAps": 36,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+  },
+  {
+    "id": "uct-busci",
+    "name": "BBusSci",
+    "faculty": "Commerce",
+    "minAps": 38,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+  },
+  {
+    "id": "uct-built",
+    "name": "Built Environment (General)",
+    "faculty": "Engineering & the Built Environment",
+    "minAps": 36,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+  },
+  {
+    "id": "uct-bsc-phys",
+    "name": "BSc (Physics)",
+    "faculty": "Science",
+    "minAps": 36,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ]
+  }
+]
+

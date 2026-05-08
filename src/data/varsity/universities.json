@@ -1,0 +1,43 @@
+[
+  {
+    "id": "wits",
+    "name": "University of the Witwatersrand",
+    "shortName": "Wits",
+    "website": "https://www.wits.ac.za",
+    "logo": "/assets/universities/wits.svg",
+    "calculator": "wits"
+  },
+  {
+    "id": "uct",
+    "name": "University of Cape Town",
+    "shortName": "UCT",
+    "website": "https://www.uct.ac.za",
+    "logo": "/assets/universities/uct.svg",
+    "calculator": "uct"
+  },
+  {
+    "id": "up",
+    "name": "University of Pretoria",
+    "shortName": "UP",
+    "website": "https://www.up.ac.za",
+    "logo": "/assets/universities/up.svg",
+    "calculator": "up"
+  },
+  {
+    "id": "sun",
+    "name": "Stellenbosch University",
+    "shortName": "Stellenbosch",
+    "website": "https://www.sun.ac.za",
+    "logo": "/assets/universities/sun.svg",
+    "calculator": "sun"
+  },
+  {
+    "id": "nwu",
+    "name": "North-West University",
+    "shortName": "NWU",
+    "website": "https://www.nwu.ac.za",
+    "logo": "/assets/universities/nwu.svg",
+    "calculator": "nwu"
+  }
+]
+

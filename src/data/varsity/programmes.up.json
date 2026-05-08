@@ -1,0 +1,131 @@
+[
+  {
+    "id": "up-beng",
+    "name": "BEng (Engineering)",
+    "faculty": "Engineering, Built Environment & IT",
+    "minAps": 35,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 },
+      { "subject": "English", "minLevel": 4 }
+    ],
+    "notes": "UP APS is typically best 6 subjects (excluding Life Orientation)."
+  },
+  {
+    "id": "up-beng-extended",
+    "name": "BEng (Extended)",
+    "faculty": "Engineering, Built Environment & IT",
+    "minAps": 33,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 4 },
+      { "subject": "English", "minLevel": 4 }
+    ]
+  },
+  {
+    "id": "up-bsc",
+    "name": "BSc (Science)",
+    "faculty": "Natural & Agricultural Sciences",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 4 }]
+  },
+  {
+    "id": "up-bsc-it",
+    "name": "BSc (IT / Computer Science)",
+    "faculty": "Engineering, Built Environment & IT",
+    "minAps": 32,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "English", "minLevel": 4 }
+    ]
+  },
+  {
+    "id": "up-bcom-gen",
+    "name": "BCom (General)",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 30,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minLevel": 4 },
+      { "subject": "English", "minLevel": 4 }
+    ]
+  },
+  {
+    "id": "up-bcom-acc",
+    "name": "BCom (Accounting Sciences)",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 34,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "English", "minLevel": 4 }
+    ]
+  },
+  {
+    "id": "up-llb",
+    "name": "LLB",
+    "faculty": "Law",
+    "minAps": 35,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "up-ba",
+    "name": "BA (Humanities)",
+    "faculty": "Humanities",
+    "minAps": 26,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "up-bed",
+    "name": "BEd",
+    "faculty": "Education",
+    "minAps": 26,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "up-bsc-act",
+    "name": "BSc (Actuarial and Financial Mathematics)",
+    "faculty": "Natural & Agricultural Sciences",
+    "minAps": 34,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 7 }]
+  },
+  {
+    "id": "up-mbchb",
+    "name": "MBChB (Medicine)",
+    "faculty": "Health Sciences",
+    "minAps": 35,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minLevel": 6 },
+      { "subject": "Physical Sciences", "minLevel": 6 },
+      { "subject": "English", "minLevel": 5 }
+    ],
+    "notes": "Selection criteria may include additional tests and rankings."
+  },
+  {
+    "id": "up-physio",
+    "name": "BPhysio",
+    "faculty": "Health Sciences",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "up-bnurs",
+    "name": "Bachelor of Nursing",
+    "faculty": "Health Sciences",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "up-barch",
+    "name": "Architecture-related",
+    "faculty": "Engineering, Built Environment & IT",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 4 }]
+  },
+  {
+    "id": "up-bcom-econ",
+    "name": "BCom (Economics)",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 32,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 4 }]
+  }
+]
+

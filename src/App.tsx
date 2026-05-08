@@ -6,12 +6,14 @@ import { LoginPage } from './pages/LoginPage'
 import { ProfileGate, ProfilePage } from './pages/ProfilePage'
 import { AdminPage } from './pages/AdminPage'
 import { RegisterPage } from './pages/RegisterPage'
+import { VarsityCalculatorPage } from './pages/VarsityCalculatorPage'
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/admin" element={<AdminPage />} />
+      <Route path="/varsity-calculator" element={<VarsityCalculatorPage />} />
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4c1d95" />
+      <stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="24" fill="url(#g)" />
+  <path d="M32 80V40l20 20 20-20v40" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+  <text x="60" y="92" text-anchor="middle" font-family="Inter,Segoe UI,Arial" font-size="20" font-weight="800" fill="#ffffff">
+    NWU
+  </text>
+</svg>
+

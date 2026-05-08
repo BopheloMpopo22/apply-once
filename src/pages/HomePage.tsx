@@ -39,6 +39,9 @@ export function HomePage() {
               <Link className="btn btnPrimary" to="/register">
                 Get Started
               </Link>
+              <Link className="btn btnSecondary" to="/varsity-calculator">
+                Try Varsity Calculator
+              </Link>
             </div>
 
             <div className="heroPills" role="list" aria-label="What Apply Once helps with">
@@ -84,7 +87,7 @@ export function HomePage() {
                 title: 'Varsity Calculator',
                 description: 'Estimate your points and compare programmes and entry requirements.',
                 icon: <IconCalculator className="featureSvg" />,
-                learnMoreHref: '/#features',
+                learnMoreHref: '/varsity-calculator',
               },
               {
                 title: 'NBT / SAT',
