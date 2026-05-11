@@ -427,20 +427,45 @@ export function AdminPage() {
                       setVarsitySeedMessage(null)
                       setVarsityError(null)
                       try {
-                        const res = await adminApi<{
-                          ok: boolean
-                          catalogueYear: number
-                          universityUpserts: number
-                          programmeUpserts: number
-                          requirementRows: number
-                        }>(`/api/admin/varsity/seed-from-json?year=${encodeURIComponent(String(varsityYear))}`, {
-                          method: 'POST',
-                          json: varsitySeedToken.trim()
-                            ? { seedToken: varsitySeedToken.trim() }
-                            : {},
-                        })
+                        let fileStart: number | null = 0
+                        let totalProgrammes = 0
+                        let totalReqs = 0
+                        let totalFiles = 0
+                        let universities = 0
+
+                        while (fileStart !== null) {
+                          setVarsitySeedMessage(
+                            `Importing… (batch starting at file ${fileStart})`,
+                          )
+                          const res = await adminApi<{
+                            ok: boolean
+                            catalogueYear: number
+                            universityUpserts: number
+                            programmeUpserts: number
+                            requirementRows: number
+                            processedFiles: number
+                            totalFiles: number
+                            nextFileStart: number | null
+                          }>(
+                            `/api/admin/varsity/seed-from-json?year=${encodeURIComponent(
+                              String(varsityYear),
+                            )}&fileStart=${encodeURIComponent(String(fileStart))}&fileCount=1`,
+                            {
+                              method: 'POST',
+                              json: varsitySeedToken.trim()
+                                ? { seedToken: varsitySeedToken.trim() }
+                                : {},
+                            },
+                          )
+                          universities = res.universityUpserts
+                          totalProgrammes += res.programmeUpserts
+                          totalReqs += res.requirementRows
+                          totalFiles = res.totalFiles
+                          fileStart = res.nextFileStart
+                        }
+
                         setVarsitySeedMessage(
-                          `Imported: ${res.universityUpserts} universities, ${res.programmeUpserts} programmes, ${res.requirementRows} requirement rows (year ${res.catalogueYear}).`,
+                          `Imported year ${varsityYear}: ${universities} universities, ${totalProgrammes} programmes, ${totalReqs} requirements (processed ${totalFiles} programme files).`,
                         )
                         await refreshVarsity()
                       } catch (e) {

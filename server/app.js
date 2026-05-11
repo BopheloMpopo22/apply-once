@@ -1355,7 +1355,16 @@ app.post(
     }
     const year = parseCatalogueYear(req)
     try {
-      const stats = await seedVarsityCatalogueFromRepo({ prisma, catalogueYear: year })
+      // Batch the work to avoid Vercel timeouts. Defaults to 1 programme file per request.
+      const fileStart = Number(req.query?.fileStart ?? req.body?.fileStart ?? 0)
+      const fileCountRaw = req.query?.fileCount ?? req.body?.fileCount
+      const fileCount = fileCountRaw == null ? 1 : Number(fileCountRaw)
+      const stats = await seedVarsityCatalogueFromRepo({
+        prisma,
+        catalogueYear: year,
+        fileStart,
+        fileCount,
+      })
       console.info('varsity seed-from-json', stats, 'actor', req.supabaseEmail || 'legacy-admin')
       res.json({ ok: true, ...stats })
     } catch (e) {

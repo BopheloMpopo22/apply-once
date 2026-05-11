@@ -12,7 +12,13 @@ function isAnyOfRequirement(req) {
  * Import bundled JSON under src/data/varsity into Postgres (idempotent upserts).
  * @param {{ prisma: import('@prisma/client').PrismaClient; catalogueYear: number; repoRoot?: string }} opts
  */
-export async function seedVarsityCatalogueFromRepo({ prisma, catalogueYear, repoRoot }) {
+export async function seedVarsityCatalogueFromRepo({
+  prisma,
+  catalogueYear,
+  repoRoot,
+  fileStart,
+  fileCount,
+}) {
   const root = repoRoot ?? path.join(__dirname, '..')
   const year = Math.floor(Number(catalogueYear) || 2026)
 
@@ -45,7 +51,14 @@ export async function seedVarsityCatalogueFromRepo({ prisma, catalogueYear, repo
   }
 
   const dataDir = path.join(root, 'src', 'data', 'varsity')
-  const files = fs.readdirSync(dataDir).filter((f) => /^programmes\..+\.json$/.test(f))
+  const filesAll = fs
+    .readdirSync(dataDir)
+    .filter((f) => /^programmes\..+\.json$/.test(f))
+    .sort()
+
+  const start = Math.max(0, Number(fileStart ?? 0) || 0)
+  const count = Math.max(0, Number(fileCount ?? filesAll.length) || 0)
+  const files = filesAll.slice(start, start + count)
 
   let programmeUpserts = 0
   let requirementRows = 0
@@ -117,5 +130,8 @@ export async function seedVarsityCatalogueFromRepo({ prisma, catalogueYear, repo
     universityUpserts,
     programmeUpserts,
     requirementRows,
+    processedFiles: files.length,
+    totalFiles: filesAll.length,
+    nextFileStart: start + files.length < filesAll.length ? start + files.length : null,
   }
 }
