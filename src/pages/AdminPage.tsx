@@ -104,6 +104,9 @@ export function AdminPage() {
   const [varsityMinAps, setVarsityMinAps] = useState('')
   const [varsityNotes, setVarsityNotes] = useState('')
   const [varsityRequirementsJson, setVarsityRequirementsJson] = useState('[]')
+  const [varsitySeedBusy, setVarsitySeedBusy] = useState(false)
+  const [varsitySeedToken, setVarsitySeedToken] = useState('')
+  const [varsitySeedMessage, setVarsitySeedMessage] = useState<string | null>(null)
 
   const refreshList = useCallback(async () => {
     setListBusy(true)
@@ -395,6 +398,60 @@ export function AdminPage() {
                       <option value={2027}>2027</option>
                     </select>
                   </label>
+                </div>
+
+                <h3 className="adminSubheading">Import catalogue from JSON</h3>
+                <p className="adminMuted">
+                  Fills the database from the built-in snapshot under <code className="adminMono">src/data/varsity/</code> for
+                  the selected year. Run once after deploy (or again to reset rules from JSON). Sign in on the main site with an
+                  allowlisted admin email so your session is sent with this request.
+                </p>
+                {varsitySeedMessage ? <p className="adminMuted">{varsitySeedMessage}</p> : null}
+                <label className="field">
+                  <span>Seed token (only if VARSITY_SEED_TOKEN is set on the server)</span>
+                  <input
+                    type="password"
+                    autoComplete="off"
+                    value={varsitySeedToken}
+                    onChange={(e) => setVarsitySeedToken(e.target.value)}
+                    placeholder="Leave empty if not configured"
+                  />
+                </label>
+                <div className="formActions">
+                  <button
+                    type="button"
+                    className="btn btnOutline btnSmall"
+                    disabled={varsitySeedBusy}
+                    onClick={async () => {
+                      setVarsitySeedBusy(true)
+                      setVarsitySeedMessage(null)
+                      setVarsityError(null)
+                      try {
+                        const res = await adminApi<{
+                          ok: boolean
+                          catalogueYear: number
+                          universityUpserts: number
+                          programmeUpserts: number
+                          requirementRows: number
+                        }>(`/api/admin/varsity/seed-from-json?year=${encodeURIComponent(String(varsityYear))}`, {
+                          method: 'POST',
+                          json: varsitySeedToken.trim()
+                            ? { seedToken: varsitySeedToken.trim() }
+                            : {},
+                        })
+                        setVarsitySeedMessage(
+                          `Imported: ${res.universityUpserts} universities, ${res.programmeUpserts} programmes, ${res.requirementRows} requirement rows (year ${res.catalogueYear}).`,
+                        )
+                        await refreshVarsity()
+                      } catch (e) {
+                        setVarsityError(e instanceof Error ? e.message : 'Seed import failed')
+                      } finally {
+                        setVarsitySeedBusy(false)
+                      }
+                    }}
+                  >
+                    {varsitySeedBusy ? 'Importing…' : `Import JSON snapshot for ${varsityYear}`}
+                  </button>
                 </div>
 
                 <label className="field">

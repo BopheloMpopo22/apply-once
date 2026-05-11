@@ -14,6 +14,7 @@ import fs from 'fs'
 import { fileURLToPath } from 'url'
 import { PrismaClient } from '@prisma/client'
 import { remoteDownloadBuffer, remotePut, remoteRemove, useRemoteFiles } from './storage.js'
+import { seedVarsityCatalogueFromRepo } from './varsitySeed.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const prisma = new PrismaClient()
@@ -24,6 +25,9 @@ const ADMIN_EMAILS = String(process.env.ADMIN_EMAILS || '')
   .split(',')
   .map((s) => s.trim().toLowerCase())
   .filter(Boolean)
+
+/** If set, POST /api/admin/varsity/seed-from-json must send matching X-Varsity-Seed-Token or JSON seedToken. */
+const VARSITY_SEED_TOKEN = String(process.env.VARSITY_SEED_TOKEN || '').trim()
 
 function supabaseAdmin() {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return null
@@ -247,6 +251,23 @@ function adminMiddleware(req, res, next) {
   const email = String(req.supabaseEmail || '').trim().toLowerCase()
   if (!email || !ADMIN_EMAILS.includes(email)) {
     return res.status(401).json({ error: 'Not an admin account' })
+  }
+  next()
+}
+
+/** Sets req.supabaseEmail from Bearer token so adminMiddleware can allowlist Supabase admins without full authMiddleware. */
+async function attachSupabaseEmailIfPresent(req, _res, next) {
+  if (req.supabaseEmail) return next()
+  const header = String(req.headers.authorization || '')
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null
+  if (!token) return next()
+  try {
+    const sb = supabaseAdmin()
+    if (!sb) return next()
+    const { data } = await sb.auth.getUser(token)
+    if (data?.user?.email) req.supabaseEmail = String(data.user.email).trim().toLowerCase()
+  } catch {
+    /* ignore */
   }
   next()
 }
@@ -1099,7 +1120,8 @@ app.post('/api/admin/inbox', adminMiddleware, async (req, res) => {
 })
 
 function parseCatalogueYear(req) {
-  const yearRaw = String(req.query?.year ?? '').trim()
+  let yearRaw = String(req.query?.year ?? '').trim()
+  if (!yearRaw && req.body && req.body.year != null) yearRaw = String(req.body.year).trim()
   const y = yearRaw ? Number(yearRaw) : 2026
   if (!Number.isFinite(y) || y < 2000 || y > 2100) return 2026
   return Math.floor(y)
@@ -1174,7 +1196,7 @@ app.get('/api/varsity/catalogue', async (req, res) => {
   })
 })
 
-app.get('/api/admin/varsity/catalogue', adminMiddleware, async (req, res) => {
+app.get('/api/admin/varsity/catalogue', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res) => {
   const year = parseCatalogueYear(req)
   const universities = await prisma.varsityUniversity.findMany({
     orderBy: { shortName: 'asc' },
@@ -1205,7 +1227,7 @@ app.get('/api/admin/varsity/catalogue', adminMiddleware, async (req, res) => {
   res.json({ year, universities, programmes })
 })
 
-app.post('/api/admin/varsity/universities', adminMiddleware, async (req, res) => {
+app.post('/api/admin/varsity/universities', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res) => {
   const id = String(req.body?.id || '').trim().toLowerCase()
   const name = String(req.body?.name || '').trim()
   const shortName = String(req.body?.shortName || '').trim()
@@ -1225,7 +1247,7 @@ app.post('/api/admin/varsity/universities', adminMiddleware, async (req, res) =>
   res.status(201).json(row)
 })
 
-app.patch('/api/admin/varsity/universities/:id', adminMiddleware, async (req, res) => {
+app.patch('/api/admin/varsity/universities/:id', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res) => {
   const id = String(req.params.id || '').trim().toLowerCase()
   const data = {}
   for (const k of ['name', 'shortName', 'website', 'logoPath', 'calculatorType']) {
@@ -1240,7 +1262,7 @@ app.patch('/api/admin/varsity/universities/:id', adminMiddleware, async (req, re
   res.json(row)
 })
 
-app.post('/api/admin/varsity/programmes', adminMiddleware, async (req, res) => {
+app.post('/api/admin/varsity/programmes', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res) => {
   const id = String(req.body?.id || '').trim()
   const universityId = String(req.body?.universityId || '').trim().toLowerCase()
   const name = String(req.body?.name || '').trim()
@@ -1260,7 +1282,7 @@ app.post('/api/admin/varsity/programmes', adminMiddleware, async (req, res) => {
   res.status(201).json(row)
 })
 
-app.patch('/api/admin/varsity/programmes/:id', adminMiddleware, async (req, res) => {
+app.patch('/api/admin/varsity/programmes/:id', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res) => {
   const id = String(req.params.id || '').trim()
   const data = {}
   for (const k of ['universityId', 'name', 'faculty', 'campus', 'externalCode']) {
@@ -1279,7 +1301,7 @@ app.patch('/api/admin/varsity/programmes/:id', adminMiddleware, async (req, res)
   res.json(row)
 })
 
-app.post('/api/admin/varsity/programmes/:id/ruleset', adminMiddleware, async (req, res) => {
+app.post('/api/admin/varsity/programmes/:id/ruleset', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res) => {
   const programmeId = String(req.params.id || '').trim()
   const catalogueYear = parseCatalogueYear(req)
   const minAps = Number(req.body?.minAps ?? NaN)
@@ -1296,7 +1318,7 @@ app.post('/api/admin/varsity/programmes/:id/ruleset', adminMiddleware, async (re
   res.status(201).json(rs)
 })
 
-app.put('/api/admin/varsity/rulesets/:id/requirements', adminMiddleware, async (req, res) => {
+app.put('/api/admin/varsity/rulesets/:id/requirements', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res) => {
   const ruleSetId = String(req.params.id || '').trim()
   const requirements = Array.isArray(req.body?.requirements) ? req.body.requirements : []
   // Basic validation: each item should be an object and JSON-serializable
@@ -1314,6 +1336,34 @@ app.put('/api/admin/varsity/rulesets/:id/requirements', adminMiddleware, async (
   }
   res.json({ ok: true })
 })
+
+app.post(
+  '/api/admin/varsity/seed-from-json',
+  attachSupabaseEmailIfPresent,
+  adminMiddleware,
+  async (req, res) => {
+    if (VARSITY_SEED_TOKEN) {
+      const sent =
+        String(req.get('x-varsity-seed-token') || '').trim() ||
+        String(req.body?.seedToken ?? '').trim()
+      if (sent !== VARSITY_SEED_TOKEN) {
+        return res.status(403).json({
+          error:
+            'Invalid or missing seed token. Set VARSITY_SEED_TOKEN on the server and send the same value in header X-Varsity-Seed-Token or JSON body { seedToken }.',
+        })
+      }
+    }
+    const year = parseCatalogueYear(req)
+    try {
+      const stats = await seedVarsityCatalogueFromRepo({ prisma, catalogueYear: year })
+      console.info('varsity seed-from-json', stats, 'actor', req.supabaseEmail || 'legacy-admin')
+      res.json({ ok: true, ...stats })
+    } catch (e) {
+      console.error('varsity seed-from-json failed', e)
+      res.status(500).json({ error: e instanceof Error ? e.message : 'Seed failed' })
+    }
+  },
+)
 
 app.use((err, _req, res, _next) => {
   console.error(err)
