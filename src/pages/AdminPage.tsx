@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { adminApi, getAdminToken, setAdminToken } from '../api/adminClient'
 import { ChatThread, type ChatMessage } from '../components/ChatThread'
+import type { ProgrammeRequirement, UniversityId } from '../utils/varsity/types'
 
 type StudentRow = {
   id: string
@@ -50,6 +51,33 @@ type StudentDetail = {
   inboxItems: InboxRow[]
 }
 
+type VarsityUniversityRow = {
+  id: UniversityId
+  name: string
+  shortName: string
+  website: string
+  logoPath: string
+  calculatorType: string
+  active: boolean
+}
+
+type VarsityProgrammeRow = {
+  id: string
+  universityId: UniversityId
+  name: string
+  faculty: string
+  campus: string | null
+  externalCode: string | null
+  active: boolean
+  ruleSets: Array<{
+    id: string
+    catalogueYear: number
+    minAps: number
+    notes: string | null
+    requirements: Array<{ id: string; kind: string; label: string | null; payloadJson: string }>
+  }>
+}
+
 export function AdminPage() {
   const [tokenInput, setTokenInput] = useState('')
   const [unlocked, setUnlocked] = useState(() => Boolean(getAdminToken()))
@@ -67,6 +95,15 @@ export function AdminPage() {
   const [chat, setChat] = useState<ChatMessage[]>([])
   const [chatDraft, setChatDraft] = useState('')
   const [chatBusy, setChatBusy] = useState(false)
+
+  const [varsityYear, setVarsityYear] = useState(2026)
+  const [varsityBusy, setVarsityBusy] = useState(false)
+  const [varsityError, setVarsityError] = useState<string | null>(null)
+  const [varsityProgrammes, setVarsityProgrammes] = useState<VarsityProgrammeRow[]>([])
+  const [varsitySelectedProgrammeId, setVarsitySelectedProgrammeId] = useState<string | null>(null)
+  const [varsityMinAps, setVarsityMinAps] = useState('')
+  const [varsityNotes, setVarsityNotes] = useState('')
+  const [varsityRequirementsJson, setVarsityRequirementsJson] = useState('[]')
 
   const refreshList = useCallback(async () => {
     setListBusy(true)
@@ -113,6 +150,21 @@ export function AdminPage() {
     refreshList().catch(() => {})
   }, [refreshList])
 
+  const refreshVarsity = useCallback(async () => {
+    setVarsityBusy(true)
+    setVarsityError(null)
+    try {
+      const res = await adminApi<{ year: number; universities: VarsityUniversityRow[]; programmes: VarsityProgrammeRow[] }>(
+        `/api/admin/varsity/catalogue?year=${encodeURIComponent(String(varsityYear))}`,
+      )
+      setVarsityProgrammes(res.programmes)
+    } catch (e) {
+      setVarsityError(e instanceof Error ? e.message : 'Could not load varsity catalogue')
+    } finally {
+      setVarsityBusy(false)
+    }
+  }, [varsityYear])
+
   useEffect(() => {
     if (!selectedId) {
       setDetail(null)
@@ -120,6 +172,35 @@ export function AdminPage() {
     }
     loadDetail(selectedId).catch(() => {})
   }, [selectedId, loadDetail])
+
+  useEffect(() => {
+    if (!unlocked) return
+    refreshVarsity().catch(() => {})
+  }, [unlocked, refreshVarsity])
+
+  useEffect(() => {
+    const p = varsitySelectedProgrammeId
+      ? varsityProgrammes.find((x) => x.id === varsitySelectedProgrammeId) ?? null
+      : null
+    const rs = p?.ruleSets?.[0] ?? null
+    if (!rs) {
+      setVarsityMinAps('')
+      setVarsityNotes('')
+      setVarsityRequirementsJson('[]')
+      return
+    }
+    setVarsityMinAps(String(rs.minAps))
+    setVarsityNotes(String(rs.notes ?? ''))
+    const reqs: ProgrammeRequirement[] = []
+    for (const r of rs.requirements ?? []) {
+      try {
+        reqs.push(JSON.parse(r.payloadJson))
+      } catch {
+        // ignore
+      }
+    }
+    setVarsityRequirementsJson(JSON.stringify(reqs, null, 2))
+  }, [varsitySelectedProgrammeId, varsityProgrammes])
 
   async function onUnlock(e: FormEvent) {
     e.preventDefault()
@@ -241,12 +322,21 @@ export function AdminPage() {
               <button type="button" className="btn btnOutline btnSmall" disabled={listBusy} onClick={() => refreshList()}>
                 {listBusy ? 'Refreshing…' : 'Refresh list'}
               </button>
+              <button
+                type="button"
+                className="btn btnOutline btnSmall"
+                disabled={varsityBusy}
+                onClick={() => void refreshVarsity()}
+              >
+                {varsityBusy ? 'Refreshing…' : 'Refresh varsity'}
+              </button>
               <p className="adminToolbarMeta">
                 {students.length} student{students.length === 1 ? '' : 's'} — data lives in SQLite (see Prisma schema).
               </p>
             </div>
 
             {error ? <div className="formError adminError">{error}</div> : null}
+            {varsityError ? <div className="formError adminError">{varsityError}</div> : null}
 
             <div className="adminGrid">
               <section className="adminCard adminCardStretch">
@@ -292,6 +382,93 @@ export function AdminPage() {
               </section>
 
               <section className="adminCard adminCardStretch">
+                <h2 className="adminCardTitle">Varsity catalogue</h2>
+                <p className="adminCardLead">
+                  Edit programme rules for a specific year. Changes affect the calculator immediately (no redeploy once seeded).
+                </p>
+
+                <div className="adminToolbar" style={{ marginTop: 0 }}>
+                  <label className="field" style={{ maxWidth: 220 }}>
+                    <span>Catalogue year</span>
+                    <select value={varsityYear} onChange={(e) => setVarsityYear(Number(e.target.value))}>
+                      <option value={2026}>2026</option>
+                      <option value={2027}>2027</option>
+                    </select>
+                  </label>
+                </div>
+
+                <label className="field">
+                  <span>Programme</span>
+                  <select
+                    value={varsitySelectedProgrammeId ?? ''}
+                    onChange={(e) => setVarsitySelectedProgrammeId(e.target.value || null)}
+                  >
+                    <option value="">Select a programme…</option>
+                    {varsityProgrammes.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.universityId.toUpperCase()} — {p.faculty} — {p.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                {!varsitySelectedProgrammeId ? (
+                  <p className="adminMuted">Select a programme to edit its APS + requirements for the selected year.</p>
+                ) : (
+                  <form
+                    className="adminCompose"
+                    onSubmit={async (ev) => {
+                      ev.preventDefault()
+                      setVarsityBusy(true)
+                      setVarsityError(null)
+                      try {
+                        const minAps = Number(varsityMinAps)
+                        const rs = await adminApi<{ id: string }>(
+                          `/api/admin/varsity/programmes/${encodeURIComponent(varsitySelectedProgrammeId)}/ruleset?year=${encodeURIComponent(
+                            String(varsityYear),
+                          )}`,
+                          {
+                            method: 'POST',
+                            json: { minAps, notes: varsityNotes.trim() || null },
+                          },
+                        )
+                        const reqs = JSON.parse(varsityRequirementsJson || '[]') as ProgrammeRequirement[]
+                        await adminApi(`/api/admin/varsity/rulesets/${encodeURIComponent(rs.id)}/requirements`, {
+                          method: 'PUT',
+                          json: { requirements: reqs },
+                        })
+                        await refreshVarsity()
+                      } catch (e) {
+                        setVarsityError(e instanceof Error ? e.message : 'Could not save varsity changes')
+                      } finally {
+                        setVarsityBusy(false)
+                      }
+                    }}
+                  >
+                    <label className="field">
+                      <span>Min APS</span>
+                      <input value={varsityMinAps} onChange={(e) => setVarsityMinAps(e.target.value)} />
+                    </label>
+                    <label className="field">
+                      <span>Notes</span>
+                      <textarea rows={3} value={varsityNotes} onChange={(e) => setVarsityNotes(e.target.value)} />
+                    </label>
+                    <label className="field">
+                      <span>Requirements JSON</span>
+                      <textarea
+                        rows={10}
+                        value={varsityRequirementsJson}
+                        onChange={(e) => setVarsityRequirementsJson(e.target.value)}
+                      />
+                    </label>
+                    <div className="formActions">
+                      <button type="submit" className="btn btnDark btnSmall" disabled={varsityBusy}>
+                        {varsityBusy ? 'Saving…' : 'Save programme rules'}
+                      </button>
+                    </div>
+                  </form>
+                )}
+
                 {!selectedId ? (
                   <p className="adminMuted">Select a student in the table to view their data and send messages.</p>
                 ) : detailBusy ? (

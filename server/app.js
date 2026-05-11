@@ -1098,6 +1098,223 @@ app.post('/api/admin/inbox', adminMiddleware, async (req, res) => {
   res.status(201).json(item)
 })
 
+function parseCatalogueYear(req) {
+  const yearRaw = String(req.query?.year ?? '').trim()
+  const y = yearRaw ? Number(yearRaw) : 2026
+  if (!Number.isFinite(y) || y < 2000 || y > 2100) return 2026
+  return Math.floor(y)
+}
+
+app.get('/api/varsity/catalogue', async (req, res) => {
+  const year = parseCatalogueYear(req)
+  const universities = await prisma.varsityUniversity.findMany({
+    where: { active: true },
+    orderBy: { shortName: 'asc' },
+    select: { id: true, name: true, shortName: true, website: true, logoPath: true, calculatorType: true },
+  })
+
+  const programmes = await prisma.varsityProgramme.findMany({
+    where: { active: true, university: { active: true } },
+    orderBy: [{ universityId: 'asc' }, { faculty: 'asc' }, { name: 'asc' }],
+    select: {
+      id: true,
+      universityId: true,
+      name: true,
+      faculty: true,
+      campus: true,
+      externalCode: true,
+      ruleSets: {
+        where: { catalogueYear: year },
+        select: {
+          id: true,
+          catalogueYear: true,
+          minAps: true,
+          notes: true,
+          requirements: { select: { kind: true, label: true, payloadJson: true } },
+        },
+      },
+    },
+  })
+
+  res.json({
+    year,
+    universities: universities.map((u) => ({
+      id: u.id,
+      name: u.name,
+      shortName: u.shortName,
+      website: u.website,
+      logo: u.logoPath,
+      calculator: u.calculatorType,
+    })),
+    programmes: programmes
+      .map((p) => {
+        const rs = p.ruleSets?.[0]
+        if (!rs) return null
+        let subjectRequirements = []
+        for (const r of rs.requirements || []) {
+          try {
+            subjectRequirements.push(JSON.parse(r.payloadJson || '{}'))
+          } catch {
+            // ignore invalid JSON payloads
+          }
+        }
+        return {
+          id: p.externalCode || p.id,
+          programmeId: p.id,
+          universityId: p.universityId,
+          name: p.name,
+          faculty: p.faculty,
+          campus: p.campus,
+          minAps: rs.minAps,
+          notes: rs.notes,
+          subjectRequirements,
+        }
+      })
+      .filter(Boolean),
+  })
+})
+
+app.get('/api/admin/varsity/catalogue', adminMiddleware, async (req, res) => {
+  const year = parseCatalogueYear(req)
+  const universities = await prisma.varsityUniversity.findMany({
+    orderBy: { shortName: 'asc' },
+    select: { id: true, name: true, shortName: true, website: true, logoPath: true, calculatorType: true, active: true },
+  })
+  const programmes = await prisma.varsityProgramme.findMany({
+    orderBy: [{ universityId: 'asc' }, { faculty: 'asc' }, { name: 'asc' }],
+    select: {
+      id: true,
+      universityId: true,
+      name: true,
+      faculty: true,
+      campus: true,
+      externalCode: true,
+      active: true,
+      ruleSets: {
+        where: { catalogueYear: year },
+        select: {
+          id: true,
+          catalogueYear: true,
+          minAps: true,
+          notes: true,
+          requirements: { select: { id: true, kind: true, label: true, payloadJson: true } },
+        },
+      },
+    },
+  })
+  res.json({ year, universities, programmes })
+})
+
+app.post('/api/admin/varsity/universities', adminMiddleware, async (req, res) => {
+  const id = String(req.body?.id || '').trim().toLowerCase()
+  const name = String(req.body?.name || '').trim()
+  const shortName = String(req.body?.shortName || '').trim()
+  const website = String(req.body?.website || '').trim()
+  const logoPath = String(req.body?.logoPath || '').trim()
+  const calculatorType = String(req.body?.calculatorType || '').trim()
+  const active = req.body?.active === undefined ? true : Boolean(req.body.active)
+  if (!id || !name || !shortName || !website || !logoPath || !calculatorType) {
+    return res.status(400).json({ error: 'id, name, shortName, website, logoPath, calculatorType are required' })
+  }
+  const row = await prisma.varsityUniversity.upsert({
+    where: { id },
+    update: { name, shortName, website, logoPath, calculatorType, active },
+    create: { id, name, shortName, website, logoPath, calculatorType, active },
+    select: { id: true, name: true, shortName: true, website: true, logoPath: true, calculatorType: true, active: true },
+  })
+  res.status(201).json(row)
+})
+
+app.patch('/api/admin/varsity/universities/:id', adminMiddleware, async (req, res) => {
+  const id = String(req.params.id || '').trim().toLowerCase()
+  const data = {}
+  for (const k of ['name', 'shortName', 'website', 'logoPath', 'calculatorType']) {
+    if (req.body?.[k] !== undefined) data[k] = String(req.body[k]).trim()
+  }
+  if (req.body?.active !== undefined) data.active = Boolean(req.body.active)
+  const row = await prisma.varsityUniversity.update({
+    where: { id },
+    data,
+    select: { id: true, name: true, shortName: true, website: true, logoPath: true, calculatorType: true, active: true },
+  })
+  res.json(row)
+})
+
+app.post('/api/admin/varsity/programmes', adminMiddleware, async (req, res) => {
+  const id = String(req.body?.id || '').trim()
+  const universityId = String(req.body?.universityId || '').trim().toLowerCase()
+  const name = String(req.body?.name || '').trim()
+  const faculty = String(req.body?.faculty || '').trim()
+  const campus = req.body?.campus === undefined ? null : String(req.body.campus || '').trim() || null
+  const externalCode = req.body?.externalCode === undefined ? null : String(req.body.externalCode || '').trim() || null
+  const active = req.body?.active === undefined ? true : Boolean(req.body.active)
+  if (!id || !universityId || !name || !faculty) {
+    return res.status(400).json({ error: 'id, universityId, name, faculty are required' })
+  }
+  const row = await prisma.varsityProgramme.upsert({
+    where: { id },
+    update: { universityId, name, faculty, campus, externalCode, active },
+    create: { id, universityId, name, faculty, campus, externalCode, active },
+    select: { id: true, universityId: true, name: true, faculty: true, campus: true, externalCode: true, active: true },
+  })
+  res.status(201).json(row)
+})
+
+app.patch('/api/admin/varsity/programmes/:id', adminMiddleware, async (req, res) => {
+  const id = String(req.params.id || '').trim()
+  const data = {}
+  for (const k of ['universityId', 'name', 'faculty', 'campus', 'externalCode']) {
+    if (req.body?.[k] !== undefined) {
+      const v = String(req.body[k] || '').trim()
+      data[k] = v || null
+    }
+  }
+  if (data.universityId) data.universityId = String(data.universityId).toLowerCase()
+  if (req.body?.active !== undefined) data.active = Boolean(req.body.active)
+  const row = await prisma.varsityProgramme.update({
+    where: { id },
+    data,
+    select: { id: true, universityId: true, name: true, faculty: true, campus: true, externalCode: true, active: true },
+  })
+  res.json(row)
+})
+
+app.post('/api/admin/varsity/programmes/:id/ruleset', adminMiddleware, async (req, res) => {
+  const programmeId = String(req.params.id || '').trim()
+  const catalogueYear = parseCatalogueYear(req)
+  const minAps = Number(req.body?.minAps ?? NaN)
+  const notes = req.body?.notes === undefined ? null : String(req.body.notes || '').trim() || null
+  if (!Number.isFinite(minAps) || minAps < 0 || minAps > 60) {
+    return res.status(400).json({ error: 'minAps must be a number (0-60)' })
+  }
+  const rs = await prisma.varsityProgrammeRuleSet.upsert({
+    where: { programmeId_catalogueYear: { programmeId, catalogueYear } },
+    update: { minAps: Math.floor(minAps), notes },
+    create: { programmeId, catalogueYear, minAps: Math.floor(minAps), notes },
+    select: { id: true, programmeId: true, catalogueYear: true, minAps: true, notes: true },
+  })
+  res.status(201).json(rs)
+})
+
+app.put('/api/admin/varsity/rulesets/:id/requirements', adminMiddleware, async (req, res) => {
+  const ruleSetId = String(req.params.id || '').trim()
+  const requirements = Array.isArray(req.body?.requirements) ? req.body.requirements : []
+  // Basic validation: each item should be an object and JSON-serializable
+  for (const r of requirements) {
+    if (!r || typeof r !== 'object') return res.status(400).json({ error: 'requirements must be an array of objects' })
+  }
+
+  await prisma.varsityProgrammeRequirement.deleteMany({ where: { ruleSetId } })
+  for (const r of requirements) {
+    const kind = Array.isArray(r.anyOf) ? 'anyOf' : 'single'
+    const label = typeof r.label === 'string' ? r.label.trim() : null
+    await prisma.varsityProgrammeRequirement.create({
+      data: { ruleSetId, kind, label, payloadJson: JSON.stringify(r) },
+    })
+  }
+  res.json({ ok: true })
+})
+
 app.use((err, _req, res, _next) => {
   console.error(err)
   if (err instanceof MulterError) {

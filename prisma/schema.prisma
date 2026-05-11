@@ -96,3 +96,71 @@ model ChatMessage {
 
   @@index([userId, createdAt])
 }
+
+model VarsityUniversity {
+  /// Stable slug, e.g. 'wits', 'uj'
+  id             String  @id
+  name           String
+  shortName      String
+  website        String
+  logoPath       String
+  calculatorType String
+  active         Boolean @default(true)
+
+  programmes VarsityProgramme[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VarsityProgramme {
+  id           String @id
+  universityId String
+  university   VarsityUniversity @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  name         String
+  faculty      String
+  campus       String?
+  externalCode String?
+  active       Boolean @default(true)
+
+  ruleSets VarsityProgrammeRuleSet[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([universityId, faculty])
+  @@index([universityId, name])
+}
+
+model VarsityProgrammeRuleSet {
+  id           String @id @default(cuid())
+  programmeId  String
+  programme    VarsityProgramme @relation(fields: [programmeId], references: [id], onDelete: Cascade)
+  catalogueYear Int
+  minAps       Int
+  notes        String?
+
+  requirements VarsityProgrammeRequirement[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([programmeId, catalogueYear])
+  @@index([catalogueYear])
+}
+
+model VarsityProgrammeRequirement {
+  id        String @id @default(cuid())
+  ruleSetId String
+  ruleSet   VarsityProgrammeRuleSet @relation(fields: [ruleSetId], references: [id], onDelete: Cascade)
+
+  /// 'single' | 'anyOf'
+  kind      String
+  label     String?
+  payloadJson String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ruleSetId])
+}

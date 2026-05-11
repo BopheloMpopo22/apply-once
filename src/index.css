@@ -177,6 +177,13 @@ h4 {
   font-size: 14px;
 }
 
+.vcYearRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
 .segmented {
   display: inline-flex;
   background: rgba(2, 6, 23, 0.06);

@@ -1,13 +1,13 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { Navbar } from '../components/Navbar'
-import { getProgrammes, getUniversities } from '../utils/varsity/data'
 import { normalizeMarks } from '../utils/varsity/markParsing'
 import { computeEligibilityForUniversity } from '../utils/varsity/eligibility'
-import type { SubjectMarkInput, UniversityId } from '../utils/varsity/types'
+import type { Programme, SubjectMarkInput, UniversityId } from '../utils/varsity/types'
 import { coercePercent } from '../utils/varsity/levels'
 import { validateMarkRows } from '../utils/varsity/validation'
+import { fetchVarsityCatalogue } from '../utils/varsity/catalogueClient'
 
 const COMMON_SUBJECTS = [
   'English HL',
@@ -33,6 +33,7 @@ function emptyRow(): SubjectMarkInput {
 
 export function VarsityCalculatorPage() {
   const [reportType, setReportType] = useState<ReportType>('grade11t4')
+  const [catalogueYear, setCatalogueYear] = useState(2026)
   const [rows, setRows] = useState<SubjectMarkInput[]>([
     { subject: 'English HL', percent: 60 },
     { subject: 'Mathematics', percent: 60 },
@@ -43,18 +44,61 @@ export function VarsityCalculatorPage() {
   ])
   const [showIneligible, setShowIneligible] = useState(false)
   const [search, setSearch] = useState('')
+  const [catalogueBusy, setCatalogueBusy] = useState(false)
+  const [catalogueError, setCatalogueError] = useState<string | null>(null)
+  const [catalogue, setCatalogue] = useState<{
+    year: number
+    universities: Array<{
+      id: UniversityId
+      name: string
+      shortName: string
+      website: string
+      logo: string
+      calculator: string
+    }>
+    programmesByUniversity: Partial<Record<UniversityId, Programme[]>>
+  } | null>(null)
 
-  const universities = useMemo(() => getUniversities(), [])
+  const loadCatalogue = useCallback(async (year: number) => {
+    setCatalogueBusy(true)
+    setCatalogueError(null)
+    try {
+      const res = await fetchVarsityCatalogue(year)
+      const programmesByUniversity: Partial<Record<UniversityId, Programme[]>> = {}
+      for (const p of res.programmes) {
+        const k = p.universityId
+        programmesByUniversity[k] ||= []
+        programmesByUniversity[k].push(p)
+      }
+      setCatalogue({
+        year: res.year,
+        universities: res.universities,
+        programmesByUniversity,
+      })
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Could not load varsity catalogue'
+      setCatalogueError(msg)
+      setCatalogue(null)
+    } finally {
+      setCatalogueBusy(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void loadCatalogue(catalogueYear)
+  }, [catalogueYear, loadCatalogue])
+
   const validationIssues = useMemo(() => validateMarkRows(rows), [rows])
   const marks = useMemo(() => normalizeMarks(rows), [rows])
 
   const byUni = useMemo(() => {
+    const universities = catalogue?.universities ?? []
     return universities.map((u) => {
-      const programmes = getProgrammes(u.id as UniversityId)
+      const programmes = catalogue?.programmesByUniversity?.[u.id] ?? []
       const res = computeEligibilityForUniversity(u.id as UniversityId, marks, programmes)
       return { uni: u, ...res }
     })
-  }, [marks, universities])
+  }, [marks, catalogue])
 
   const filteredByUni = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -146,6 +190,31 @@ export function VarsityCalculatorPage() {
               </div>
 
               <div className="vcControl">
+                <div className="vcLabel">Catalogue year</div>
+                <div className="vcYearRow">
+                  <select
+                    className="input"
+                    value={catalogueYear}
+                    onChange={(e) => {
+                      const y = Number(e.target.value)
+                      setCatalogueYear(y)
+                      void loadCatalogue(y)
+                    }}
+                  >
+                    <option value={2026}>2026</option>
+                    <option value={2027}>2027</option>
+                  </select>
+                  <button
+                    type="button"
+                    className="btn btnSmall btnGhost"
+                    onClick={() => void loadCatalogue(catalogueYear)}
+                    disabled={catalogueBusy}
+                  >
+                    {catalogueBusy ? 'Loading…' : 'Reload'}
+                  </button>
+                </div>
+                {catalogueError ? <div className="vcHint">{catalogueError}</div> : null}
+
                 <div className="vcLabel">Search programmes</div>
                 <input
                   className="input"
