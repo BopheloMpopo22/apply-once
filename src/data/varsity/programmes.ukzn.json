@@ -1,0 +1,136 @@
+[
+  {
+    "id": "ukzn-eng",
+    "name": "Engineering (General)",
+    "faculty": "Engineering",
+    "minAps": 34,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ],
+    "notes": "UKZN requirements vary by discipline; use as guidance."
+  },
+  {
+    "id": "ukzn-bsc",
+    "name": "BSc (Science) (General)",
+    "faculty": "Science",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 4 }]
+  },
+  {
+    "id": "ukzn-bsc-cs",
+    "name": "BSc (Computer Science / IT) (General)",
+    "faculty": "Science",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+  },
+  {
+    "id": "ukzn-bcom",
+    "name": "BCom (General)",
+    "faculty": "Commerce",
+    "minAps": 28,
+    "subjectRequirements": [
+      {
+        "anyOf": [
+          { "subject": "Mathematics", "minLevel": 4 },
+          { "subject": "Mathematical Literacy", "minLevel": 6 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ukzn-acc",
+    "name": "BCom (Accounting) (General)",
+    "faculty": "Commerce",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+  },
+  {
+    "id": "ukzn-law",
+    "name": "LLB",
+    "faculty": "Law",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 5 }]
+  },
+  {
+    "id": "ukzn-ba",
+    "name": "BA (Humanities) (General)",
+    "faculty": "Humanities",
+    "minAps": 24,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "ukzn-bed",
+    "name": "BEd (General)",
+    "faculty": "Education",
+    "minAps": 24,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "ukzn-health",
+    "name": "Health Sciences (General)",
+    "faculty": "Health Sciences",
+    "minAps": 30,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      {
+        "anyOf": [
+          { "subject": "Life Sciences", "minLevel": 5 },
+          { "subject": "Physical Sciences", "minLevel": 5 }
+        ],
+        "label": "Life Sciences or Physical Sciences"
+      }
+    ]
+  },
+  {
+    "id": "ukzn-agri",
+    "name": "Agriculture (General)",
+    "faculty": "Agriculture",
+    "minAps": 24,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 3 }]
+  },
+  {
+    "id": "ukzn-built",
+    "name": "Built Environment (General)",
+    "faculty": "Engineering",
+    "minAps": 26,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 4 }]
+  },
+  {
+    "id": "ukzn-econ",
+    "name": "Economics (General)",
+    "faculty": "Commerce",
+    "minAps": 28,
+    "subjectRequirements": [
+      {
+        "anyOf": [
+          { "subject": "Mathematics", "minLevel": 4 },
+          { "subject": "Mathematical Literacy", "minLevel": 6 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ukzn-bsc-maths",
+    "name": "BSc (Mathematics) (General)",
+    "faculty": "Science",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+  },
+  {
+    "id": "ukzn-stats",
+    "name": "BSc (Statistics) (General)",
+    "faculty": "Science",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+  },
+  {
+    "id": "ukzn-comms",
+    "name": "Communication / Media (General)",
+    "faculty": "Humanities",
+    "minAps": 24,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  }
+]
+

@@ -439,6 +439,13 @@ h4 {
   margin-top: 8px;
 }
 
+.vcProgNotes {
+  margin-top: 10px;
+  color: rgba(2, 6, 23, 0.72);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 .tag {
   display: inline-flex;
   align-items: center;

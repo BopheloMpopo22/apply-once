@@ -1,4 +1,11 @@
-import type { Programme, ProgrammeEligibility, SubjectMark, UniversityId } from './types'
+import type {
+  Programme,
+  ProgrammeAnyOfRequirement,
+  ProgrammeEligibility,
+  ProgrammeSubjectRequirement,
+  SubjectMark,
+  UniversityId,
+} from './types'
 import { calculateAps } from './calculators'
 
 function findBestMarkForSubject(marks: SubjectMark[], subjectLabel: string): SubjectMark | null {
@@ -8,6 +15,44 @@ function findBestMarkForSubject(marks: SubjectMark[], subjectLabel: string): Sub
   const candidates = marks.filter((m) => m.subject.toLowerCase() === subjectKey)
   if (candidates.length === 0) return null
   return candidates.reduce((best, cur) => (cur.level > best.level ? cur : best), candidates[0])
+}
+
+function checkSingleSubjectRequirement(marks: SubjectMark[], req: ProgrammeSubjectRequirement): string[] {
+  const reasons: string[] = []
+  const m = findBestMarkForSubject(marks, req.subject)
+  if (!m) return [`Missing subject: ${req.subject}.`]
+
+  if (typeof req.minLevel === 'number' && m.level < req.minLevel) {
+    reasons.push(`${req.subject} level too low: need level ${req.minLevel}, you have level ${m.level}.`)
+  }
+
+  if (typeof req.minPercent === 'number') {
+    const percent = m.percent ?? null
+    if (percent === null) {
+      reasons.push(`${req.subject} needs at least ${req.minPercent}%, but you entered only a level.`)
+    } else if (percent < req.minPercent) {
+      reasons.push(`${req.subject} mark too low: need ${req.minPercent}%, you have ${percent}%.`)
+    }
+  }
+
+  return reasons
+}
+
+function checkAnyOfRequirement(marks: SubjectMark[], req: ProgrammeAnyOfRequirement): string[] {
+  const options = req.anyOf ?? []
+  if (options.length === 0) return ['Invalid requirement: anyOf is empty.']
+
+  // eligible if ANY option has no issues
+  const perOption = options.map((opt) => ({ opt, reasons: checkSingleSubjectRequirement(marks, opt) }))
+  const ok = perOption.find((o) => o.reasons.length === 0)
+  if (ok) return []
+
+  const label = req.label?.trim() ? req.label.trim() : options.map((o) => o.subject).join(' OR ')
+  const details = perOption
+    .map((o) => `${o.opt.subject}: ${o.reasons.join(' ')}`)
+    .join(' | ')
+    .trim()
+  return [`Need one of: ${label}. ${details}`.trim()]
 }
 
 export function checkProgrammeEligibility(
@@ -23,23 +68,12 @@ export function checkProgrammeEligibility(
   }
 
   for (const req of programme.subjectRequirements ?? []) {
-    const m = findBestMarkForSubject(marks, req.subject)
-    if (!m) {
-      reasons.push(`Missing subject: ${req.subject}.`)
-      continue
-    }
-
-    if (typeof req.minLevel === 'number' && m.level < req.minLevel) {
-      reasons.push(`${req.subject} level too low: need level ${req.minLevel}, you have level ${m.level}.`)
-    }
-
-    if (typeof req.minPercent === 'number') {
-      const percent = m.percent ?? null
-      if (percent === null) {
-        reasons.push(`${req.subject} needs at least ${req.minPercent}%, but you entered only a level.`)
-      } else if (percent < req.minPercent) {
-        reasons.push(`${req.subject} mark too low: need ${req.minPercent}%, you have ${percent}%.`)
-      }
+    const reqAny = req as ProgrammeAnyOfRequirement
+    const reqSingle = req as ProgrammeSubjectRequirement
+    if (Array.isArray(reqAny.anyOf)) {
+      reasons.push(...checkAnyOfRequirement(marks, reqAny))
+    } else {
+      reasons.push(...checkSingleSubjectRequirement(marks, reqSingle))
     }
   }
 

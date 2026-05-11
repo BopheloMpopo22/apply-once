@@ -295,6 +295,7 @@ export function VarsityCalculatorPage() {
                                 <span className="tag">{p.programme.faculty}</span>
                                 <span className="tag">Min APS {p.programme.minAps}</span>
                               </div>
+                              {p.programme.notes ? <div className="vcProgNotes">{p.programme.notes}</div> : null}
                             </li>
                           ))}
                         </ul>
@@ -312,6 +313,7 @@ export function VarsityCalculatorPage() {
                                 <span className="tag">{p.programme.faculty}</span>
                                 <span className="tag">Min APS {p.programme.minAps}</span>
                               </div>
+                              {p.programme.notes ? <div className="vcProgNotes">{p.programme.notes}</div> : null}
                               <div className="vcReasons">
                                 {p.reasons.slice(0, 3).map((r) => (
                                   <div className="vcReason" key={r}>

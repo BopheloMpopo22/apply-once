@@ -1,0 +1,135 @@
+[
+  {
+    "id": "ufs-eng",
+    "name": "Engineering (General)",
+    "faculty": "Natural & Agricultural Sciences",
+    "minAps": 32,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ],
+    "notes": "UFS engineering offerings/requirements vary by programme; use as guidance."
+  },
+  {
+    "id": "ufs-bsc",
+    "name": "BSc (Science) (General)",
+    "faculty": "Natural & Agricultural Sciences",
+    "minAps": 26,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 4 }]
+  },
+  {
+    "id": "ufs-cs",
+    "name": "BSc (Computer Science / IT) (General)",
+    "faculty": "Natural & Agricultural Sciences",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+  },
+  {
+    "id": "ufs-bcom",
+    "name": "BCom (General)",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 26,
+    "subjectRequirements": [
+      {
+        "anyOf": [
+          { "subject": "Mathematics", "minLevel": 4 },
+          { "subject": "Mathematical Literacy", "minLevel": 6 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ufs-acc",
+    "name": "BCom (Accounting) (General)",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+  },
+  {
+    "id": "ufs-law",
+    "name": "LLB",
+    "faculty": "Law",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 5 }]
+  },
+  {
+    "id": "ufs-ba",
+    "name": "BA (Humanities) (General)",
+    "faculty": "Humanities",
+    "minAps": 24,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "ufs-bed",
+    "name": "BEd (General)",
+    "faculty": "Education",
+    "minAps": 24,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "ufs-health",
+    "name": "Health Sciences (General)",
+    "faculty": "Health Sciences",
+    "minAps": 30,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      {
+        "anyOf": [
+          { "subject": "Life Sciences", "minLevel": 5 },
+          { "subject": "Physical Sciences", "minLevel": 5 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ufs-agri",
+    "name": "Agriculture (General)",
+    "faculty": "Natural & Agricultural Sciences",
+    "minAps": 22,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 3 }]
+  },
+  {
+    "id": "ufs-built",
+    "name": "Built Environment (General)",
+    "faculty": "Natural & Agricultural Sciences",
+    "minAps": 24,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 4 }]
+  },
+  {
+    "id": "ufs-econ",
+    "name": "Economics (General)",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 26,
+    "subjectRequirements": [
+      {
+        "anyOf": [
+          { "subject": "Mathematics", "minLevel": 4 },
+          { "subject": "Mathematical Literacy", "minLevel": 6 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ufs-maths",
+    "name": "BSc (Mathematics) (General)",
+    "faculty": "Natural & Agricultural Sciences",
+    "minAps": 26,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+  },
+  {
+    "id": "ufs-stats",
+    "name": "BSc (Statistics) (General)",
+    "faculty": "Natural & Agricultural Sciences",
+    "minAps": 26,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+  },
+  {
+    "id": "ufs-comms",
+    "name": "Communication / Media (General)",
+    "faculty": "Humanities",
+    "minAps": 24,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  }
+]
+

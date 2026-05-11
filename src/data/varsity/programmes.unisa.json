@@ -1,0 +1,131 @@
+[
+  {
+    "id": "unisa-bcom",
+    "name": "BCom (General) (Distance)",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 22,
+    "subjectRequirements": [
+      {
+        "anyOf": [
+          { "subject": "Mathematics", "minLevel": 3 },
+          { "subject": "Mathematical Literacy", "minLevel": 5 }
+        ],
+        "label": "Maths or Maths Lit"
+      }
+    ],
+    "notes": "UNISA offers distance learning; requirements can differ by qualification."
+  },
+  {
+    "id": "unisa-acc",
+    "name": "BCom (Accounting) (Distance)",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 24,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 4 }]
+  },
+  {
+    "id": "unisa-it",
+    "name": "Computing / IT (General) (Distance)",
+    "faculty": "Science, Engineering & Technology",
+    "minAps": 22,
+    "subjectRequirements": [
+      {
+        "anyOf": [
+          { "subject": "Mathematics", "minLevel": 3 },
+          { "subject": "Mathematical Literacy", "minLevel": 5 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unisa-bsc",
+    "name": "BSc (Science) (General) (Distance)",
+    "faculty": "Science, Engineering & Technology",
+    "minAps": 22,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 3 }]
+  },
+  {
+    "id": "unisa-law",
+    "name": "LLB (Distance)",
+    "faculty": "Law",
+    "minAps": 24,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "unisa-ba",
+    "name": "BA (Humanities) (General) (Distance)",
+    "faculty": "Humanities",
+    "minAps": 20,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 3 }]
+  },
+  {
+    "id": "unisa-edu",
+    "name": "Education (General) (Distance)",
+    "faculty": "Education",
+    "minAps": 20,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 3 }]
+  },
+  {
+    "id": "unisa-psych",
+    "name": "Psychology (General) (Distance)",
+    "faculty": "Humanities",
+    "minAps": 20,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 3 }]
+  },
+  {
+    "id": "unisa-comms",
+    "name": "Communication / Media (General) (Distance)",
+    "faculty": "Humanities",
+    "minAps": 20,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "unisa-public-admin",
+    "name": "Public Administration (General) (Distance)",
+    "faculty": "Human Sciences",
+    "minAps": 20,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 3 }]
+  },
+  {
+    "id": "unisa-econ",
+    "name": "Economics (General) (Distance)",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 22,
+    "subjectRequirements": [
+      {
+        "anyOf": [
+          { "subject": "Mathematics", "minLevel": 3 },
+          { "subject": "Mathematical Literacy", "minLevel": 5 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unisa-hr",
+    "name": "Human Resource Management (General) (Distance)",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 20,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 3 }]
+  },
+  {
+    "id": "unisa-business",
+    "name": "Business Management (General) (Distance)",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 20,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 3 }]
+  },
+  {
+    "id": "unisa-crim",
+    "name": "Criminology (General) (Distance)",
+    "faculty": "Humanities",
+    "minAps": 20,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 3 }]
+  },
+  {
+    "id": "unisa-tourism",
+    "name": "Tourism (General) (Distance)",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 20,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 3 }]
+  }
+]
+

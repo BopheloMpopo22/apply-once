@@ -38,6 +38,46 @@
     "website": "https://www.nwu.ac.za",
     "logo": "/assets/universities/nwu.svg",
     "calculator": "nwu"
+  },
+  {
+    "id": "uj",
+    "name": "University of Johannesburg",
+    "shortName": "UJ",
+    "website": "https://www.uj.ac.za",
+    "logo": "/assets/universities/uj.svg",
+    "calculator": "best6"
+  },
+  {
+    "id": "ukzn",
+    "name": "University of KwaZulu-Natal",
+    "shortName": "UKZN",
+    "website": "https://www.ukzn.ac.za",
+    "logo": "/assets/universities/ukzn.svg",
+    "calculator": "best6"
+  },
+  {
+    "id": "ufs",
+    "name": "University of the Free State",
+    "shortName": "UFS",
+    "website": "https://www.ufs.ac.za",
+    "logo": "/assets/universities/ufs.svg",
+    "calculator": "best6"
+  },
+  {
+    "id": "ru",
+    "name": "Rhodes University",
+    "shortName": "Rhodes",
+    "website": "https://www.ru.ac.za",
+    "logo": "/assets/universities/ru.svg",
+    "calculator": "best6"
+  },
+  {
+    "id": "unisa",
+    "name": "University of South Africa",
+    "shortName": "UNISA",
+    "website": "https://www.unisa.ac.za",
+    "logo": "/assets/universities/unisa.svg",
+    "calculator": "best6"
   }
 ]
 

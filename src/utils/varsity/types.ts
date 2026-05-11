@@ -1,4 +1,4 @@
-export type UniversityId = 'wits' | 'uct' | 'up' | 'sun' | 'nwu'
+export type UniversityId = 'wits' | 'uct' | 'up' | 'sun' | 'nwu' | 'uj' | 'ukzn' | 'ufs' | 'ru' | 'unisa'
 
 export type SubjectMarkInput = {
   subject: string
@@ -45,13 +45,20 @@ export type ProgrammeSubjectRequirement = {
   minPercent?: number
 }
 
+export type ProgrammeAnyOfRequirement = {
+  anyOf: ProgrammeSubjectRequirement[]
+  label?: string
+}
+
+export type ProgrammeRequirement = ProgrammeSubjectRequirement | ProgrammeAnyOfRequirement
+
 export type Programme = {
   id: string
   name: string
   faculty: string
   campus?: string
   minAps: number
-  subjectRequirements?: ProgrammeSubjectRequirement[]
+  subjectRequirements?: ProgrammeRequirement[]
   notes?: string
 }
 

@@ -1,0 +1,142 @@
+[
+  {
+    "id": "uj-beng",
+    "name": "BEng (Engineering) (General)",
+    "faculty": "Engineering & the Built Environment",
+    "minAps": 34,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 6 },
+      {
+        "anyOf": [
+          { "subject": "Physical Sciences", "minLevel": 5 },
+          { "subject": "Life Sciences", "minLevel": 6 }
+        ],
+        "label": "Physical Sciences (or strong Life Sciences for some pathways)"
+      }
+    ],
+    "notes": "Programme requirements vary by engineering stream; use as guidance."
+  },
+  {
+    "id": "uj-bsc",
+    "name": "BSc (Science) (General)",
+    "faculty": "Science",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+  },
+  {
+    "id": "uj-bsc-cs",
+    "name": "BSc (Computer Science)",
+    "faculty": "Science",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+  },
+  {
+    "id": "uj-it",
+    "name": "Diploma / Degree in IT (General)",
+    "faculty": "College of Business and Economics",
+    "minAps": 24,
+    "subjectRequirements": [
+      {
+        "anyOf": [
+          { "subject": "Mathematics", "minLevel": 4 },
+          { "subject": "Mathematical Literacy", "minLevel": 6 }
+        ],
+        "label": "Maths or Maths Lit"
+      }
+    ]
+  },
+  {
+    "id": "uj-bcom",
+    "name": "BCom (General)",
+    "faculty": "College of Business and Economics",
+    "minAps": 28,
+    "subjectRequirements": [
+      {
+        "anyOf": [
+          { "subject": "Mathematics", "minLevel": 4 },
+          { "subject": "Mathematical Literacy", "minLevel": 6 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "uj-acc",
+    "name": "BCom (Accounting) (General)",
+    "faculty": "College of Business and Economics",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+  },
+  {
+    "id": "uj-law",
+    "name": "LLB",
+    "faculty": "Law",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 5 }]
+  },
+  {
+    "id": "uj-ba",
+    "name": "BA (Humanities) (General)",
+    "faculty": "Humanities",
+    "minAps": 24,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "uj-bed",
+    "name": "BEd (Education) (General)",
+    "faculty": "Education",
+    "minAps": 24,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "uj-health",
+    "name": "Health Sciences (General)",
+    "faculty": "Health Sciences",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }],
+    "notes": "Some degrees require Physical Sciences/Life Sciences with higher minimums."
+  },
+  {
+    "id": "uj-bsc-maths",
+    "name": "BSc (Mathematics)",
+    "faculty": "Science",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+  },
+  {
+    "id": "uj-bsc-stats",
+    "name": "BSc (Statistics / Data Science) (General)",
+    "faculty": "Science",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+  },
+  {
+    "id": "uj-built",
+    "name": "Built Environment (General)",
+    "faculty": "Engineering & the Built Environment",
+    "minAps": 26,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 4 }]
+  },
+  {
+    "id": "uj-econ",
+    "name": "Economics (General)",
+    "faculty": "College of Business and Economics",
+    "minAps": 28,
+    "subjectRequirements": [
+      {
+        "anyOf": [
+          { "subject": "Mathematics", "minLevel": 4 },
+          { "subject": "Mathematical Literacy", "minLevel": 6 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "uj-comms",
+    "name": "Communication / Media (General)",
+    "faculty": "Humanities",
+    "minAps": 24,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  }
+]
+
