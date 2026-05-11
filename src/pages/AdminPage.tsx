@@ -437,7 +437,7 @@ export function AdminPage() {
                           setVarsitySeedMessage(
                             `Importing… (batch starting at file ${fileStart})`,
                           )
-                          const res = await adminApi<{
+                          const batchRes: {
                             ok: boolean
                             catalogueYear: number
                             universityUpserts: number
@@ -446,7 +446,7 @@ export function AdminPage() {
                             processedFiles: number
                             totalFiles: number
                             nextFileStart: number | null
-                          }>(
+                          } = await adminApi(
                             `/api/admin/varsity/seed-from-json?year=${encodeURIComponent(
                               String(varsityYear),
                             )}&fileStart=${encodeURIComponent(String(fileStart))}&fileCount=1`,
@@ -457,11 +457,11 @@ export function AdminPage() {
                                 : {},
                             },
                           )
-                          universities = res.universityUpserts
-                          totalProgrammes += res.programmeUpserts
-                          totalReqs += res.requirementRows
-                          totalFiles = res.totalFiles
-                          fileStart = res.nextFileStart
+                          universities = batchRes.universityUpserts
+                          totalProgrammes += batchRes.programmeUpserts
+                          totalReqs += batchRes.requirementRows
+                          totalFiles = batchRes.totalFiles
+                          fileStart = batchRes.nextFileStart
                         }
 
                         setVarsitySeedMessage(
