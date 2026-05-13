@@ -1,148 +1,337 @@
 [
   {
-    "id": "wits-bsc-eng",
-    "name": "BSc Engineering",
-    "faculty": "Engineering & Built Environment",
-    "minAps": 42,
+    "id": "wits-bcom-gen",
+    "name": "BCom (General / PPE / Information Systems)",
+    "faculty": "Commerce, Law & Management",
+    "minAps": 38,
     "subjectRequirements": [
       { "subject": "English", "minLevel": 5 },
-      { "subject": "Mathematics", "minLevel": 5 },
-      { "subject": "Physical Sciences", "minLevel": 5 }
-    ],
-    "notes": "Engineering is competitive; meeting minimums does not guarantee admission."
-  },
-  {
-    "id": "wits-bsc",
-    "name": "BSc (Science)",
-    "faculty": "Science",
-    "minAps": 36,
-    "subjectRequirements": [
-      { "subject": "English", "minLevel": 4 },
       { "subject": "Mathematics", "minLevel": 5 }
     ],
-    "notes": "Some majors require Physical Sciences."
+    "notes": "2027 prospectus: APS 38+. Wait-list band APS 35–37 with English L6 and Mathematics L6. Source: docs/prospectus/2027/Wits_2027_Prospectus_compressed.pdf"
   },
   {
-    "id": "wits-bcom-gen",
-    "name": "BCom (General)",
+    "id": "wits-baccsci",
+    "name": "BAccSci (Accounting Science)",
     "faculty": "Commerce, Law & Management",
-    "minAps": 34,
+    "minAps": 44,
     "subjectRequirements": [
-      { "subject": "English", "minLevel": 4 },
-      { "subject": "Mathematics", "minLevel": 5 }
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 6 }
     ],
-    "notes": "Mathematical Literacy is usually not accepted for Commerce at Wits."
+    "notes": "APS 44+. Wait-list APS 39–43 with English L6 and Mathematics L6."
   },
   {
     "id": "wits-bcom-acc",
-    "name": "BCom (Accounting Sciences)",
+    "name": "BCom (Accounting)",
     "faculty": "Commerce, Law & Management",
     "minAps": 38,
     "subjectRequirements": [
       { "subject": "English", "minLevel": 5 },
-      { "subject": "Mathematics", "minLevel": 6 }
-    ]
-  },
-  {
-    "id": "wits-llb",
-    "name": "LLB",
-    "faculty": "Law",
-    "minAps": 37,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 5 }],
-    "notes": "Some law programmes allow Maths Lit, but requirements vary."
-  },
-  {
-    "id": "wits-ba",
-    "name": "BA (Humanities)",
-    "faculty": "Humanities",
-    "minAps": 32,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
-  },
-  {
-    "id": "wits-bed",
-    "name": "BEd",
-    "faculty": "Education",
-    "minAps": 30,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
-  },
-  {
-    "id": "wits-bsc-it",
-    "name": "BSc (Computer Science / IT)",
-    "faculty": "Science",
-    "minAps": 38,
-    "subjectRequirements": [
-      { "subject": "English", "minLevel": 4 },
-      { "subject": "Mathematics", "minLevel": 6 }
-    ]
-  },
-  {
-    "id": "wits-bpharm",
-    "name": "BPharm",
-    "faculty": "Health Sciences",
-    "minAps": 38,
-    "subjectRequirements": [
-      { "subject": "English", "minLevel": 5 },
-      { "subject": "Mathematics", "minLevel": 5 },
-      { "subject": "Physical Sciences", "minLevel": 5 }
-    ]
-  },
-  {
-    "id": "wits-bnurs",
-    "name": "Bachelor of Nursing",
-    "faculty": "Health Sciences",
-    "minAps": 34,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
-  },
-  {
-    "id": "wits-barch",
-    "name": "BAS / Architecture-related",
-    "faculty": "Engineering & Built Environment",
-    "minAps": 34,
-    "subjectRequirements": [
-      { "subject": "English", "minLevel": 4 },
-      { "subject": "Mathematics", "minLevel": 4 }
+      { "subject": "Mathematics", "minLevel": 5 }
     ],
-    "notes": "Portfolio/selection tasks may apply."
+    "notes": "APS 38+. Wait-list APS 35–37 with English L6 and Mathematics L6."
   },
   {
-    "id": "wits-bsc-act",
-    "name": "BSc (Actuarial Science)",
-    "faculty": "Science",
+    "id": "wits-beconsci",
+    "name": "BEconSci",
+    "faculty": "Commerce, Law & Management",
     "minAps": 42,
     "subjectRequirements": [
       { "subject": "English", "minLevel": 5 },
       { "subject": "Mathematics", "minLevel": 7 }
-    ]
+    ],
+    "notes": "APS 42+. Wait-list APS 39–41 with English L5 and Mathematics L7."
   },
   {
-    "id": "wits-bcom-econ",
-    "name": "BCom (Economics)",
+    "id": "wits-bcom-fin",
+    "name": "BCom (Financial Sciences)",
     "faculty": "Commerce, Law & Management",
-    "minAps": 36,
+    "minAps": 42,
     "subjectRequirements": [
-      { "subject": "English", "minLevel": 4 },
-      { "subject": "Mathematics", "minLevel": 5 }
-    ]
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 7 }
+    ],
+    "notes": "APS 42+. Wait-list APS 39–41 with English L5 and Mathematics L7."
   },
   {
-    "id": "wits-bsc-med",
-    "name": "BSc (Biological Sciences)",
-    "faculty": "Science",
+    "id": "wits-bcom-law",
+    "name": "BCom (Law)",
+    "faculty": "Commerce, Law & Management",
+    "minAps": 43,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 5 }
+    ],
+    "notes": "APS 43+. Wait-list APS 35–42 with English L6 and Mathematics L6."
+  },
+  {
+    "id": "wits-llb",
+    "name": "LLB (four-year undergraduate)",
+    "faculty": "Commerce, Law & Management",
+    "minAps": 46,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 6 },
+      {
+        "anyOf": [
+          { "subject": "Mathematics", "minLevel": 5 },
+          { "subject": "Mathematical Literacy", "minLevel": 6 }
+        ],
+        "label": "Mathematics L5 or Maths Literacy L6"
+      }
+    ],
+    "notes": "APS 46+. Wait-list APS 40–45 with English L6 and Mathematics L5 or Maths Literacy L6."
+  },
+  {
+    "id": "wits-bsc-eng",
+    "name": "BSc(Eng) (professional engineering streams)",
+    "faculty": "Engineering & the Built Environment",
+    "minAps": 42,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ],
+    "notes": "APS 42+ for listed BSc(Eng) programmes. L6 in English, Mathematics and Physical Sciences improves chances; minimums may be wait-listed."
+  },
+  {
+    "id": "wits-bengsc-bme-da",
+    "name": "BEngSc (Biomedical Engineering / Digital Arts)",
+    "faculty": "Engineering & the Built Environment",
+    "minAps": 42,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ],
+    "notes": "Three-year BEngSc programmes; same core minima as other EBE science streams in the 2027 table."
+  },
+  {
+    "id": "wits-bas",
+    "name": "BAS (Architectural Studies)",
+    "faculty": "Engineering & the Built Environment",
     "minAps": 34,
     "subjectRequirements": [
       { "subject": "English", "minLevel": 4 },
       { "subject": "Mathematics", "minLevel": 4 }
-    ]
+    ],
+    "notes": "Subject to selection (written/graphic exercise and interview). Closing date 30 June 2026."
   },
   {
-    "id": "wits-bcom-mgmt",
-    "name": "BCom (Management)",
-    "faculty": "Commerce, Law & Management",
-    "minAps": 34,
+    "id": "wits-bsc-urp",
+    "name": "BSc (Urban and Regional Planning)",
+    "faculty": "Engineering & the Built Environment",
+    "minAps": 36,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 5 }
+    ],
+    "notes": "APS 36+. Wait-list APS 30–35 subject to places."
+  },
+  {
+    "id": "wits-bsc-construction-property",
+    "name": "BSc (Construction Studies) / BSc (Property Studies)",
+    "faculty": "Engineering & the Built Environment",
+    "minAps": 36,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 5 }
+    ],
+    "notes": "APS 36+. Wait-list APS 30–35 subject to places."
+  },
+  {
+    "id": "wits-bhsci",
+    "name": "BHSci (Biomedical Sciences / Biokinetics / Health Systems Sciences)",
+    "faculty": "Health Sciences",
+    "minAps": 40,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      {
+        "anyOf": [
+          { "subject": "Life Sciences", "minLevel": 5 },
+          { "subject": "Physical Sciences", "minLevel": 5 }
+        ],
+        "label": "Life Sciences or Physical Sciences L5"
+      }
+    ],
+    "notes": "Faculty selection uses a Composite Index (school marks + NBT); write NBT by 17 Aug 2026. Min APS here is indicative only—see prospectus p. 20."
+  },
+  {
+    "id": "wits-mbbch",
+    "name": "MBBCh (Medicine)",
+    "faculty": "Health Sciences",
+    "minAps": 45,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Life Sciences", "minLevel": 5 }
+    ],
+    "notes": "Selection is not APS-only (Composite Index + NBT). Table shows English, Mathematics and Life Sciences at L5; confirm Physical Sciences where required. Closing 30 June 2026."
+  },
+  {
+    "id": "wits-bds",
+    "name": "BDS (Dental Science)",
+    "faculty": "Health Sciences",
+    "minAps": 45,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Life Sciences", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ],
+    "notes": "Requires job shadowing certificate (16+ hours, Jul 2025–Jul 2026). Selection + NBT rules apply."
+  },
+  {
+    "id": "wits-bnurs",
+    "name": "BNurs (Nursing)",
+    "faculty": "Health Sciences",
+    "minAps": 36,
     "subjectRequirements": [
       { "subject": "English", "minLevel": 4 },
-      { "subject": "Mathematics", "minLevel": 5 }
-    ]
+      { "subject": "Mathematics", "minLevel": 4 },
+      { "subject": "Life Sciences", "minLevel": 4 }
+    ],
+    "notes": "2027 table shows English L4, Mathematics L4, fourth column L4 (faculty-specific); final selection uses Composite Index + NBT."
+  },
+  {
+    "id": "wits-bpharm",
+    "name": "BPharm (Pharmacy)",
+    "faculty": "Health Sciences",
+    "minAps": 44,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ],
+    "notes": "2027 table: English L5, Mathematics L5, Physical Sciences L5; selection + NBT."
+  },
+  {
+    "id": "wits-bsc-ot-physio",
+    "name": "BSc (Occupational Therapy) / BSc (Physiotherapy)",
+    "faculty": "Health Sciences",
+    "minAps": 40,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 },
+      { "subject": "Physical Sciences", "minLevel": 4 }
+    ],
+    "notes": "OT row shows L4/L4/L4; Physiotherapy L5/L5/L5 in table—check stream. Job shadowing required for OT/Physio. Composite Index + NBT."
+  },
+  {
+    "id": "wits-ba",
+    "name": "BA (General)",
+    "faculty": "Humanities",
+    "minAps": 36,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 5 }],
+    "notes": "APS 36+. Wait-list APS 30–35; higher English preferred. Maths/Math Lit rules vary—confirm arts stream in prospectus."
+  },
+  {
+    "id": "wits-ba-law",
+    "name": "BA (Law)",
+    "faculty": "Humanities",
+    "minAps": 43,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      {
+        "anyOf": [
+          { "subject": "Mathematics", "minLevel": 5 },
+          { "subject": "Mathematical Literacy", "minLevel": 4 }
+        ],
+        "label": "Mathematics or Maths Literacy (see prospectus columns for exact combinations)"
+      }
+    ],
+    "notes": "APS 43+ in 2027 prospectus; printed table shows separate Mathematics and Maths Literacy columns—confirm your pathway with the PDF."
+  },
+  {
+    "id": "wits-bed",
+    "name": "BEd (Foundation / Intermediate / SP & FET)",
+    "faculty": "Humanities",
+    "minAps": 37,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 4 }
+    ],
+    "notes": "APS 37+ in prospectus; phase-specific teaching subjects and Maths/Math Lit/Technical Maths columns differ—see full BEd table."
+  },
+  {
+    "id": "wits-bsocsci",
+    "name": "BSW / BA (Digital Arts, Theatre, Film, Fine Arts, Music) — indicative",
+    "faculty": "Humanities",
+    "minAps": 34,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 5 }],
+    "notes": "WSoA programmes 34–36+ APS with selection (portfolio/audition). BSW 36+ APS, English L5. See prospectus pp. 22–23."
+  },
+  {
+    "id": "wits-bsc-gen",
+    "name": "BSc (General)",
+    "faculty": "Science",
+    "minAps": 42,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ],
+    "notes": "APS 42+. Wait-list APS 40–41. NBT required by 31 Oct 2026."
+  },
+  {
+    "id": "wits-bsc-biological",
+    "name": "BSc (Biological Sciences)",
+    "faculty": "Science",
+    "minAps": 43,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ],
+    "notes": "APS 43+. Wait-list APS 41–42. NBT required."
+  },
+  {
+    "id": "wits-bsc-actuarial",
+    "name": "BSc (Actuarial Science)",
+    "faculty": "Science",
+    "minAps": 44,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 7 },
+      { "subject": "Mathematics", "minLevel": 7 },
+      { "subject": "Physical Sciences", "minLevel": 7 }
+    ],
+    "notes": "APS 44+ with English L7, Mathematics L7, Physical Sciences L7 in table; wait-list rules printed for high achievers."
+  },
+  {
+    "id": "wits-bsc-cam-cs",
+    "name": "BSc (Computer Science / Computational and Applied Mathematics)",
+    "faculty": "Science",
+    "minAps": 44,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 6 },
+      { "subject": "Physical Sciences", "minLevel": 6 }
+    ],
+    "notes": "APS 44+. Wait-list band for CAM includes APS 41–43 in prospectus."
+  },
+  {
+    "id": "wits-bsc-math-sci",
+    "name": "BSc (Mathematical Sciences)",
+    "faculty": "Science",
+    "minAps": 44,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 7 },
+      { "subject": "Mathematics", "minLevel": 7 },
+      { "subject": "Physical Sciences", "minLevel": 7 }
+    ],
+    "notes": "APS 44+ with English, Mathematics and Physical Sciences at L7 in the 2027 table; special wait-list wording applies."
+  },
+  {
+    "id": "wits-bsc-physical-chem",
+    "name": "BSc (Physical Sciences / Chemistry with Chemical Engineering / Astronomy)",
+    "faculty": "Science",
+    "minAps": 42,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 6 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ],
+    "notes": "Chemistry with Chemical Engineering and Astronomy rows show APS 43+ with higher Maths/Phys for some; check stream."
   }
 ]
-

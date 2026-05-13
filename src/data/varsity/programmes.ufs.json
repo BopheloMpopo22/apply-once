@@ -1,7 +1,284 @@
 [
   {
-    "id": "ufs-eng",
-    "name": "Engineering (General)",
+    "id": "ufs-llb",
+    "name": "LLB (Bloemfontein) — BC340000",
+    "faculty": "Law",
+    "campus": "Bloemfontein",
+    "minAps": 33,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 6 },
+      {
+        "anyOf": [
+          { "subject": "Mathematics", "minLevel": 4 },
+          { "subject": "Mathematical Literacy", "minLevel": 6 }
+        ],
+        "label": "Mathematics L4 or Maths Literacy L6"
+      }
+    ],
+    "notes": "UFS 2027 undergraduate prospectus (faculty tables). Source PDF: https://www.ufs.ac.za/docs/librariesprovider44/prospectus/ug-prospectus-2027.pdf"
+  },
+  {
+    "id": "ufs-bcom",
+    "name": "BCom (general) — BC630000",
+    "faculty": "Economic & Management Sciences",
+    "campus": "Bloemfontein",
+    "minAps": 28,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 }
+    ],
+    "notes": "EMS Bloemfontein table."
+  },
+  {
+    "id": "ufs-bcom-econ",
+    "name": "BCom (Economics) — BC630020",
+    "faculty": "Economic & Management Sciences",
+    "campus": "Bloemfontein",
+    "minAps": 28,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 }
+    ]
+  },
+  {
+    "id": "ufs-bcom-finance",
+    "name": "BCom (Finance) — BC630025",
+    "faculty": "Economic & Management Sciences",
+    "campus": "Bloemfontein",
+    "minAps": 28,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 }
+    ]
+  },
+  {
+    "id": "ufs-bcom-business-analytics",
+    "name": "BCom (Business Analytics) — BC638080",
+    "faculty": "Economic & Management Sciences",
+    "campus": "Bloemfontein",
+    "minAps": 34,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 5 }
+    ]
+  },
+  {
+    "id": "ufs-bcom-marketing",
+    "name": "BCom (Marketing) — BC630010",
+    "faculty": "Economic & Management Sciences",
+    "campus": "Bloemfontein",
+    "minAps": 28,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 3 }
+    ]
+  },
+  {
+    "id": "ufs-bcom-business-management",
+    "name": "BCom (Business Management) — BC630012",
+    "faculty": "Economic & Management Sciences",
+    "campus": "Bloemfontein",
+    "minAps": 28,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 3 }
+    ]
+  },
+  {
+    "id": "ufs-bcom-hrm",
+    "name": "BCom (Human Resource Management) — BC630030",
+    "faculty": "Economic & Management Sciences",
+    "campus": "Bloemfontein",
+    "minAps": 28,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 3 }
+    ]
+  },
+  {
+    "id": "ufs-bcom-law",
+    "name": "BCom (Law) — BC637070",
+    "faculty": "Economic & Management Sciences",
+    "campus": "Bloemfontein",
+    "minAps": 33,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 }
+    ]
+  },
+  {
+    "id": "ufs-badmin",
+    "name": "BAdmin — BC634040",
+    "faculty": "Economic & Management Sciences",
+    "campus": "Bloemfontein",
+    "minAps": 28,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 3 }
+    ]
+  },
+  {
+    "id": "ufs-bacc",
+    "name": "BAcc (Accounting) — BC636060",
+    "faculty": "Economic & Management Sciences",
+    "campus": "Bloemfontein",
+    "minAps": 34,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 5 }
+    ]
+  },
+  {
+    "id": "ufs-bcom-accounting",
+    "name": "BCom (Accounting) — BC635050",
+    "faculty": "Economic & Management Sciences",
+    "campus": "Bloemfontein",
+    "minAps": 28,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 }
+    ]
+  },
+  {
+    "id": "ufs-qwa-bcom-management",
+    "name": "BCom (Management) — QC630001",
+    "faculty": "Economic & Management Sciences",
+    "campus": "Qwaqwa",
+    "minAps": 28,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 }
+    ]
+  },
+  {
+    "id": "ufs-qwa-badmin",
+    "name": "BAdmin — QC634040",
+    "faculty": "Economic & Management Sciences",
+    "campus": "Qwaqwa",
+    "minAps": 28,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 2 }
+    ],
+    "notes": "Qwaqwa EMS table lists Mathematics at level 2 for this plan code—confirm on official PDF."
+  },
+  {
+    "id": "ufs-barch",
+    "name": "BAS / Bachelor of Architectural Studies — B4391 / BC430114",
+    "faculty": "Built Environment",
+    "campus": "Bloemfontein",
+    "minAps": 30,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 }
+    ],
+    "notes": "Subject to selection (written/graphic exercise, interview). Closing 31 July 2026 in prospectus extract."
+  },
+  {
+    "id": "ufs-bsc-construction-economics",
+    "name": "BSc (Construction Economics and Management) — BC432443",
+    "faculty": "Built Environment",
+    "campus": "Bloemfontein",
+    "minAps": 30,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      {
+        "anyOf": [
+          { "subject": "Economics", "minLevel": 4 },
+          { "subject": "Business Studies", "minLevel": 4 },
+          { "subject": "Accounting", "minLevel": 4 },
+          { "subject": "Physical Sciences", "minLevel": 4 }
+        ],
+        "label": "One of Economics, Business Studies, Accounting or Physical Sciences at L4"
+      }
+    ],
+    "notes": "Subject to selection."
+  },
+  {
+    "id": "ufs-bsc-cm-qs-compact",
+    "name": "BSc (Construction Management / Quantity Surveying, compact learning)",
+    "faculty": "Built Environment",
+    "campus": "Bloemfontein",
+    "minAps": 30,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      {
+        "anyOf": [
+          { "subject": "Economics", "minLevel": 4 },
+          { "subject": "Business Studies", "minLevel": 4 },
+          { "subject": "Accounting", "minLevel": 4 },
+          { "subject": "Physical Sciences", "minLevel": 4 }
+        ],
+        "label": "One of Economics, Business Studies, Accounting or Physical Sciences at L4"
+      }
+    ],
+    "notes": "Compact learning: min age 22 and proof of full-time employment in construction (prospectus). Closing 30 Sept 2026."
+  },
+  {
+    "id": "ufs-bsc-nas-general",
+    "name": "BSc (Natural & Agricultural Sciences — mainstream first-year minima)",
+    "faculty": "Natural & Agricultural Sciences",
+    "minAps": 32,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Life Sciences", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ],
+    "notes": "Prospectus: AP 32 for most BSc programmes with Mathematics L5 and both Life Sciences and Physical Sciences L5 unless a programme states otherwise (exceptions include some built-environment and other streams)."
+  },
+  {
+    "id": "ufs-bsc-biological-sciences",
+    "name": "BSc (Biological Sciences majors) — B4310",
+    "faculty": "Natural & Agricultural Sciences",
+    "minAps": 32,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Life Sciences", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ],
+    "notes": "Many major combinations share this baseline; confirm your plan code in the faculty chapter."
+  },
+  {
+    "id": "ufs-bsc-forensic",
+    "name": "BSc (Forensic Science) — BC433031",
+    "faculty": "Natural & Agricultural Sciences",
+    "minAps": 34,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 6 },
+      { "subject": "Life Sciences", "minLevel": 6 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ],
+    "notes": "Selection applies; cumulative AP for Mathematics + Life Sciences + Physical Sciences at least 17; closing 30 Sept 2026."
+  },
+  {
+    "id": "ufs-bsc-mathematical-sciences",
+    "name": "BSc (Mathematical Sciences streams) — B4321",
+    "faculty": "Natural & Agricultural Sciences",
+    "minAps": 32,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 6 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ]
+  },
+  {
+    "id": "ufs-bsc-actuarial",
+    "name": "BSc (Actuarial Science) — BC431000",
+    "faculty": "Natural & Agricultural Sciences",
+    "minAps": 34,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 6 }
+    ]
+  },
+  {
+    "id": "ufs-bsc-it-bloem",
+    "name": "BSc (IT) / Data Science (Bloemfontein majors, typical row)",
     "faculty": "Natural & Agricultural Sciences",
     "minAps": 32,
     "subjectRequirements": [
@@ -9,127 +286,291 @@
       { "subject": "Mathematics", "minLevel": 5 },
       { "subject": "Physical Sciences", "minLevel": 5 }
     ],
-    "notes": "UFS engineering offerings/requirements vary by programme; use as guidance."
+    "notes": "Several majors require Mathematics L6 and/or Physical Sciences L6 (e.g. CS+Math, Data Science)—see IT tables in prospectus."
   },
   {
-    "id": "ufs-bsc",
-    "name": "BSc (Science) (General)",
+    "id": "ufs-bcis",
+    "name": "Bachelor of Computer Information Systems — BC430156",
     "faculty": "Natural & Agricultural Sciences",
-    "minAps": 26,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 4 }]
-  },
-  {
-    "id": "ufs-cs",
-    "name": "BSc (Computer Science / IT) (General)",
-    "faculty": "Natural & Agricultural Sciences",
-    "minAps": 28,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
-  },
-  {
-    "id": "ufs-bcom",
-    "name": "BCom (General)",
-    "faculty": "Economic & Management Sciences",
-    "minAps": 26,
+    "minAps": 30,
     "subjectRequirements": [
-      {
-        "anyOf": [
-          { "subject": "Mathematics", "minLevel": 4 },
-          { "subject": "Mathematical Literacy", "minLevel": 6 }
-        ]
-      }
-    ]
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 }
+    ],
+    "notes": "Physical Sciences not listed as compulsory for this plan in the extract."
   },
   {
-    "id": "ufs-acc",
-    "name": "BCom (Accounting) (General)",
-    "faculty": "Economic & Management Sciences",
-    "minAps": 28,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
-  },
-  {
-    "id": "ufs-law",
-    "name": "LLB",
-    "faculty": "Law",
-    "minAps": 28,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 5 }]
-  },
-  {
-    "id": "ufs-ba",
-    "name": "BA (Humanities) (General)",
-    "faculty": "Humanities",
-    "minAps": 24,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
-  },
-  {
-    "id": "ufs-bed",
-    "name": "BEd (General)",
-    "faculty": "Education",
-    "minAps": 24,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
-  },
-  {
-    "id": "ufs-health",
-    "name": "Health Sciences (General)",
-    "faculty": "Health Sciences",
+    "id": "ufs-bsc-sustainable-food",
+    "name": "Bachelor of Sustainable Food Systems — BC430223",
+    "faculty": "Natural & Agricultural Sciences",
     "minAps": 30,
     "subjectRequirements": [
       { "subject": "English", "minLevel": 4 },
       {
         "anyOf": [
-          { "subject": "Life Sciences", "minLevel": 5 },
-          { "subject": "Physical Sciences", "minLevel": 5 }
-        ]
+          { "subject": "Mathematics", "minLevel": 2 },
+          { "subject": "Mathematical Literacy", "minLevel": 5 }
+        ],
+        "label": "Mathematics L2 or Maths Literacy L5"
       }
+    ],
+    "notes": "Prospectus footnote: Maths Literacy L5 accepted in place of Mathematics."
+  },
+  {
+    "id": "ufs-bsc-geology-representative",
+    "name": "BSc (Geology / Environmental / Geography-type majors — check plan code)",
+    "faculty": "Natural & Agricultural Sciences",
+    "minAps": 30,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ],
+    "notes": "Several geology/environment majors use AP 30 or 32 with varying Life Science columns—use the faculty table for your exact code."
+  },
+  {
+    "id": "ufs-bsc-agriculture",
+    "name": "BSc (Agriculture majors) — B5480",
+    "faculty": "Natural & Agricultural Sciences",
+    "minAps": 32,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 },
+      { "subject": "Life Sciences", "minLevel": 5 }
+    ],
+    "notes": "Prospectus: Physical Sciences and Mathematics compulsory; Life Sciences or Agricultural Sciences at L5—if you took Agricultural Sciences, enter it as Life Sciences for a rough check or confirm with UFS."
+  },
+  {
+    "id": "ufs-bagric",
+    "name": "BAgric (selected majors — check code)",
+    "faculty": "Natural & Agricultural Sciences",
+    "minAps": 30,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 3 }
+    ],
+    "notes": "Agricultural Economics stream lists Mathematics L4. Agricultural Management allows Maths L3 with Maths Lit L7 if AP ≥31; Maths Lit not accepted for Agricultural Economics—read BAgric tables."
+  },
+  {
+    "id": "ufs-mbchb",
+    "name": "MB ChB — C834100",
+    "faculty": "Health Sciences",
+    "campus": "Bloemfontein",
+    "minAps": 36,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Life Sciences", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ],
+    "notes": "All Health Sciences programmes: subject to selection; first choice must be programme; NBT by 17 May 2026 (closing 31 May 2026 in extract). www.ufs.ac.za/healthselection"
+  },
+  {
+    "id": "ufs-bmedsc-radiation",
+    "name": "BMedSc (Radiation Science) — BC831000",
+    "faculty": "Health Sciences",
+    "campus": "Bloemfontein",
+    "minAps": 30,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Life Sciences", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
     ]
   },
   {
-    "id": "ufs-agri",
-    "name": "Agriculture (General)",
-    "faculty": "Natural & Agricultural Sciences",
-    "minAps": 22,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 3 }]
-  },
-  {
-    "id": "ufs-built",
-    "name": "Built Environment (General)",
-    "faculty": "Natural & Agricultural Sciences",
-    "minAps": 24,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 4 }]
-  },
-  {
-    "id": "ufs-econ",
-    "name": "Economics (General)",
-    "faculty": "Economic & Management Sciences",
-    "minAps": 26,
+    "id": "ufs-boptom-physio-diet-occ",
+    "name": "BOptom / BSc Physiotherapy / BSc Dietetics / BOccTher (typical row)",
+    "faculty": "Health Sciences",
+    "campus": "Bloemfontein",
+    "minAps": 33,
     "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 4 },
+      { "subject": "Life Sciences", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 4 }
+    ],
+    "notes": "Life Sciences and/or Physical Sciences required per faculty note; verify exact stream."
+  },
+  {
+    "id": "ufs-bbiok",
+    "name": "BBiok (Biokinetics) — BC844000",
+    "faculty": "Health Sciences",
+    "campus": "Bloemfontein",
+    "minAps": 30,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 4 },
+      { "subject": "Life Sciences", "minLevel": 4 },
+      { "subject": "Physical Sciences", "minLevel": 4 }
+    ]
+  },
+  {
+    "id": "ufs-bsport-coach",
+    "name": "B Sport Coaching — BC834000",
+    "faculty": "Health Sciences",
+    "campus": "Bloemfontein",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }],
+    "notes": "Prospectus table did not list Mathematics/Life Science minima for this programme in the extract—confirm sheet."
+  },
+  {
+    "id": "ufs-nursing",
+    "name": "Bachelor of Nursing — BC849000",
+    "faculty": "Health Sciences",
+    "campus": "Bloemfontein",
+    "minAps": 30,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
       {
         "anyOf": [
-          { "subject": "Mathematics", "minLevel": 4 },
+          { "subject": "Mathematics", "minLevel": 3 },
           { "subject": "Mathematical Literacy", "minLevel": 6 }
-        ]
+        ],
+        "label": "Mathematics L3 or Maths Literacy L6"
+      },
+      {
+        "anyOf": [
+          { "subject": "Life Sciences", "minLevel": 5 },
+          { "subject": "Physical Sciences", "minLevel": 4 }
+        ],
+        "label": "Life Sciences L5 or Physical Sciences L4"
       }
+    ],
+    "notes": "Closing 31 July 2026 in extract."
+  },
+  {
+    "id": "ufs-ba-general-bc",
+    "name": "BA (General) — BC137000",
+    "faculty": "Humanities",
+    "campus": "Bloemfontein",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "ufs-ba-language-practice",
+    "name": "BA (Language Practice) — BC130059",
+    "faculty": "Humanities",
+    "campus": "Bloemfontein",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 5 }],
+    "notes": "Selection: any HL L5 and any FAL L5 (SAL excluded)—add two language rows; calculator only sees English explicitly."
+  },
+  {
+    "id": "ufs-ba-journalism-comm",
+    "name": "BA (Journalism / Integrated Organisational Communication) — BC130035 / BC130038",
+    "faculty": "Humanities",
+    "campus": "Bloemfontein",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 5 }],
+    "notes": "Prospectus: English HL 60% or English FAL 65%—enter percent for English to check FAL case."
+  },
+  {
+    "id": "ufs-bsocsci-bc",
+    "name": "BSocSci — BC138000",
+    "faculty": "Humanities",
+    "campus": "Bloemfontein",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "ufs-bsw",
+    "name": "Bachelor of Social Work — BC140250",
+    "faculty": "Humanities",
+    "campus": "Bloemfontein",
+    "minAps": 35,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 5 }],
+    "notes": "Selection; closing 31 July 2026; preference to direct school leavers."
+  },
+  {
+    "id": "ufs-music-bmus-ba",
+    "name": "BMus / BA (Music) — BC140544 / BC130044",
+    "faculty": "Humanities",
+    "campus": "Bloemfontein",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }],
+    "notes": "Selection: Unisa/ABRSM theory Grade 5+ and performance Grade 7+ plus audition (see prospectus)."
+  },
+  {
+    "id": "ufs-ba-qc",
+    "name": "BA (General) — QC137000",
+    "faculty": "Humanities",
+    "campus": "Qwaqwa",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "ufs-bcommdev",
+    "name": "Bachelor of Community Development — QC140400",
+    "faculty": "Humanities",
+    "campus": "Qwaqwa",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 5 }],
+    "notes": "Selection; alternative access with Diploma in Vocational Skills (English L4) per prospectus note."
+  },
+  {
+    "id": "ufs-bsocsci-qc",
+    "name": "BSocSci — QC138000",
+    "faculty": "Humanities",
+    "campus": "Qwaqwa",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+  },
+  {
+    "id": "ufs-bdiv",
+    "name": "Bachelor of Divinity — BC940301",
+    "faculty": "Theology & Religion",
+    "campus": "Bloemfontein",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }],
+    "notes": "Selection via online form; UFS academic literacy test for all first-time entrants."
+  },
+  {
+    "id": "ufs-bed-representative",
+    "name": "BEd (representative — Foundation / Intermediate / SP & FET)",
+    "faculty": "Education",
+    "minAps": 30,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }],
+    "notes": "Many BEd plan codes require AP 30 with English L4 and home-language combinations; use faculty table for your specialisation (Afrikaans/Sesotho/isiZulu/English streams, etc.)."
+  },
+  {
+    "id": "ufs-bsc-qwa-biological",
+    "name": "BSc (Biological Sciences, Qwaqwa) — Q4310",
+    "faculty": "Natural & Agricultural Sciences",
+    "campus": "Qwaqwa",
+    "minAps": 32,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Life Sciences", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
     ]
   },
   {
-    "id": "ufs-maths",
-    "name": "BSc (Mathematics) (General)",
+    "id": "ufs-bsc-qwa-chem-phys",
+    "name": "BSc (Chemical & Physical Sciences, Qwaqwa) — Q4330",
     "faculty": "Natural & Agricultural Sciences",
-    "minAps": 26,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+    "campus": "Qwaqwa",
+    "minAps": 32,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ],
+    "notes": "Chemistry+Physics majors; some combinations include Life Sciences—see Qwaqwa table."
   },
   {
-    "id": "ufs-stats",
-    "name": "BSc (Statistics) (General)",
+    "id": "ufs-bsc-qwa-it",
+    "name": "BSc (IT, Qwaqwa) — Q4360 / Q4364",
     "faculty": "Natural & Agricultural Sciences",
-    "minAps": 26,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
-  },
-  {
-    "id": "ufs-comms",
-    "name": "Communication / Media (General)",
-    "faculty": "Humanities",
-    "minAps": 24,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+    "campus": "Qwaqwa",
+    "minAps": 32,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 5 }
+    ],
+    "notes": "Computer Science + Management stream lists Physical Sciences L4 in extract—verify plan code."
   }
 ]
-

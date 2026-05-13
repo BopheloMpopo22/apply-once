@@ -1,0 +1,80 @@
+[
+  {
+    "id": "uwc-bcom-4yr",
+    "name": "BCom (four-year stream)",
+    "faculty": "Economic & Management Sciences",
+    "minAps": 30,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 }
+    ],
+    "notes": "UWC2027.pdf: English Code 4 (HL or FAL); another language Code 3 (HL or FAL). Add Afrikaans/isiXhosa/etc. as a subject row so the calculator can see it. Minimum 30 UWC Points where applicable—official UWC points use their subject table (not the same as best-six NSC levels); confirm on the PDF in docs/prospectus/2027/UWC2027.pdf."
+  },
+  {
+    "id": "uwc-blis",
+    "name": "Bachelor of Library and Information Studies (BLIS)",
+    "faculty": "Arts & Humanities",
+    "minAps": 30,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 },
+      { "subject": "Physical Sciences", "minLevel": 4 },
+      { "subject": "Life Sciences", "minLevel": 4 }
+    ],
+    "notes": "UWC2027.pdf: Mathematics Code 4; Physical Sciences and Life Sciences both Code 4; minimum 30 UWC Points. Cross-check closing dates (30 Sept 2026) on the PDF."
+  },
+  {
+    "id": "uwc-bsc-math-stats-math5",
+    "name": "BSc (Mathematics & Statistical Sciences) — Mathematics Code 5 route",
+    "faculty": "Natural Sciences",
+    "minAps": 30,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 5 }
+    ],
+    "notes": "UWC2027.pdf: if you have Mathematics Code 5, Accounting Code 5 is not required. Minimum 30 UWC Points; official UWC points table on docs/prospectus/2027/UWC2027.pdf."
+  },
+  {
+    "id": "uwc-bsc-math-stats-math4-acc",
+    "name": "BSc (Mathematics & Statistical Sciences) — Mathematics Code 4 + Accounting route",
+    "faculty": "Natural Sciences",
+    "minAps": 30,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 },
+      { "subject": "Accounting", "minLevel": 5 }
+    ],
+    "notes": "UWC2027.pdf footnote: Mathematics Code 4 requires Accounting Code 5. Minimum 30 UWC Points."
+  },
+  {
+    "id": "uwc-bsc-dietetics-nursing",
+    "name": "BSc (Dietetics) / Bachelor of Nursing (shared minimum block in UWC2027.pdf)",
+    "faculty": "Community & Health Sciences",
+    "minAps": 30,
+    "subjectRequirements": [
+      {
+        "anyOf": [
+          { "subject": "English", "minLevel": 4 },
+          { "subject": "English", "minLevel": 5, "minPercent": 60 }
+        ],
+        "label": "English HL Code 4 OR English FAL Code 5"
+      },
+      {
+        "anyOf": [
+          { "subject": "Mathematics", "minLevel": 3 },
+          { "subject": "Mathematical Literacy", "minLevel": 4 }
+        ],
+        "label": "Mathematics Code 3 OR Maths Literacy Code 4"
+      }
+    ],
+    "notes": "UWC2027.pdf: minimum 30 UWC Points; English HL 4 or English FAL 5; another language Code 4 (add your HL/FAL language row—Afrikaans, isiXhosa, etc.). Confirm Life Sciences and other rules on All Programmes. PDF: docs/prospectus/2027/UWC2027.pdf"
+  },
+  {
+    "id": "uwc-all-programmes",
+    "name": "Other UWC undergraduate programmes",
+    "faculty": "General",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }],
+    "notes": "Use the official programme list for APS and subjects: https://www.uwc.ac.za/Pages/AllProgrammes.aspx — apply: https://www.uwc.ac.za/Students/Admin/Pages/Apply-Online.aspx"
+  }
+]

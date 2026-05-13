@@ -1,0 +1,53 @@
+[
+  {
+    "id": "nmu-bcom-acc",
+    "name": "BCom (Accounting) / BCom Accounting Science variants",
+    "faculty": "Commerce",
+    "minAps": 410,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }],
+    "notes": "Prospectus states Mathematics 60% (≈L5). Admission score compares to the total of six NSC % marks (under 40% = 0)."
+  },
+  {
+    "id": "nmu-bcom-cs",
+    "name": "BCom (Computer Science & Information Systems)",
+    "faculty": "Commerce",
+    "minAps": 390,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }],
+    "notes": "Some combined streams list 410; check the exact qualification code in the prospectus."
+  },
+  {
+    "id": "nmu-bsc-amcs",
+    "name": "BSc (Applied Mathematics, Mathematics, CS, Math Stats & Physics)",
+    "faculty": "Science",
+    "minAps": 410,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }],
+    "notes": "High Mathematics % requirement; confirm stream on Ocean Sciences / main handbook."
+  },
+  {
+    "id": "nmu-bsc-bio",
+    "name": "BSc (Biological Sciences)",
+    "faculty": "Science",
+    "minAps": 410,
+    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }],
+    "notes": "Extended curriculum pathway often lists a lower table score (e.g. 370)."
+  },
+  {
+    "id": "nmu-beng-civil",
+    "name": "BEng Tech (Civil Engineering)",
+    "faculty": "Engineering",
+    "minAps": 370,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minLevel": 5 },
+      { "subject": "Physical Sciences", "minLevel": 4 }
+    ],
+    "notes": "Prospectus lists Mathematics 60% and Physical Science 50%; Technical Mathematics / Technical Science may substitute. Higher-certificate routes are in the handbook."
+  },
+  {
+    "id": "nmu-bva",
+    "name": "Bachelor of Visual Art (BVA)",
+    "faculty": "Arts",
+    "minAps": 350,
+    "subjectRequirements": [],
+    "notes": "Campus-specific minima (350–365) appear in the table; see Art and Design section."
+  }
+]

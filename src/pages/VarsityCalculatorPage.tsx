@@ -27,6 +27,31 @@ const COMMON_SUBJECTS = [
 
 type ReportType = 'grade11t4' | 'grade12t1' | 'grade12t2'
 
+function apsLabelForUniversity(id: UniversityId): string {
+  switch (id) {
+    case 'uct':
+      return 'APS / FPS (600)'
+    case 'sun':
+      return 'Aggregate % (est.)'
+    case 'ru':
+      return 'Admission points (APS)'
+    case 'ukzn':
+      return 'APS (UKZN)'
+    case 'nmu':
+      return 'Admission score (6×%)'
+    case 'tut':
+      return 'APS (TUT)'
+    default:
+      return 'APS (estimate)'
+  }
+}
+
+function formatApsDisplay(id: UniversityId, aps: number): string {
+  if (id === 'ru') return aps.toFixed(1)
+  if (Number.isInteger(aps)) return String(aps)
+  return String(aps)
+}
+
 function emptyRow(): SubjectMarkInput {
   return { subject: '', percent: null }
 }
@@ -344,8 +369,8 @@ export function VarsityCalculatorPage() {
                         </div>
                       </div>
                       <div className="vcAps">
-                        <div className="vcApsLabel">APS (estimate)</div>
-                        <div className="vcApsValue">{u.aps}</div>
+                        <div className="vcApsLabel">{apsLabelForUniversity(u.uni.id as UniversityId)}</div>
+                        <div className="vcApsValue">{formatApsDisplay(u.uni.id as UniversityId, u.aps)}</div>
                       </div>
                     </div>
 

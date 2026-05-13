@@ -1,0 +1,51 @@
+[
+  {
+    "id": "vut-dip-it-maths",
+    "name": "Dip (Information Technology) — Mathematics or Technical Mathematics route",
+    "faculty": "Applied & Computer Sciences",
+    "minAps": 26,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }, { "subject": "Mathematics", "minLevel": 4 }],
+    "notes": "2027 VUT undergraduate minimums: max six subjects, LO excluded. Enter Technical Mathematics as “Mathematics” if that is your subject. Mathematical Literacy path is listed separately (min APS 28, Maths Lit L6)."
+  },
+  {
+    "id": "vut-dip-it-lit",
+    "name": "Dip (Information Technology) — Mathematical Literacy route",
+    "faculty": "Applied & Computer Sciences",
+    "minAps": 28,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematical Literacy", "minLevel": 6 }
+    ],
+    "notes": "VUT states APS 28 when entering on Maths Literacy (six subjects, LO excluded)."
+  },
+  {
+    "id": "vut-dip-analytical-chem",
+    "name": "Dip (Analytical Chemistry)",
+    "faculty": "Applied & Computer Sciences",
+    "minAps": 21,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 },
+      { "subject": "Physical Sciences", "minLevel": 4 }
+    ],
+    "notes": "Brochure total 21 (excluding LO). TVET N4 Engineering Mathematics / Engineering Sciences at 60% may substitute—see VUT PDF."
+  },
+  {
+    "id": "vut-dip-accounting-fis",
+    "name": "Dip (Financial Information Systems) / Cost & Management Accounting",
+    "faculty": "Accountancy",
+    "minAps": 20,
+    "subjectRequirements": [
+      { "subject": "Accounting", "minLevel": 4 },
+      { "subject": "English", "minLevel": 4 },
+      {
+        "anyOf": [
+          { "subject": "Mathematics", "minLevel": 3 },
+          { "subject": "Mathematical Literacy", "minLevel": 5 }
+        ],
+        "label": "Mathematics L3 (or Technical Maths L3) OR Maths Literacy L5"
+      }
+    ],
+    "notes": "VUT lists min APS 20 with Mathematics/Technical Maths, or APS 22 with Maths Literacy, for selected accounting streams—confirm your diploma code."
+  }
+]

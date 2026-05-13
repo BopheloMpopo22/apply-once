@@ -3,118 +3,180 @@
     "id": "uct-eng",
     "name": "BSc Engineering (EBE)",
     "faculty": "Engineering & the Built Environment",
-    "minAps": 42,
+    "minAps": 420,
     "subjectRequirements": [
       { "subject": "Mathematics", "minPercent": 80 },
       { "subject": "Physical Sciences", "minPercent": 70 },
-      { "subject": "English", "minLevel": 4 }
+      { "subject": "English", "minPercent": 50 }
     ],
-    "notes": "UCT uses a points system; some programmes require very high Maths/Science marks."
+    "notes": "2027: Band C possible admission from 420 FPS (600 scale); Band A from 500. Physical Sciences 75% for Electrical / E&CE / Mechatronics streams (70% for Civil). NBTs (MAT, AL, QL) must be written. Technical Mathematics/Science cannot replace Mathematics/Physical Sciences."
   },
   {
     "id": "uct-bsc",
     "name": "BSc (Science)",
     "faculty": "Science",
-    "minAps": 36,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+    "minAps": 550,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 70 },
+      { "subject": "Physical Sciences", "minPercent": 60 }
+    ],
+    "notes": "2027 Science faculty: FPS out of 800 (doubled Mathematics & Physical Sciences). Band C from 550; Band A from 660. NBTs required (not used for admission but for extended programme placement). Some majors allow IT instead of Physical Sciences — see prospectus."
   },
   {
     "id": "uct-bsc-cs",
     "name": "BSc (Computer Science)",
     "faculty": "Science",
-    "minAps": 38,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+    "minAps": 550,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 70 },
+      { "subject": "Physical Sciences", "minPercent": 60 }
+    ],
+    "notes": "Same faculty FPS (800) and subject minima as general BSc; major-specific rules may allow Information Technology in place of Physical Sciences for this stream — see Faculty of Science."
   },
   {
     "id": "uct-bcom",
     "name": "BCom",
     "faculty": "Commerce",
-    "minAps": 36,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+    "minAps": 430,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 60 },
+      { "subject": "English", "minPercent": 50 }
+    ],
+    "notes": "2027: Band C (EDU only) from 430 FPS; mainstream Band A from 435. English FAL minimum 60% (stricter than HL 50%) — calculator cannot tell HL vs FAL; check your case. NBT AL & QL Upper Intermediate+ required for all Commerce applicants."
   },
   {
     "id": "uct-bcom-acc",
     "name": "BCom (Accounting)",
     "faculty": "Commerce",
-    "minAps": 38,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+    "minAps": 430,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 60 },
+      { "subject": "English", "minPercent": 50 }
+    ],
+    "notes": "Shares 2027 Commerce faculty FPS bands with other BCom/BBusSci streams (except Actuarial / Quant Finance and except Computer Science & Statistics specialisations — see prospectus)."
   },
   {
     "id": "uct-llb",
     "name": "LLB",
     "faculty": "Law",
-    "minAps": 38,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 5 }]
+    "minAps": 470,
+    "subjectRequirements": [],
+    "notes": "2027 undergraduate LLB: Band C possible admission from 470 FPS; Band A from 500 (SA). NBT: Proficient AL and Intermediate+ QL (SA Band A/B). International probable admission guideline 510+ FPS. No separate English % table for NSC beyond general FPS competition."
   },
   {
     "id": "uct-ba",
     "name": "BA",
     "faculty": "Humanities",
-    "minAps": 34,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+    "minAps": 380,
+    "subjectRequirements": [{ "subject": "English", "minPercent": 50 }],
+    "notes": "2027: Band C from 380 FPS; English FAL minimum 60% if not HL — enter your English % accordingly. NBT Academic Literacy Intermediate+ (Band C). PPE and some majors need higher marks (e.g. Mathematics 60% for PPE)."
   },
   {
     "id": "uct-bed",
-    "name": "Bachelor of Education",
+    "name": "Teaching pathway (UG + PGCE)",
     "faculty": "Humanities",
-    "minAps": 34,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+    "minAps": 380,
+    "subjectRequirements": [{ "subject": "English", "minPercent": 50 }],
+    "notes": "UCT does not offer a generic undergraduate BEd in this prospectus; initial teaching is typically a degree (e.g. BA/BSc) plus Postgraduate Certificate in Education. Requirements shown are aligned with general Humanities BA entry for planning purposes."
   },
   {
     "id": "uct-health",
-    "name": "Health Sciences (General)",
+    "name": "Health Sciences (MBChB-oriented minimums)",
     "faculty": "Health Sciences",
-    "minAps": 40,
+    "minAps": 450,
     "subjectRequirements": [
-      { "subject": "English", "minLevel": 5 },
-      { "subject": "Mathematics", "minLevel": 5 }
+      { "subject": "English", "minPercent": 65 },
+      { "subject": "Mathematics", "minPercent": 70 },
+      { "subject": "Physical Sciences", "minPercent": 70 }
     ],
-    "notes": "Specific degrees have specific subject requirements."
+    "notes": "2027 MBChB: sub-minimum APS 450 (six subject % rule differs from FPS); FPS out of 900 includes NBT (not in this calculator). Next three best subjects at 70%+ also required. Other health programmes (OT, physio, etc.) use lower thresholds — see Faculty of Health Sciences."
   },
   {
     "id": "uct-bsc-maths",
     "name": "BSc (Mathematics)",
     "faculty": "Science",
-    "minAps": 36,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+    "minAps": 550,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 70 },
+      { "subject": "Physical Sciences", "minPercent": 60 }
+    ],
+    "notes": "Faculty of Science FPS (800 scale) and minimum subject marks as for 2027 BSc."
   },
   {
     "id": "uct-bsc-stats",
     "name": "BSc (Statistics / Data Science)",
     "faculty": "Science",
-    "minAps": 36,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+    "minAps": 550,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 70 },
+      { "subject": "Physical Sciences", "minPercent": 60 }
+    ],
+    "notes": "Same faculty minima as BSc. Commerce BCom streams in Statistics & Data Science use higher school Maths (70%) and higher FPS bands — use Commerce programmes for that route."
   },
   {
     "id": "uct-bcom-econ",
     "name": "BCom (Economics)",
     "faculty": "Commerce",
-    "minAps": 36,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+    "minAps": 430,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 60 },
+      { "subject": "English", "minPercent": 50 }
+    ],
+    "notes": "Economics major at UCT also needs 60% NSC Mathematics for the major (separate from faculty offer); NBT and English FAL rules as per Commerce."
   },
   {
     "id": "uct-busci",
     "name": "BBusSci",
     "faculty": "Commerce",
-    "minAps": 38,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+    "minAps": 430,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 60 },
+      { "subject": "English", "minPercent": 50 }
+    ],
+    "notes": "2027: same faculty FPS entry table as BCom except Actuarial Science / Quantitative Finance and except Computer Science & Statistics specialisations."
   },
   {
     "id": "uct-built",
-    "name": "Built Environment (General)",
+    "name": "Built Environment (BAS / Construction / Property)",
     "faculty": "Engineering & the Built Environment",
-    "minAps": 36,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+    "minAps": 348,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 50 },
+      { "subject": "English", "minPercent": 50 }
+    ],
+    "notes": "2027 Band C floors vary by programme (BAS 348 FPS; Construction / Property 390; BAS also needs portfolio). Using the lowest published Band C (348) — verify against your specific stream."
   },
   {
     "id": "uct-bsc-phys",
     "name": "BSc (Physics)",
     "faculty": "Science",
-    "minAps": 36,
+    "minAps": 550,
     "subjectRequirements": [
-      { "subject": "Mathematics", "minLevel": 5 },
-      { "subject": "Physical Sciences", "minLevel": 5 }
-    ]
+      { "subject": "Mathematics", "minPercent": 70 },
+      { "subject": "Physical Sciences", "minPercent": 60 }
+    ],
+    "notes": "2027 Faculty of Science minimum FPS and subject requirements."
+  },
+  {
+    "id": "uct-bcom-cs-stats",
+    "name": "BCom / BBusSci (Computer Science or Statistics & Data Science)",
+    "faculty": "Commerce",
+    "minAps": 430,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 70 },
+      { "subject": "English", "minPercent": 50 }
+    ],
+    "notes": "2027 Commerce table: Mathematics 70% and FPS bands same as other Commerce streams (Band C EDU 430–434). English FAL 60% if applicable. NBT AL & QL Upper Intermediate+."
+  },
+  {
+    "id": "uct-bcom-actuarial",
+    "name": "BCom / BBusSci (Actuarial Science or Quantitative Finance)",
+    "faculty": "Commerce",
+    "minAps": 475,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 80 },
+      { "subject": "English", "minPercent": 60 }
+    ],
+    "notes": "2027: Band C (EDU) 475–479 FPS; Band A from 500. English FAL 80% with Proficient NBT AL & QL when using FAL — see prospectus. NBT requirements apply."
   }
 ]
-

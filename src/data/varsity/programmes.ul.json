@@ -1,0 +1,33 @@
+[
+  {
+    "id": "ul-bed-spfet-lang",
+    "name": "BEd (SP & FET) — Languages & Life Orientation major",
+    "faculty": "Humanities / Education",
+    "minAps": 24,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Life Orientation", "minLevel": 3 },
+      { "subject": "Mathematics", "minLevel": 4 }
+    ],
+    "notes": "APS = sum of six NSC levels (LO excluded from the APS sum but often required at level 3+ for UL). Source: UL general prospectus admission section."
+  },
+  {
+    "id": "ul-bed-spfet-sos",
+    "name": "BEd (SP & FET) — Languages & Social Sciences major",
+    "faculty": "Humanities / Education",
+    "minAps": 24,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Life Orientation", "minLevel": 3 }
+    ],
+    "notes": "Table in the UL prospectus lists additional subject combinations; confirm the major row."
+  },
+  {
+    "id": "ul-ba-general",
+    "name": "BA (Humanities) — indicative",
+    "faculty": "Humanities",
+    "minAps": 26,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }],
+    "notes": "Placeholder minimum APS; faculty handbooks list programme-specific totals—cross-check ul.ac.za calendars."
+  }
+]

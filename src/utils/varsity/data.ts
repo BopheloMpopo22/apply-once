@@ -9,6 +9,12 @@ import programmesUkzn from '../../data/varsity/programmes.ukzn.json'
 import programmesUfs from '../../data/varsity/programmes.ufs.json'
 import programmesRu from '../../data/varsity/programmes.ru.json'
 import programmesUnisa from '../../data/varsity/programmes.unisa.json'
+import programmesUwc from '../../data/varsity/programmes.uwc.json'
+import programmesNmu from '../../data/varsity/programmes.nmu.json'
+import programmesTut from '../../data/varsity/programmes.tut.json'
+import programmesCput from '../../data/varsity/programmes.cput.json'
+import programmesUl from '../../data/varsity/programmes.ul.json'
+import programmesVut from '../../data/varsity/programmes.vut.json'
 import type { Programme, UniversityId } from './types'
 
 export type UniversityInfo = {
@@ -45,6 +51,18 @@ export function getProgrammes(universityId: UniversityId): Programme[] {
       return programmesRu as unknown as Programme[]
     case 'unisa':
       return programmesUnisa as unknown as Programme[]
+    case 'uwc':
+      return programmesUwc as unknown as Programme[]
+    case 'nmu':
+      return programmesNmu as unknown as Programme[]
+    case 'tut':
+      return programmesTut as unknown as Programme[]
+    case 'cput':
+      return programmesCput as unknown as Programme[]
+    case 'ul':
+      return programmesUl as unknown as Programme[]
+    case 'vut':
+      return programmesVut as unknown as Programme[]
     default:
       return []
   }

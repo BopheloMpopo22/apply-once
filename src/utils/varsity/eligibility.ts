@@ -55,6 +55,16 @@ function checkAnyOfRequirement(marks: SubjectMark[], req: ProgrammeAnyOfRequirem
   return [`Need one of: ${label}. ${details}`.trim()]
 }
 
+function uctComparablePoints(apsRes: ReturnType<typeof calculateAps>, programme: Programme): number {
+  if (
+    apsRes.uctScienceFps !== undefined &&
+    programme.faculty === 'Science'
+  ) {
+    return apsRes.uctScienceFps
+  }
+  return apsRes.aps
+}
+
 export function checkProgrammeEligibility(
   universityId: UniversityId,
   marks: SubjectMark[],
@@ -63,8 +73,13 @@ export function checkProgrammeEligibility(
   const apsRes = calculateAps(universityId, marks)
   const reasons: string[] = []
 
-  if (apsRes.aps < programme.minAps) {
-    reasons.push(`APS too low: need ${programme.minAps}, you have ${apsRes.aps}.`)
+  const compare = universityId === 'uct' ? uctComparablePoints(apsRes, programme) : apsRes.aps
+  if (compare < programme.minAps) {
+    const label =
+      universityId === 'uct' && programme.faculty === 'Science' && apsRes.uctScienceFps !== undefined
+        ? 'Science FPS'
+        : 'APS'
+    reasons.push(`${label} too low: need ${programme.minAps}, you have ${compare}.`)
   }
 
   for (const req of programme.subjectRequirements ?? []) {

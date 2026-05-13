@@ -1,4 +1,20 @@
-export type UniversityId = 'wits' | 'uct' | 'up' | 'sun' | 'nwu' | 'uj' | 'ukzn' | 'ufs' | 'ru' | 'unisa'
+export type UniversityId =
+  | 'wits'
+  | 'uct'
+  | 'up'
+  | 'sun'
+  | 'nwu'
+  | 'uj'
+  | 'ukzn'
+  | 'ufs'
+  | 'ru'
+  | 'unisa'
+  | 'uwc'
+  | 'nmu'
+  | 'tut'
+  | 'cput'
+  | 'ul'
+  | 'vut'
 
 export type SubjectMarkInput = {
   subject: string
@@ -37,6 +53,8 @@ export type ApsResult = {
   aps: number
   breakdown: Array<{ subject: NormalizedSubject; level: number; points: number }>
   notes?: string[]
+  /** UCT Faculty of Science: FPS out of 800 (doubled Mathematics and Physical Sciences). */
+  uctScienceFps?: number
 }
 
 export type ProgrammeSubjectRequirement = {

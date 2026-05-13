@@ -3,118 +3,170 @@
     "id": "sun-beng",
     "name": "BEng (Engineering)",
     "faculty": "Engineering",
-    "minAps": 38,
+    "minAps": 70,
     "subjectRequirements": [
-      { "subject": "Mathematics", "minLevel": 6 },
-      { "subject": "Physical Sciences", "minLevel": 5 },
-      { "subject": "English", "minLevel": 4 }
+      { "subject": "Mathematics", "minPercent": 70 },
+      { "subject": "Physical Sciences", "minPercent": 60 },
+      { "subject": "English", "minPercent": 50 }
     ],
-    "notes": "Stellenbosch requirements vary by programme; use as guidance."
+    "notes": "2027 booklet: NSC aggregate 70% (excluding LO); selection uses a separate selection mark (Math + Phys + 6×average). English rules vary for FAL/Afrikaans combinations — see prospectus."
   },
   {
     "id": "sun-bsc",
     "name": "BSc (Science)",
     "faculty": "Science",
-    "minAps": 32,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+    "minAps": 65,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 60 },
+      { "subject": "Physical Sciences", "minPercent": 50 },
+      { "subject": "English", "minPercent": 50 }
+    ],
+    "notes": "Representative 2027 biological-stream minima; many streams need Mathematics 70% and/or Chemistry. Afrikaans or English may satisfy language — see Faculty of Science. Selection uses a weighted selection mark."
   },
   {
     "id": "sun-bsc-cs",
     "name": "BSc (Computer Science)",
     "faculty": "Science",
-    "minAps": 34,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+    "minAps": 65,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 70 },
+      { "subject": "Physical Sciences", "minPercent": 50 },
+      { "subject": "English", "minPercent": 50 }
+    ],
+    "notes": "2027: aggregate 65%; Mathematics 70%; Physical Sciences 50% if Chemistry or Physics taken at university."
   },
   {
     "id": "sun-bcom",
-    "name": "BCom",
+    "name": "BCom (Management / Economic Sciences)",
     "faculty": "Economic & Management Sciences",
-    "minAps": 32,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+    "minAps": 65,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 60 },
+      { "subject": "English", "minPercent": 50 }
+    ],
+    "notes": "2027: BCom (Management Sciences) and BCom (Economic Sciences) use aggregate 65% and language rules involving Afrikaans/English — see booklet. Some focal areas need higher Mathematics."
   },
   {
     "id": "sun-acc",
     "name": "BAcc (Accounting)",
     "faculty": "Economic & Management Sciences",
-    "minAps": 36,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+    "minAps": 70,
+    "subjectRequirements": [{ "subject": "Mathematics", "minPercent": 70 }],
+    "notes": "2027: Mathematics 70% OR (Mathematics 60% with Accounting 70%); aggregate 70%; English/Afrikaans rules in prospectus."
   },
   {
     "id": "sun-llb",
     "name": "LLB",
     "faculty": "Law",
-    "minAps": 34,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+    "minAps": 70,
+    "subjectRequirements": [{ "subject": "English", "minPercent": 60 }],
+    "notes": "2027 four-year LLB: aggregate 70%; English or Afrikaans HL 60% OR FAL 70%; NBT AQL before 31 July."
   },
   {
     "id": "sun-ba",
-    "name": "BA",
+    "name": "BA (Arts & Social Sciences)",
     "faculty": "Arts & Social Sciences",
-    "minAps": 28,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+    "minAps": 60,
+    "subjectRequirements": [{ "subject": "English", "minPercent": 50 }],
+    "notes": "Many BA programmes require higher aggregates (e.g. 63–65%) — this row is a softer planning baseline; confirm your programme on maties.com."
   },
   {
     "id": "sun-bed",
     "name": "BEd",
     "faculty": "Education",
-    "minAps": 28,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+    "minAps": 60,
+    "subjectRequirements": [
+      {
+        "anyOf": [
+          { "subject": "Mathematics", "minPercent": 40 },
+          { "subject": "Mathematical Literacy", "minPercent": 60 }
+        ],
+        "label": "Mathematics 40% or Mathematical Literacy 60%"
+      },
+      { "subject": "English", "minPercent": 60 }
+    ],
+    "notes": "2027 Education faculty: aggregate 60% (excluding LO); additional language rules for Afrikaans/isiXhosa apply — see booklet."
   },
   {
     "id": "sun-medicine",
-    "name": "Health Sciences (General)",
+    "name": "Health Sciences (MBChB-oriented)",
     "faculty": "Medicine & Health Sciences",
-    "minAps": 40,
+    "minAps": 75,
     "subjectRequirements": [
-      { "subject": "Mathematics", "minLevel": 6 },
-      { "subject": "Physical Sciences", "minLevel": 6 },
-      { "subject": "English", "minLevel": 5 }
-    ]
+      { "subject": "Mathematics", "minPercent": 60 },
+      { "subject": "Physical Sciences", "minPercent": 50 },
+      { "subject": "Life Sciences", "minPercent": 50 }
+    ],
+    "notes": "2027 MBChB: aggregate 75% (excluding LO). Other health programmes use 60% aggregate with different subject mixes — see Faculty of Medicine and Health Sciences."
   },
   {
     "id": "sun-agri",
-    "name": "Agriculture (General)",
+    "name": "Agriculture (AgriSciences)",
     "faculty": "AgriSciences",
-    "minAps": 30,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+    "minAps": 60,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 60 },
+      { "subject": "Physical Sciences", "minPercent": 50 },
+      { "subject": "English", "minPercent": 50 }
+    ],
+    "notes": "Representative 2027 AgriSciences degree minima (e.g. BAgric Agribusiness); other Agri programmes differ — see booklet."
   },
   {
     "id": "sun-bsc-maths",
     "name": "BSc (Mathematics)",
     "faculty": "Science",
-    "minAps": 32,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+    "minAps": 65,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 70 },
+      { "subject": "Physical Sciences", "minPercent": 50 },
+      { "subject": "English", "minPercent": 50 }
+    ],
+    "notes": "2027 BSc Mathematical Sciences stream; Physical Sciences 50% if Physics or Chemistry taken at university."
   },
   {
     "id": "sun-bsc-phys",
     "name": "BSc (Physics)",
     "faculty": "Science",
-    "minAps": 32,
+    "minAps": 65,
     "subjectRequirements": [
-      { "subject": "Mathematics", "minLevel": 5 },
-      { "subject": "Physical Sciences", "minLevel": 5 }
-    ]
+      { "subject": "Mathematics", "minPercent": 70 },
+      { "subject": "Physical Sciences", "minPercent": 50 },
+      { "subject": "English", "minPercent": 50 }
+    ],
+    "notes": "2027 BSc Physics programme table."
   },
   {
     "id": "sun-built",
-    "name": "Built Environment (General)",
+    "name": "Built Environment (planning baseline)",
     "faculty": "Engineering",
-    "minAps": 32,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+    "minAps": 65,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 60 },
+      { "subject": "Physical Sciences", "minPercent": 50 },
+      { "subject": "English", "minPercent": 50 }
+    ],
+    "notes": "Use programme-specific requirements for non-engineering built-environment degrees; many BSc/EMS streams use aggregate 65% with Maths/Science minima."
   },
   {
     "id": "sun-bcom-econ",
-    "name": "BCom (Economics)",
+    "name": "BCom (Economic Sciences)",
     "faculty": "Economic & Management Sciences",
-    "minAps": 32,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+    "minAps": 65,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 60 },
+      { "subject": "English", "minPercent": 50 }
+    ],
+    "notes": "2027 booklet: aggregate 65%; see language and focal-area Mathematics rules (e.g. 70% for some electives)."
   },
   {
     "id": "sun-data",
-    "name": "Data/Stats (General)",
+    "name": "Bachelor of Data Science (BDatSci)",
     "faculty": "Science",
-    "minAps": 34,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+    "minAps": 80,
+    "subjectRequirements": [
+      { "subject": "Mathematics", "minPercent": 80 },
+      { "subject": "English", "minPercent": 60 }
+    ],
+    "notes": "2027: aggregate 80%; stricter Afrikaans/English rules in prospectus for this interfaculty programme."
   }
 ]
-

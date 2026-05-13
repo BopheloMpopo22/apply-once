@@ -1,0 +1,10 @@
+[
+  {
+    "id": "cput-ug-general",
+    "name": "Undergraduate (CPUT) — verify on prospectus",
+    "faculty": "General",
+    "minAps": 28,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }],
+    "notes": "Use the official undergraduate prospectus PDFs linked from https://www.cput.ac.za/study-at-cput/undergraduate/prospectus for faculty-specific APS and subject minima. Calculator uses best-six NSC levels (LO excluded) as a planning estimate only."
+  }
+]

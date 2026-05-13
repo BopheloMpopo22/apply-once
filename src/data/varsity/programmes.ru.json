@@ -1,137 +1,110 @@
 [
   {
-    "id": "ru-bsc",
-    "name": "BSc (Science) (General)",
-    "faculty": "Science",
-    "minAps": 28,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 4 }],
-    "notes": "Rhodes requirements vary by major; use as guidance."
-  },
-  {
-    "id": "ru-cs",
-    "name": "BSc (Computer Science) (General)",
-    "faculty": "Science",
-    "minAps": 30,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
-  },
-  {
     "id": "ru-bcom",
-    "name": "BCom (General)",
+    "name": "BCom (general commerce programmes)",
     "faculty": "Commerce",
-    "minAps": 30,
+    "minAps": 40,
     "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 }
+    ],
+    "notes": "Automatic admission band is often 40+ Rhodes admission points; lower bands may be considered for extended studies or at the Dean’s discretion. Source: https://www.ru.ac.za/admissiongateway/application/entryrequirements/"
+  },
+  {
+    "id": "ru-bbs",
+    "name": "Bachelor of Business Science",
+    "faculty": "Commerce",
+    "minAps": 45,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 6 }
+    ],
+    "notes": "Faculty table: 45+ points for the automatic band; extended studies / Dean’s discretion bands also published on the entry-requirements page."
+  },
+  {
+    "id": "ru-bed",
+    "name": "BEd / Education (general)",
+    "faculty": "Education",
+    "minAps": 44,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
       {
         "anyOf": [
-          { "subject": "Mathematics", "minLevel": 4 },
-          { "subject": "Mathematical Literacy", "minLevel": 6 }
+          { "subject": "Mathematics", "minLevel": 3 },
+          { "subject": "Mathematical Literacy", "minLevel": 4 }
         ]
       }
-    ]
-  },
-  {
-    "id": "ru-acc",
-    "name": "BCom (Accounting) (General)",
-    "faculty": "Commerce",
-    "minAps": 32,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+    ],
+    "notes": "Education faculty publishes English plus Mathematics OR Maths Literacy minima; confirm the major on the official table."
   },
   {
     "id": "ru-ba",
-    "name": "BA (General)",
+    "name": "BA (Humanities) (general)",
     "faculty": "Humanities",
-    "minAps": 28,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+    "minAps": 45,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 5 }],
+    "notes": "English Home Language 60% or First Additional Language 65% in the faculty table; verify which applies to you."
+  },
+  {
+    "id": "ru-bsc",
+    "name": "BSc (Science) (general)",
+    "faculty": "Science",
+    "minAps": 45,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 4 },
+      {
+        "anyOf": [
+          { "subject": "Life Sciences", "minLevel": 5 },
+          { "subject": "Physical Sciences", "minLevel": 5 }
+        ]
+      }
+    ],
+    "notes": "Matches mainstream BSc faculty row (English, Mathematics, Life Science or Physical Science minima)."
+  },
+  {
+    "id": "ru-bsc-is",
+    "name": "BSc (Information Systems)",
+    "faculty": "Science",
+    "minAps": 45,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
+      { "subject": "Mathematics", "minLevel": 6 },
+      {
+        "anyOf": [
+          { "subject": "Life Sciences", "minLevel": 5 },
+          { "subject": "Physical Sciences", "minLevel": 5 }
+        ]
+      }
+    ],
+    "notes": "Higher Mathematics requirement than general BSc; see Rhodes entry-requirements table."
   },
   {
     "id": "ru-law",
     "name": "LLB",
     "faculty": "Law",
-    "minAps": 32,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 5 }]
-  },
-  {
-    "id": "ru-journalism",
-    "name": "Journalism / Media (General)",
-    "faculty": "Humanities",
-    "minAps": 28,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 5 }]
-  },
-  {
-    "id": "ru-psych",
-    "name": "Psychology (General)",
-    "faculty": "Humanities",
-    "minAps": 28,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
-  },
-  {
-    "id": "ru-edu",
-    "name": "Education (General)",
-    "faculty": "Education",
-    "minAps": 26,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
-  },
-  {
-    "id": "ru-econ",
-    "name": "Economics (General)",
-    "faculty": "Commerce",
-    "minAps": 30,
+    "minAps": 45,
     "subjectRequirements": [
+      { "subject": "English", "minLevel": 5 },
       {
         "anyOf": [
           { "subject": "Mathematics", "minLevel": 4 },
-          { "subject": "Mathematical Literacy", "minLevel": 6 }
+          { "subject": "Mathematical Literacy", "minLevel": 5 }
         ]
       }
-    ]
-  },
-  {
-    "id": "ru-bio",
-    "name": "BSc (Biological Sciences) (General)",
-    "faculty": "Science",
-    "minAps": 28,
-    "subjectRequirements": [
-      { "subject": "Mathematics", "minLevel": 4 },
-      { "subject": "Life Sciences", "minLevel": 5 }
-    ]
-  },
-  {
-    "id": "ru-phys",
-    "name": "BSc (Physics) (General)",
-    "faculty": "Science",
-    "minAps": 28,
-    "subjectRequirements": [
-      { "subject": "Mathematics", "minLevel": 5 },
-      { "subject": "Physical Sciences", "minLevel": 5 }
-    ]
-  },
-  {
-    "id": "ru-maths",
-    "name": "BSc (Mathematics) (General)",
-    "faculty": "Science",
-    "minAps": 28,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
-  },
-  {
-    "id": "ru-stats",
-    "name": "BSc (Statistics / Data) (General)",
-    "faculty": "Science",
-    "minAps": 28,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 6 }]
+    ],
+    "notes": "Law also specifies English HL vs FAL percentages; confirm against the official faculty row."
   },
   {
     "id": "ru-pharm",
-    "name": "Pharmacy / Health (General)",
-    "faculty": "Science",
-    "minAps": 30,
+    "name": "Pharmacy (BPharm pathway)",
+    "faculty": "Pharmacy",
+    "minAps": 45,
     "subjectRequirements": [
-      { "subject": "English", "minLevel": 4 },
-      {
-        "anyOf": [
-          { "subject": "Physical Sciences", "minLevel": 5 },
-          { "subject": "Life Sciences", "minLevel": 6 }
-        ]
-      }
-    ]
+      { "subject": "Mathematics", "minLevel": 6 },
+      { "subject": "Life Sciences", "minLevel": 6 },
+      { "subject": "Physical Sciences", "minLevel": 6 }
+    ],
+    "notes": "Reflects the “provisional offer” science levels on the Rhodes table; Dean’s discretion may consider level 5 combinations—read the full pharmacy row."
   }
 ]
-

@@ -17,7 +17,9 @@ export function apsWits(marks: SubjectMark[]): ApsResult {
   return {
     aps,
     breakdown,
-    notes: ['Wits APS shown here is a best-7 estimate (including Life Orientation).'],
+    notes: [
+      'Approximate APS: best seven NSC levels including Life Orientation. Official Wits APS uses your percentages in a fixed seven-subject layout (English, First Additional Language, Mathematics or Maths Literacy, three electives, Life Orientation) with extra weighting on English and Mathematics and a separate Life Orientation scale—see docs/prospectus/2027/Wits_2027_Prospectus_compressed.pdf p. 13.',
+    ],
   }
 }
 

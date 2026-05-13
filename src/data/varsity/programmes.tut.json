@@ -1,0 +1,34 @@
+[
+  {
+    "id": "tut-dip-commercial-photo",
+    "name": "Dip (Commercial Photography)",
+    "faculty": "Arts and Design",
+    "minAps": 22,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 3 }],
+    "notes": "2027 TUT first-year brochure: APS excludes LO and level-1 subjects. Closing date shown as 31/7 in the extract—confirm on tut.ac.za."
+  },
+  {
+    "id": "tut-dip-fashion",
+    "name": "Dip (Fashion Design and Technology)",
+    "faculty": "Arts and Design",
+    "minAps": 20,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 3 }],
+    "notes": "APS per TUT undergraduate admissions publication (2027)."
+  },
+  {
+    "id": "tut-dip-icd",
+    "name": "Dip (Integrated Communication Design)",
+    "faculty": "Arts and Design",
+    "minAps": 24,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }],
+    "notes": "Higher English level than sibling design diplomas in the same table."
+  },
+  {
+    "id": "tut-dip-interior",
+    "name": "Dip (Interior Design)",
+    "faculty": "Arts and Design",
+    "minAps": 22,
+    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }],
+    "notes": "Recommends Design Studies / Visual Arts among supporting subjects in the brochure."
+  }
+]

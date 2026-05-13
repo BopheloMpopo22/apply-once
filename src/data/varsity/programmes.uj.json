@@ -50,7 +50,7 @@
     "id": "uj-bcom",
     "name": "BCom (General)",
     "faculty": "College of Business and Economics",
-    "minAps": 28,
+    "minAps": 26,
     "subjectRequirements": [
       {
         "anyOf": [
@@ -64,8 +64,12 @@
     "id": "uj-acc",
     "name": "BCom (Accounting) (General)",
     "faculty": "College of Business and Economics",
-    "minAps": 30,
-    "subjectRequirements": [{ "subject": "Mathematics", "minLevel": 5 }]
+    "minAps": 28,
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 }
+    ],
+    "notes": "2027 prospectus B34A5Q: APS 28; English 4 (50%+); Mathematics 4 (50%+). CA stream B34CAQ is APS 33 with Maths 5."
   },
   {
     "id": "uj-law",

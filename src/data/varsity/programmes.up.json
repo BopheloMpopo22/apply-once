@@ -104,14 +104,24 @@
     "name": "BPhysio",
     "faculty": "Health Sciences",
     "minAps": 30,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 },
+      { "subject": "Physical Sciences", "minLevel": 4 }
+    ],
+    "notes": "2027 NSC/IEB prospectus: APS 30; English 4; Mathematics 4; Physical Sciences 4."
   },
   {
     "id": "up-bnurs",
     "name": "Bachelor of Nursing",
     "faculty": "Health Sciences",
     "minAps": 28,
-    "subjectRequirements": [{ "subject": "English", "minLevel": 4 }]
+    "subjectRequirements": [
+      { "subject": "English", "minLevel": 4 },
+      { "subject": "Mathematics", "minLevel": 4 },
+      { "subject": "Life Sciences", "minLevel": 4 }
+    ],
+    "notes": "2027 prospectus: Life Sciences (not Physical Sciences) at level 4; Mathematics 4."
   },
   {
     "id": "up-barch",
