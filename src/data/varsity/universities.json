@@ -1,19 +1,19 @@
 [
   {
-    "id": "wits",
-    "name": "University of the Witwatersrand",
-    "shortName": "Wits",
-    "website": "https://www.wits.ac.za",
-    "logo": "/assets/universities/wits.svg",
-    "calculator": "wits"
-  },
-  {
     "id": "uct",
     "name": "University of Cape Town",
     "shortName": "UCT",
     "website": "https://www.uct.ac.za",
     "logo": "/assets/universities/uct.svg",
     "calculator": "uct"
+  },
+  {
+    "id": "wits",
+    "name": "University of the Witwatersrand",
+    "shortName": "Wits",
+    "website": "https://www.wits.ac.za",
+    "logo": "/assets/universities/wits.svg",
+    "calculator": "wits"
   },
   {
     "id": "up",
@@ -24,12 +24,12 @@
     "calculator": "up"
   },
   {
-    "id": "sun",
-    "name": "Stellenbosch University",
-    "shortName": "Stellenbosch",
-    "website": "https://www.sun.ac.za",
-    "logo": "/assets/universities/sun.svg",
-    "calculator": "sun"
+    "id": "uj",
+    "name": "University of Johannesburg",
+    "shortName": "UJ",
+    "website": "https://www.uj.ac.za",
+    "logo": "/assets/universities/uj.svg",
+    "calculator": "best6"
   },
   {
     "id": "nwu",
@@ -40,20 +40,12 @@
     "calculator": "nwu"
   },
   {
-    "id": "uj",
-    "name": "University of Johannesburg",
-    "shortName": "UJ",
-    "website": "https://www.uj.ac.za",
-    "logo": "/assets/universities/uj.svg",
-    "calculator": "best6"
-  },
-  {
-    "id": "ukzn",
-    "name": "University of KwaZulu-Natal",
-    "shortName": "UKZN",
-    "website": "https://www.ukzn.ac.za",
-    "logo": "/assets/universities/ukzn.svg",
-    "calculator": "ukzn"
+    "id": "sun",
+    "name": "Stellenbosch University",
+    "shortName": "Stellenbosch",
+    "website": "https://www.sun.ac.za",
+    "logo": "/assets/universities/sun.svg",
+    "calculator": "sun"
   },
   {
     "id": "ufs",
@@ -61,30 +53,6 @@
     "shortName": "UFS",
     "website": "https://www.ufs.ac.za",
     "logo": "/assets/universities/ufs.svg",
-    "calculator": "best6"
-  },
-  {
-    "id": "ru",
-    "name": "Rhodes University",
-    "shortName": "Rhodes",
-    "website": "https://www.ru.ac.za",
-    "logo": "/assets/universities/ru.svg",
-    "calculator": "ru"
-  },
-  {
-    "id": "unisa",
-    "name": "University of South Africa",
-    "shortName": "UNISA",
-    "website": "https://www.unisa.ac.za",
-    "logo": "/assets/universities/unisa.svg",
-    "calculator": "best6"
-  },
-  {
-    "id": "uwc",
-    "name": "University of the Western Cape",
-    "shortName": "UWC",
-    "website": "https://www.uwc.ac.za",
-    "logo": "/assets/universities/uwc.svg",
     "calculator": "best6"
   },
   {
@@ -104,12 +72,28 @@
     "calculator": "tut"
   },
   {
-    "id": "cput",
-    "name": "Cape Peninsula University of Technology",
-    "shortName": "CPUT",
-    "website": "https://www.cput.ac.za",
-    "logo": "/assets/universities/cput.svg",
+    "id": "ru",
+    "name": "Rhodes University",
+    "shortName": "Rhodes",
+    "website": "https://www.ru.ac.za",
+    "logo": "/assets/universities/ru.svg",
+    "calculator": "ru"
+  },
+  {
+    "id": "uwc",
+    "name": "University of the Western Cape",
+    "shortName": "UWC",
+    "website": "https://www.uwc.ac.za",
+    "logo": "/assets/universities/uwc.svg",
     "calculator": "best6"
+  },
+  {
+    "id": "ukzn",
+    "name": "University of KwaZulu-Natal",
+    "shortName": "UKZN",
+    "website": "https://www.ukzn.ac.za",
+    "logo": "/assets/universities/ukzn.svg",
+    "calculator": "ukzn"
   },
   {
     "id": "ul",
@@ -120,12 +104,27 @@
     "calculator": "best6"
   },
   {
+    "id": "cput",
+    "name": "Cape Peninsula University of Technology",
+    "shortName": "CPUT",
+    "website": "https://www.cput.ac.za",
+    "logo": "/assets/universities/cput.svg",
+    "calculator": "best6"
+  },
+  {
     "id": "vut",
     "name": "Vaal University of Technology",
     "shortName": "VUT",
     "website": "https://www.vut.ac.za",
     "logo": "/assets/universities/vut.svg",
     "calculator": "best6"
+  },
+  {
+    "id": "unisa",
+    "name": "University of South Africa",
+    "shortName": "UNISA",
+    "website": "https://www.unisa.ac.za",
+    "logo": "/assets/universities/unisa.svg",
+    "calculator": "best6"
   }
 ]
-

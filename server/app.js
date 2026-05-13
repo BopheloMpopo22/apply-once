@@ -15,6 +15,7 @@ import { fileURLToPath } from 'url'
 import { PrismaClient } from '@prisma/client'
 import { remoteDownloadBuffer, remotePut, remoteRemove, useRemoteFiles } from './storage.js'
 import { seedVarsityCatalogueFromRepo } from './varsitySeed.js'
+import { sortProgrammesForCatalogue, sortUniversitiesForCatalogue } from './varsityDisplayOrder.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const prisma = new PrismaClient()
@@ -1129,11 +1130,11 @@ function parseCatalogueYear(req) {
 
 app.get('/api/varsity/catalogue', async (req, res) => {
   const year = parseCatalogueYear(req)
-  const universities = await prisma.varsityUniversity.findMany({
+  const universitiesRaw = await prisma.varsityUniversity.findMany({
     where: { active: true },
-    orderBy: { shortName: 'asc' },
     select: { id: true, name: true, shortName: true, website: true, logoPath: true, calculatorType: true },
   })
+  const universities = sortUniversitiesForCatalogue(universitiesRaw)
 
   const programmes = await prisma.varsityProgramme.findMany({
     where: { active: true, university: { active: true } },
@@ -1158,17 +1159,8 @@ app.get('/api/varsity/catalogue', async (req, res) => {
     },
   })
 
-  res.json({
-    year,
-    universities: universities.map((u) => ({
-      id: u.id,
-      name: u.name,
-      shortName: u.shortName,
-      website: u.website,
-      logo: u.logoPath,
-      calculator: u.calculatorType,
-    })),
-    programmes: programmes
+  const programmePayload = sortProgrammesForCatalogue(
+    programmes
       .map((p) => {
         const rs = p.ruleSets?.[0]
         if (!rs) return null
@@ -1193,16 +1185,30 @@ app.get('/api/varsity/catalogue', async (req, res) => {
         }
       })
       .filter(Boolean),
+  )
+
+  res.json({
+    year,
+    universities: universities.map((u) => ({
+      id: u.id,
+      name: u.name,
+      shortName: u.shortName,
+      website: u.website,
+      logo: u.logoPath,
+      calculator: u.calculatorType,
+    })),
+    programmes: programmePayload,
   })
 })
 
 app.get('/api/admin/varsity/catalogue', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res) => {
   const year = parseCatalogueYear(req)
-  const universities = await prisma.varsityUniversity.findMany({
-    orderBy: { shortName: 'asc' },
+  const universitiesRaw = await prisma.varsityUniversity.findMany({
     select: { id: true, name: true, shortName: true, website: true, logoPath: true, calculatorType: true, active: true },
   })
-  const programmes = await prisma.varsityProgramme.findMany({
+  const universities = sortUniversitiesForCatalogue(universitiesRaw)
+  const programmes = sortProgrammesForCatalogue(
+    await prisma.varsityProgramme.findMany({
     orderBy: [{ universityId: 'asc' }, { faculty: 'asc' }, { name: 'asc' }],
     select: {
       id: true,
@@ -1223,7 +1229,8 @@ app.get('/api/admin/varsity/catalogue', attachSupabaseEmailIfPresent, adminMiddl
         },
       },
     },
-  })
+  }),
+  )
   res.json({ year, universities, programmes })
 })
 
