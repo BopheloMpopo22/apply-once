@@ -68,5 +68,235 @@
     "externalPdfUrl": "https://www.ufs.ac.za/docs/librariesprovider44/prospectus/ug-prospectus-2027.pdf",
     "pdfPage": 1,
     "officialUrl": "https://www.ufs.ac.za"
+  },
+  {
+    "id": "uct-application-admission",
+    "universityId": "uct",
+    "title": "UCT — Application & admission (prospectus)",
+    "description": "Opens the bundled 2027 UCT undergraduate prospectus near the “Application and Admission to UCT” section (see contents page in PDF).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UCT-prospectus-2027.pdf",
+    "pdfPage": 13,
+    "officialUrl": "https://www.uct.ac.za"
+  },
+  {
+    "id": "uct-faculty-commerce",
+    "universityId": "uct",
+    "title": "UCT — Faculty of Commerce",
+    "description": "Page target taken from the prospectus contents (printed page 23). If the viewer lands slightly off, use thumbnails.",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UCT-prospectus-2027.pdf",
+    "pdfPage": 23,
+    "officialUrl": "https://www.uct.ac.za"
+  },
+  {
+    "id": "uct-faculty-ebe",
+    "universityId": "uct",
+    "title": "UCT — Engineering & the Built Environment",
+    "description": "Page target from prospectus contents (printed page 32).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UCT-prospectus-2027.pdf",
+    "pdfPage": 32,
+    "officialUrl": "https://www.uct.ac.za"
+  },
+  {
+    "id": "uct-faculty-health",
+    "universityId": "uct",
+    "title": "UCT — Faculty of Health Sciences",
+    "description": "Page target from prospectus contents (printed page 39).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UCT-prospectus-2027.pdf",
+    "pdfPage": 39,
+    "officialUrl": "https://www.uct.ac.za"
+  },
+  {
+    "id": "uct-faculty-humanities",
+    "universityId": "uct",
+    "title": "UCT — Faculty of Humanities",
+    "description": "Page target from prospectus contents (printed page 48).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UCT-prospectus-2027.pdf",
+    "pdfPage": 48,
+    "officialUrl": "https://www.uct.ac.za"
+  },
+  {
+    "id": "uct-faculty-law",
+    "universityId": "uct",
+    "title": "UCT — Faculty of Law",
+    "description": "Page target from prospectus contents (printed page 59).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UCT-prospectus-2027.pdf",
+    "pdfPage": 59,
+    "officialUrl": "https://www.uct.ac.za"
+  },
+  {
+    "id": "uct-faculty-science",
+    "universityId": "uct",
+    "title": "UCT — Faculty of Science",
+    "description": "Page target from prospectus contents (printed page 64).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UCT-prospectus-2027.pdf",
+    "pdfPage": 64,
+    "officialUrl": "https://www.uct.ac.za"
+  },
+  {
+    "id": "uj-2027-prospectus",
+    "universityId": "uj",
+    "title": "UJ 2027 undergraduate prospectus (full PDF)",
+    "description": "Full prospectus bundled in Apply-Once. Use search or thumbnails to jump to a faculty; tell us page numbers if you want separate deep links like UCT.",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UJ-prospectus-2027.pdf",
+    "pdfPage": 1,
+    "officialUrl": "https://www.uj.ac.za"
+  },
+  {
+    "id": "up-ems",
+    "universityId": "up",
+    "title": "UP — Economic & Management Sciences (NSC/IEB booklet)",
+    "description": "Short 2027 NSC/IEB prospectus excerpt. Page from table of contents (printed page 7).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UP-UG-prospectus-2027.pdf",
+    "pdfPage": 7,
+    "officialUrl": "https://www.up.ac.za"
+  },
+  {
+    "id": "up-education",
+    "universityId": "up",
+    "title": "UP — Faculty of Education",
+    "description": "From NSC/IEB booklet table of contents (printed page 8).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UP-UG-prospectus-2027.pdf",
+    "pdfPage": 8,
+    "officialUrl": "https://www.up.ac.za"
+  },
+  {
+    "id": "up-ebeit",
+    "universityId": "up",
+    "title": "UP — Engineering, Built Environment & IT",
+    "description": "From NSC/IEB booklet table of contents (printed page 9).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UP-UG-prospectus-2027.pdf",
+    "pdfPage": 9,
+    "officialUrl": "https://www.up.ac.za"
+  },
+  {
+    "id": "up-health",
+    "universityId": "up",
+    "title": "UP — Faculty of Health Sciences",
+    "description": "From NSC/IEB booklet table of contents (printed page 11).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UP-UG-prospectus-2027.pdf",
+    "pdfPage": 11,
+    "officialUrl": "https://www.up.ac.za"
+  },
+  {
+    "id": "up-humanities",
+    "universityId": "up",
+    "title": "UP — Faculty of Humanities",
+    "description": "From NSC/IEB booklet table of contents (printed page 12).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UP-UG-prospectus-2027.pdf",
+    "pdfPage": 12,
+    "officialUrl": "https://www.up.ac.za"
+  },
+  {
+    "id": "up-law",
+    "universityId": "up",
+    "title": "UP — Faculty of Law",
+    "description": "From NSC/IEB booklet table of contents (printed page 14).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UP-UG-prospectus-2027.pdf",
+    "pdfPage": 14,
+    "officialUrl": "https://www.up.ac.za"
+  },
+  {
+    "id": "up-theology",
+    "universityId": "up",
+    "title": "UP — Faculty of Theology and Religion",
+    "description": "From NSC/IEB booklet table of contents (printed page 14; shared with Law in TOC).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UP-UG-prospectus-2027.pdf",
+    "pdfPage": 14,
+    "officialUrl": "https://www.up.ac.za"
+  },
+  {
+    "id": "up-nas",
+    "universityId": "up",
+    "title": "UP — Natural & Agricultural Sciences",
+    "description": "From NSC/IEB booklet table of contents (printed page 15).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UP-UG-prospectus-2027.pdf",
+    "pdfPage": 15,
+    "officialUrl": "https://www.up.ac.za"
+  },
+  {
+    "id": "up-vet",
+    "universityId": "up",
+    "title": "UP — Faculty of Veterinary Science",
+    "description": "From NSC/IEB booklet table of contents (printed page 19).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UP-UG-prospectus-2027.pdf",
+    "pdfPage": 19,
+    "officialUrl": "https://www.up.ac.za"
+  },
+  {
+    "id": "sun-admissions-2027",
+    "universityId": "sun",
+    "title": "Stellenbosch 2027 admissions booklet (NSC/IEB)",
+    "description": "Bundled Maties admissions booklet (16 pages). Scroll for faculty-specific selection info; many details also live on www.maties.com.",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/SUN-admissions-booklet-2027.pdf",
+    "pdfPage": 1,
+    "officialUrl": "https://www.sun.ac.za"
+  },
+  {
+    "id": "nwu-grade12-2027",
+    "universityId": "nwu",
+    "title": "NWU 2027 Grade 12 prospectus",
+    "description": "Bundled NWU prospectus. Opens near the early section; use thumbnails to reach your faculty tables.",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/NWU-prospectus-2027.pdf",
+    "pdfPage": 4,
+    "officialUrl": "https://www.nwu.ac.za"
+  },
+  {
+    "id": "nmu-2027-prospectus",
+    "universityId": "nmu",
+    "title": "NMU 2027 prospectus (programme tables)",
+    "description": "Bundled Nelson Mandela University prospectus. Programme admission scores are in long tables—scroll or search.",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/NMU-prospectus-2027.pdf",
+    "pdfPage": 1,
+    "officialUrl": "https://www.mandela.ac.za"
+  },
+  {
+    "id": "tut-admissions-2027",
+    "universityId": "tut",
+    "title": "TUT 2027 admissions / first-year information",
+    "description": "Bundled Tshwane University of Technology admissions PDF. Use search for your faculty or programme.",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/TUT-admissions-2027.pdf",
+    "pdfPage": 1,
+    "officialUrl": "https://www.tut.ac.za"
+  },
+  {
+    "id": "vut-admissions-2027",
+    "universityId": "vut",
+    "title": "VUT 2027 minimum admission requirements",
+    "description": "Bundled Vaal University of Technology admissions requirements PDF.",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/VUT-admissions-2027.pdf",
+    "pdfPage": 1,
+    "officialUrl": "https://www.vut.ac.za"
+  },
+  {
+    "id": "ul-prospectus-2027",
+    "universityId": "ul",
+    "title": "University of Limpopo prospectus / admission requirements",
+    "description": "Bundled UL prospectus PDF. Scroll for faculty tables and APS rules.",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UL-prospectus-2027.pdf",
+    "pdfPage": 1,
+    "officialUrl": "https://www.ul.ac.za"
   }
 ]
