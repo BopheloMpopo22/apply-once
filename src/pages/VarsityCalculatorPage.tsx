@@ -14,6 +14,7 @@ import { groupProgrammesByFaculty } from '../utils/varsity/spotlight'
 import { buildCatalogueRequirementSummary } from '../utils/varsity/programmeCatalogSummary'
 import { getStudentCatalogueYear } from '../utils/varsity/studentCatalogueYear'
 import { VARSITY_CALCULATOR_SUBJECT_SUGGESTIONS } from '../data/varsity/calculatorSubjectSuggestions'
+import { UNIVERSITY_RESULT_TINT_HEX, universityResultCardTintStyle } from '../utils/varsity/universityResultTints'
 
 type ReportType = 'grade11t4' | 'grade12t1' | 'grade12t2'
 
@@ -360,8 +361,13 @@ export function VarsityCalculatorPage() {
                 const eligibleByFaculty = groupProgrammesByFaculty(u.eligible)
                 const ineligibleByFaculty = groupProgrammesByFaculty(shownIneligible)
 
+                const uniTint = UNIVERSITY_RESULT_TINT_HEX[u.uni.id as UniversityId]
                 return (
-                  <article className="card vcUniCard" key={u.uni.id}>
+                  <article
+                    className={`card vcUniCard${uniTint ? ' vcUniCardTint' : ''}`}
+                    key={u.uni.id}
+                    style={uniTint ? universityResultCardTintStyle(uniTint) : undefined}
+                  >
                     <div className="vcUniTop">
                       <div className="vcUniBrand">
                         <img className="vcUniLogo" src={u.uni.logo} alt={`${u.uni.shortName} logo`} />
