@@ -40,6 +40,10 @@ export type NormalizedSubject =
   | 'isiXhosa'
   | 'Sesotho'
   | 'Setswana'
+  | 'Sepedi'
+  | 'isiNdebele'
+  | 'Tshivenda'
+  | 'siSwati'
   | 'Other'
 
 export type SubjectMark = {

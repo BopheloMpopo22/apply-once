@@ -12,7 +12,14 @@ const SUBJECT_ALIASES: Array<[NormalizedSubject, RegExp[]]> = [
   ],
   [
     'Mathematics',
-    [/\bmathematics\b/i, /\bmaths\b/i, /\bmath\b/i, /\bmathematics\s*hl\b/i],
+    [
+      /\bmathematics\b/i,
+      /\bmaths\b/i,
+      /\bmath\b/i,
+      /\bmathematics\s*hl\b/i,
+      /\btechnical mathematics\b/i,
+      /\btech\s*maths?\b/i,
+    ],
   ],
   ['Mathematical Literacy', [/\bmath\s*lit\b/i, /\bmathematical literacy\b/i]],
   [
@@ -32,6 +39,14 @@ const SUBJECT_ALIASES: Array<[NormalizedSubject, RegExp[]]> = [
   ['isiXhosa', [/\bisixhosa\b/i, /\bxhosa\b/i]],
   ['Sesotho', [/\bsesotho\b/i, /\bsotho\b/i]],
   ['Setswana', [/\bsetswana\b/i, /\btswana\b/i]],
+  ['Sepedi', [/\bsepedi\b/i, /\bnorthern\s*sotho\b/i]],
+  ['isiNdebele', [/\bisindebele\b/i, /\bndebele\b/i]],
+  ['Tshivenda', [/\btshivenda\b/i, /\bvenda\b/i]],
+  ['siSwati', [/\bsiswati\b/i, /\bswati\b/i]],
+  [
+    'Other',
+    [/\bcomputer applications technology\b/i, /^cat$/i, /\binformation technology\b/i],
+  ],
 ]
 
 export function normalizeSubjectName(input: string): NormalizedSubject {

@@ -1,10 +1,9 @@
 import type { SubjectMarkInput } from './types'
 
-const STORAGE_KEY = 'apply-once-varsity-calculator-v2'
+const STORAGE_KEY = 'apply-once-varsity-calculator-v3'
 
 export type VarsityCalculatorPersisted = {
   reportType: 'grade11t4' | 'grade12t1' | 'grade12t2'
-  catalogueYear: number
   rows: SubjectMarkInput[]
   showIneligible: boolean
   search: string
@@ -22,7 +21,7 @@ function isRow(v: unknown): v is SubjectMarkInput {
 
 export function loadPersistedCalculator(): VarsityCalculatorPersisted | null {
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY)
+    const raw = sessionStorage.getItem(STORAGE_KEY) ?? sessionStorage.getItem('apply-once-varsity-calculator-v2')
     if (!raw) return null
     const o = JSON.parse(raw) as unknown
     if (!o || typeof o !== 'object') return null
@@ -31,7 +30,6 @@ export function loadPersistedCalculator(): VarsityCalculatorPersisted | null {
     if (rows.length === 0) return null
     return {
       reportType: isReportType(p.reportType) ? p.reportType : 'grade11t4',
-      catalogueYear: typeof p.catalogueYear === 'number' && Number.isFinite(p.catalogueYear) ? Math.floor(p.catalogueYear) : 2026,
       rows,
       showIneligible: Boolean(p.showIneligible),
       search: typeof p.search === 'string' ? p.search : '',
@@ -52,8 +50,9 @@ export function persistCalculator(data: VarsityCalculatorPersisted): void {
 const DEFAULT_ROWS: SubjectMarkInput[] = [
   { subject: 'English HL', percent: 60 },
   { subject: 'Mathematics', percent: 60 },
-  { subject: 'Physical Sciences', percent: 60 },
+  { subject: 'Afrikaans HL', percent: 60 },
   { subject: 'Life Orientation', percent: 60 },
+  { subject: '', percent: null },
   { subject: '', percent: null },
   { subject: '', percent: null },
 ]
@@ -62,11 +61,6 @@ const DEFAULT_ROWS: SubjectMarkInput[] = [
 export function initialReportType(): VarsityCalculatorPersisted['reportType'] {
   const s = loadPersistedCalculator()
   return s && isReportType(s.reportType) ? s.reportType : 'grade11t4'
-}
-
-export function initialCatalogueYear(): number {
-  const s = loadPersistedCalculator()
-  return s?.catalogueYear ?? 2026
 }
 
 export function initialRows(): SubjectMarkInput[] {

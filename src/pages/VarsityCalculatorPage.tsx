@@ -8,26 +8,12 @@ import type { Programme, SubjectMarkInput, UniversityId } from '../utils/varsity
 import { coercePercent } from '../utils/varsity/levels'
 import { validateMarkRows } from '../utils/varsity/validation'
 import { fetchVarsityCatalogue } from '../utils/varsity/catalogueClient'
-import { persistCalculator, initialCatalogueYear, initialReportType, initialRows, initialSearch, initialShowIneligible } from '../utils/varsity/calculatorPersist'
+import { persistCalculator, initialReportType, initialRows, initialSearch, initialShowIneligible } from '../utils/varsity/calculatorPersist'
 import { getFacultyGuidesForUniversity } from '../utils/varsity/facultyGuides'
 import { groupProgrammesByFaculty } from '../utils/varsity/spotlight'
 import { buildCatalogueRequirementSummary } from '../utils/varsity/programmeCatalogSummary'
-
-const COMMON_SUBJECTS = [
-  'English HL',
-  'English FAL',
-  'Mathematics',
-  'Mathematical Literacy',
-  'Physical Sciences',
-  'Life Sciences',
-  'Life Orientation',
-  'Accounting',
-  'Business Studies',
-  'Economics',
-  'Geography',
-  'History',
-  'Afrikaans',
-]
+import { getStudentCatalogueYear } from '../utils/varsity/studentCatalogueYear'
+import { VARSITY_CALCULATOR_SUBJECT_SUGGESTIONS } from '../data/varsity/calculatorSubjectSuggestions'
 
 type ReportType = 'grade11t4' | 'grade12t1' | 'grade12t2'
 
@@ -60,9 +46,14 @@ function emptyRow(): SubjectMarkInput {
   return { subject: '', percent: null }
 }
 
+function levelForSubjectRow(row: SubjectMarkInput): number | null {
+  const m = normalizeMarks([row])
+  return m[0]?.level ?? null
+}
+
 export function VarsityCalculatorPage() {
+  const catalogueYear = getStudentCatalogueYear()
   const [reportType, setReportType] = useState<ReportType>(initialReportType)
-  const [catalogueYear, setCatalogueYear] = useState(initialCatalogueYear)
   const [rows, setRows] = useState<SubjectMarkInput[]>(initialRows)
   const [showIneligible, setShowIneligible] = useState(initialShowIneligible)
   const [search, setSearch] = useState(initialSearch)
@@ -111,8 +102,8 @@ export function VarsityCalculatorPage() {
   }, [catalogueYear, loadCatalogue])
 
   useEffect(() => {
-    persistCalculator({ reportType, catalogueYear, rows, showIneligible, search })
-  }, [reportType, catalogueYear, rows, showIneligible, search])
+    persistCalculator({ reportType, rows, showIneligible, search })
+  }, [reportType, rows, showIneligible, search])
 
   const validationIssues = useMemo(() => validateMarkRows(rows), [rows])
   const marks = useMemo(() => normalizeMarks(rows), [rows])
@@ -155,7 +146,7 @@ export function VarsityCalculatorPage() {
   }
 
   return (
-    <div className="appShell">
+    <div className="appShell vcPageModern">
       <Navbar
         logo={<ApplyOnceLogo />}
         links={[
@@ -169,9 +160,10 @@ export function VarsityCalculatorPage() {
         <div className="container">
           <div className="vcHeader">
             <div>
-              <h1 className="pageTitle">Varsity Calculator</h1>
-              <p className="pageSubtitle">
-                Enter your subjects and marks and see which programmes you’re likely eligible for at selected South African universities.
+              <h1 className="pageTitle vcCalcTitle">Varsity Calculator</h1>
+              <p className="pageSubtitle vcCalcSubtitle">
+                Drop in your subjects, play with your marks, and see where you might fit—then open each university’s prospectus
+                for the final word.
               </p>
             </div>
             <div className="vcHeaderRight">
@@ -185,23 +177,23 @@ export function VarsityCalculatorPage() {
             <div className="vcControls">
               <div className="vcControl">
                 <div className="vcLabel">Which report are you using?</div>
-                <div className="segmented" role="tablist" aria-label="Report type">
+                <div className="segmented vcSeg" role="tablist" aria-label="Report type">
                   <button
-                    className={reportType === 'grade11t4' ? 'segBtn segBtnActive' : 'segBtn'}
+                    className={reportType === 'grade11t4' ? 'segBtn vcSegBtn segBtnActive' : 'segBtn vcSegBtn'}
                     onClick={() => setReportType('grade11t4')}
                     type="button"
                   >
                     Grade 11 Term 4
                   </button>
                   <button
-                    className={reportType === 'grade12t1' ? 'segBtn segBtnActive' : 'segBtn'}
+                    className={reportType === 'grade12t1' ? 'segBtn vcSegBtn segBtnActive' : 'segBtn vcSegBtn'}
                     onClick={() => setReportType('grade12t1')}
                     type="button"
                   >
                     Grade 12 Term 1
                   </button>
                   <button
-                    className={reportType === 'grade12t2' ? 'segBtn segBtnActive' : 'segBtn'}
+                    className={reportType === 'grade12t2' ? 'segBtn vcSegBtn segBtnActive' : 'segBtn vcSegBtn'}
                     onClick={() => setReportType('grade12t2')}
                     type="button"
                   >
@@ -216,42 +208,15 @@ export function VarsityCalculatorPage() {
               </div>
 
               <div className="vcControl">
-                <div className="vcLabel">Catalogue year</div>
-                <div className="vcYearRow">
-                  <select
-                    className="input"
-                    value={catalogueYear}
-                    onChange={(e) => {
-                      const y = Number(e.target.value)
-                      setCatalogueYear(y)
-                      void loadCatalogue(y)
-                    }}
-                  >
-                    <option value={2026}>2026</option>
-                    <option value={2027}>2027</option>
-                  </select>
-                  <button
-                    type="button"
-                    className="btn btnSmall btnGhost"
-                    onClick={() => void loadCatalogue(catalogueYear)}
-                    disabled={catalogueBusy}
-                  >
-                    {catalogueBusy ? 'Loading…' : 'Reload'}
-                  </button>
-                </div>
-                {catalogueError ? <div className="vcHint">{catalogueError}</div> : null}
-
                 <div className="vcLabel">Search programmes</div>
                 <input
-                  className="input"
+                  className="input vcCalcInput"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="e.g. Engineering, Accounting, Humanities"
                 />
-                <label className="checkboxRow">
-                  <input type="checkbox" checked={showIneligible} onChange={(e) => setShowIneligible(e.target.checked)} />
-                  Show programmes you don’t qualify for (with reasons)
-                </label>
+                {catalogueError ? <div className="vcHint vcHintError">{catalogueError}</div> : null}
+                {catalogueBusy ? <div className="vcHint">Updating catalogue…</div> : null}
               </div>
             </div>
 
@@ -287,9 +252,15 @@ export function VarsityCalculatorPage() {
 
             <div className="vcMarks">
               <div className="vcMarksHeader">
-                <div className="vcMarksTitle">Enter your subjects</div>
-                <button type="button" className="btn btnSmall" onClick={addRow}>
-                  Add subject
+                <div>
+                  <div className="vcMarksTitle">Your subjects</div>
+                  <p className="vcMarksLead muted">
+                    Seven rows to start (English, Maths, Afrikaans, LO + three electives). Type a subject or pick from
+                    suggestions—add more rows if you take extra subjects.
+                  </p>
+                </div>
+                <button type="button" className="vcCalcBtn vcCalcBtnPrimary" onClick={addRow}>
+                  + Add another subject
                 </button>
               </div>
 
@@ -309,20 +280,21 @@ export function VarsityCalculatorPage() {
 
                 {rows.map((r, idx) => {
                   const percent = coercePercent(r.percent) ?? null
+                  const lvl = levelForSubjectRow(r)
                   return (
-                    <div className="vcRow" role="row" key={idx}>
+                    <div className="vcRow vcRowPill" role="row" key={idx}>
                       <div className="vcCell vcCellSubject" role="cell">
                         <input
-                          className="input"
+                          className="input vcCalcInput"
                           value={r.subject}
                           onChange={(e) => updateRow(idx, { subject: e.target.value })}
-                          list="commonSubjects"
-                          placeholder="Start typing…"
+                          list="vcSubjectSuggestions"
+                          placeholder="Type or pick a subject…"
                         />
                       </div>
                       <div className="vcCell vcCellPercent" role="cell">
                         <input
-                          className="input"
+                          className="input vcCalcInput"
                           inputMode="numeric"
                           value={percent === null ? '' : String(percent)}
                           onChange={(e) => {
@@ -333,10 +305,15 @@ export function VarsityCalculatorPage() {
                         />
                       </div>
                       <div className="vcCell vcCellLevel" role="cell">
-                        <div className="levelPill">{marks[idx]?.level ? `L${marks[idx].level}` : '—'}</div>
+                        <div className="levelPill vcLevelPill">{lvl ? `L${lvl}` : '—'}</div>
                       </div>
                       <div className="vcCell vcCellActions" role="cell">
-                        <button type="button" className="btn btnSmall btnGhost" onClick={() => removeRow(idx)} aria-label="Remove row">
+                        <button
+                          type="button"
+                          className="vcCalcBtn vcCalcBtnGhost"
+                          onClick={() => removeRow(idx)}
+                          aria-label="Remove row"
+                        >
                           Remove
                         </button>
                       </div>
@@ -345,11 +322,27 @@ export function VarsityCalculatorPage() {
                 })}
               </div>
 
-              <datalist id="commonSubjects">
-                {COMMON_SUBJECTS.map((s) => (
+              <datalist id="vcSubjectSuggestions">
+                {VARSITY_CALCULATOR_SUBJECT_SUGGESTIONS.map((s) => (
                   <option value={s} key={s} />
                 ))}
               </datalist>
+
+              <div className="vcIneligibleToggle">
+                <label className="vcIneligibleLabel">
+                  <input
+                    type="checkbox"
+                    className="vcIneligibleCheckbox"
+                    checked={showIneligible}
+                    onChange={(e) => setShowIneligible(e.target.checked)}
+                  />
+                  <span className="vcIneligibleTitle">Show programmes I don’t qualify for</span>
+                </label>
+                <p className="vcIneligibleHelp muted">
+                  Turn this on to see courses that are out of reach right now, with short reasons (for example missing Life
+                  Sciences or APS too low). It’s a great way to learn what to improve or which subjects to add next term.
+                </p>
+              </div>
             </div>
           </section>
 

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { adminApi, getAdminToken, setAdminToken } from '../api/adminClient'
 import { ChatThread, type ChatMessage } from '../components/ChatThread'
 import type { ProgrammeRequirement, UniversityId } from '../utils/varsity/types'
+import { getStudentCatalogueYear } from '../utils/varsity/studentCatalogueYear'
 
 type StudentRow = {
   id: string
@@ -392,13 +393,20 @@ export function AdminPage() {
 
                 <div className="adminToolbar" style={{ marginTop: 0 }}>
                   <label className="field" style={{ maxWidth: 220 }}>
-                    <span>Catalogue year</span>
+                    <span>Catalogue year (admin editing &amp; import)</span>
                     <select value={varsityYear} onChange={(e) => setVarsityYear(Number(e.target.value))}>
                       <option value={2026}>2026</option>
                       <option value={2027}>2027</option>
                     </select>
                   </label>
                 </div>
+                <p className="adminMuted" style={{ marginTop: 12 }}>
+                  <strong>Student calculator year:</strong> learners always load the catalogue for year{' '}
+                  <code className="adminMono">{getStudentCatalogueYear()}</code> from the frontend env variable{' '}
+                  <code className="adminMono">VITE_VARSITY_CATALOGUE_YEAR</code> (defaults to 2026 if unset). Change it in
+                  Vercel → Settings → Environment Variables and redeploy the <em>frontend</em> so the public calculator
+                  matches the dataset you seeded for that year.
+                </p>
 
                 <h3 className="adminSubheading">Import catalogue from JSON</h3>
                 <p className="adminMuted">
