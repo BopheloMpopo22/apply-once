@@ -7,6 +7,7 @@ import { ProfileGate, ProfilePage } from './pages/ProfilePage'
 import { AdminPage } from './pages/AdminPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { VarsityCalculatorPage } from './pages/VarsityCalculatorPage'
+import { VarsityGuidePage } from './pages/VarsityGuidePage'
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/varsity-calculator" element={<VarsityCalculatorPage />} />
+      <Route path="/varsity-guides/:guideId" element={<VarsityGuidePage />} />
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />

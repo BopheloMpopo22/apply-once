@@ -1,0 +1,72 @@
+[
+  {
+    "id": "wits-commerce-law-mgmt",
+    "universityId": "wits",
+    "title": "Commerce, Law & Management — full admission tables",
+    "description": "The calculator only checks a sample of Wits programmes. This viewer opens the official 2027 Wits undergraduate prospectus near the Commerce / Law & Management section. If the section is slightly off, use the PDF page thumbnails or search in your browser’s PDF toolbar.",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/Wits_2027_Prospectus_compressed.pdf",
+    "pdfPage": 16,
+    "officialUrl": "https://www.wits.ac.za/undergraduate/entry-requirements/admission-requirements-nsc/"
+  },
+  {
+    "id": "wits-engineering-built-env",
+    "universityId": "wits",
+    "title": "Engineering & the Built Environment — full admission tables",
+    "description": "Opens the same official prospectus near the Engineering and Built Environment admissions pages. Page numbers can change when the PDF is updated—use the viewer’s sidebar if needed.",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/Wits_2027_Prospectus_compressed.pdf",
+    "pdfPage": 18,
+    "officialUrl": "https://www.wits.ac.za/undergraduate/entry-requirements/admission-requirements-nsc/"
+  },
+  {
+    "id": "wits-health-sciences",
+    "universityId": "wits",
+    "title": "Health Sciences — full admission tables",
+    "description": "Opens the prospectus near the Health Sciences faculty requirements (including NBT notes). Always confirm closing dates and selection rules on the official site.",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/Wits_2027_Prospectus_compressed.pdf",
+    "pdfPage": 20,
+    "officialUrl": "https://www.wits.ac.za/undergraduate/apply-to-wits/"
+  },
+  {
+    "id": "wits-humanities",
+    "universityId": "wits",
+    "title": "Humanities — full admission tables",
+    "description": "Opens the prospectus near the Humanities faculty section (BA, BEd, professional degrees, etc.).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/Wits_2027_Prospectus_compressed.pdf",
+    "pdfPage": 22,
+    "officialUrl": "https://www.wits.ac.za/undergraduate/entry-requirements/admission-requirements-nsc/"
+  },
+  {
+    "id": "wits-science",
+    "universityId": "wits",
+    "title": "Science (Natural / Mathematical / Biological) — full admission tables",
+    "description": "Opens the prospectus near the Faculty of Science undergraduate requirements (BSc streams, NBT note, etc.). This is the “natural sciences” style block in the Wits PDF.",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/Wits_2027_Prospectus_compressed.pdf",
+    "pdfPage": 24,
+    "officialUrl": "https://www.wits.ac.za/undergraduate/entry-requirements/admission-requirements-nsc/"
+  },
+  {
+    "id": "uwc-2027-admissions",
+    "universityId": "uwc",
+    "title": "UWC 2027 admissions summary (PDF)",
+    "description": "Short official-style summary in the bundled PDF. For every programme’s rules, use UWC’s programme list as well.",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UWC2027.pdf",
+    "pdfPage": 1,
+    "officialUrl": "https://www.uwc.ac.za/Pages/AllProgrammes.aspx"
+  },
+  {
+    "id": "ufs-ug-prospectus",
+    "universityId": "ufs",
+    "title": "UFS undergraduate prospectus (official PDF, new tab)",
+    "description": "UFS hosts this PDF on their own site. Many browsers block embedding other sites’ PDFs, so we open it in a new tab at the first page—you can scroll to your faculty. When you host a UFS PDF under Apply-Once (like Wits), we can switch this to an in-app viewer with exact page links.",
+    "embedMode": "external",
+    "externalPdfUrl": "https://www.ufs.ac.za/docs/librariesprovider44/prospectus/ug-prospectus-2027.pdf",
+    "pdfPage": 1,
+    "officialUrl": "https://www.ufs.ac.za"
+  }
+]

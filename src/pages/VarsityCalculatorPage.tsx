@@ -8,6 +8,7 @@ import type { Programme, SubjectMarkInput, UniversityId } from '../utils/varsity
 import { coercePercent } from '../utils/varsity/levels'
 import { validateMarkRows } from '../utils/varsity/validation'
 import { fetchVarsityCatalogue } from '../utils/varsity/catalogueClient'
+import { getFacultyGuidesForUniversity } from '../utils/varsity/facultyGuides'
 
 const COMMON_SUBJECTS = [
   'English HL',
@@ -420,6 +421,27 @@ export function VarsityCalculatorPage() {
                         </ul>
                       </div>
                     ) : null}
+
+                    {(() => {
+                      const facultyGuides = getFacultyGuidesForUniversity(u.uni.id)
+                      if (facultyGuides.length === 0) return null
+                      return (
+                        <div className="vcGuideBlock">
+                          <div className="vcProgTitle">Explore full prospectus sections</div>
+                          <p className="vcGuideHint">
+                            The calculator only models a sample of programmes. These in-app pages open the official PDF on a{' '}
+                            <strong>target page</strong> where possible—not a guarantee you meet every programme there.
+                          </p>
+                          <ul className="vcGuideList">
+                            {facultyGuides.map((g) => (
+                              <li key={g.id}>
+                                <Link to={`/varsity-guides/${g.id}`}>{g.title}</Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )
+                    })()}
                   </article>
                 )
               })}
