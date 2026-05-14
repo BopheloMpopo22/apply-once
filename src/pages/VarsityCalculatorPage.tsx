@@ -10,7 +10,8 @@ import { validateMarkRows } from '../utils/varsity/validation'
 import { fetchVarsityCatalogue } from '../utils/varsity/catalogueClient'
 import { persistCalculator, initialCatalogueYear, initialReportType, initialRows, initialSearch, initialShowIneligible } from '../utils/varsity/calculatorPersist'
 import { getFacultyGuidesForUniversity } from '../utils/varsity/facultyGuides'
-import { countSpotlight, spotlightEligibleByFaculty } from '../utils/varsity/spotlight'
+import { groupProgrammesByFaculty } from '../utils/varsity/spotlight'
+import { buildCatalogueRequirementSummary } from '../utils/varsity/programmeCatalogSummary'
 
 const COMMON_SUBJECTS = [
   'English HL',
@@ -363,9 +364,8 @@ export function VarsityCalculatorPage() {
             <div className="vcUniGrid">
               {filteredByUni.map((u) => {
                 const shownIneligible = showIneligible ? u.ineligible : []
-                const spotlight = spotlightEligibleByFaculty(u.eligible, 4)
-                const spotTotal = countSpotlight(spotlight)
-                const allEligibleInSpotlight = u.eligible.length > 0 && spotTotal >= u.eligible.length
+                const eligibleByFaculty = groupProgrammesByFaculty(u.eligible)
+                const ineligibleByFaculty = groupProgrammesByFaculty(shownIneligible)
 
                 return (
                   <article className="card vcUniCard" key={u.uni.id}>
@@ -391,60 +391,36 @@ export function VarsityCalculatorPage() {
                       <div className="vcProgTitle">Eligible programmes ({u.eligible.length})</div>
                       {u.eligible.length === 0 ? (
                         <div className="muted">No matches yet—add more subjects/marks, or try increasing accuracy.</div>
-                      ) : allEligibleInSpotlight ? (
-                        <ul className="vcProgList">
-                          {u.eligible.map((p) => (
-                            <li key={p.programme.id} className="vcProgItem">
-                              <div className="vcProgName">{p.programme.name}</div>
-                              <div className="vcProgMeta">
-                                <span className="tag">{p.programme.faculty}</span>
-                                <span className="tag">Min APS {p.programme.minAps}</span>
-                              </div>
-                              {p.programme.notes ? <div className="vcProgNotes">{p.programme.notes}</div> : null}
-                            </li>
-                          ))}
-                        </ul>
                       ) : (
                         <>
-                          <p className="vcSpotlightHint muted">
-                            Highlights show up to four programmes per faculty that you still qualify for, favouring higher
-                            published minimum APS (a rough proxy for competitive programmes). We don’t yet store real
-                            application-volume data—use the prospectus for the full list.
+                          <p className="vcFacultyHint muted">
+                            Programmes are grouped by faculty. The bold summary line is built from the same APS and subject
+                            rules the calculator uses. Any extra paragraph is prospectus context (wait-lists, streams)—always
+                            confirm details in the official PDF.
                           </p>
-                          <div className="vcSpotlightGrid">
-                            {spotlight.map(({ faculty, items }) =>
-                              items.length ? (
-                                <div className="vcSpotlightCol" key={faculty}>
-                                  <div className="vcSpotlightFaculty">{faculty}</div>
-                                  <ul className="vcProgList vcProgListTight">
-                                    {items.map((p) => (
-                                      <li key={p.programme.id} className="vcProgItem">
-                                        <div className="vcProgName">{p.programme.name}</div>
-                                        <div className="vcProgMeta">
-                                          <span className="tag">Min APS {p.programme.minAps}</span>
-                                        </div>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              ) : null,
-                            )}
+                          <div className="vcFacultyStack">
+                            {eligibleByFaculty.map(({ faculty, items }) => (
+                              <section className="vcFacultySection" key={faculty}>
+                                <h3 className="vcFacultyHeading">{faculty}</h3>
+                                <ul className="vcProgList">
+                                  {items.map((p) => (
+                                    <li key={p.programme.id} className="vcProgItem">
+                                      <div className="vcProgName">{p.programme.name}</div>
+                                      <div className="vcProgMeta">
+                                        <span className="tag">Min APS {p.programme.minAps}</span>
+                                      </div>
+                                      <div className="vcProgNotes">
+                                        <div className="vcProgSummaryLine">{buildCatalogueRequirementSummary(p.programme)}</div>
+                                        {p.programme.notes?.trim() ? (
+                                          <div className="vcProgExtraNotes">{p.programme.notes.trim()}</div>
+                                        ) : null}
+                                      </div>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </section>
+                            ))}
                           </div>
-                          <details className="vcDetailsAll">
-                            <summary className="vcDetailsSummary">Show complete eligible list ({u.eligible.length})</summary>
-                            <ul className="vcProgList">
-                              {u.eligible.map((p) => (
-                                <li key={p.programme.id} className="vcProgItem">
-                                  <div className="vcProgName">{p.programme.name}</div>
-                                  <div className="vcProgMeta">
-                                    <span className="tag">{p.programme.faculty}</span>
-                                    <span className="tag">Min APS {p.programme.minAps}</span>
-                                  </div>
-                                  {p.programme.notes ? <div className="vcProgNotes">{p.programme.notes}</div> : null}
-                                </li>
-                              ))}
-                            </ul>
-                          </details>
                         </>
                       )}
                     </div>
@@ -452,25 +428,38 @@ export function VarsityCalculatorPage() {
                     {shownIneligible.length ? (
                       <div className="vcProgBlock vcProgBlockMuted">
                         <div className="vcProgTitle">Not eligible (showing {shownIneligible.length})</div>
-                        <ul className="vcProgList">
-                          {shownIneligible.map((p) => (
-                            <li key={p.programme.id} className="vcProgItem">
-                              <div className="vcProgName">{p.programme.name}</div>
-                              <div className="vcProgMeta">
-                                <span className="tag">{p.programme.faculty}</span>
-                                <span className="tag">Min APS {p.programme.minAps}</span>
-                              </div>
-                              {p.programme.notes ? <div className="vcProgNotes">{p.programme.notes}</div> : null}
-                              <div className="vcReasons">
-                                {p.reasons.slice(0, 3).map((r) => (
-                                  <div className="vcReason" key={r}>
-                                    {r}
-                                  </div>
-                                ))}
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
+                        <div className="vcFacultyStack">
+                          {ineligibleByFaculty.map(({ faculty, items }) =>
+                            items.length ? (
+                              <section className="vcFacultySection" key={faculty}>
+                                <h3 className="vcFacultyHeading">{faculty}</h3>
+                                <ul className="vcProgList">
+                                  {items.map((p) => (
+                                    <li key={p.programme.id} className="vcProgItem">
+                                      <div className="vcProgName">{p.programme.name}</div>
+                                      <div className="vcProgMeta">
+                                        <span className="tag">Min APS {p.programme.minAps}</span>
+                                      </div>
+                                      <div className="vcProgNotes">
+                                        <div className="vcProgSummaryLine">{buildCatalogueRequirementSummary(p.programme)}</div>
+                                        {p.programme.notes?.trim() ? (
+                                          <div className="vcProgExtraNotes">{p.programme.notes.trim()}</div>
+                                        ) : null}
+                                      </div>
+                                      <div className="vcReasons">
+                                        {p.reasons.slice(0, 3).map((r) => (
+                                          <div className="vcReason" key={r}>
+                                            {r}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </section>
+                            ) : null,
+                          )}
+                        </div>
                       </div>
                     ) : null}
 
@@ -484,7 +473,7 @@ export function VarsityCalculatorPage() {
                             Opens an in-app viewer with a table of contents so you can jump to faculties in the PDF. Minimum
                             requirements in the catalogue are not exhaustive—always confirm in the prospectus.
                           </p>
-                          <Link className="btn btnSmall vcProspectusBtn" to={`/varsity-guides/uni/${u.uni.id}`}>
+                          <Link className="vcProspectusBtn" to={`/varsity-guides/uni/${u.uni.id}`}>
                             Open {u.uni.shortName} prospectus viewer
                           </Link>
                         </div>

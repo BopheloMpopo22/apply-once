@@ -8,7 +8,7 @@
       { "subject": "English", "minLevel": 5 },
       { "subject": "Mathematics", "minLevel": 5 }
     ],
-    "notes": "2027 prospectus: APS 38+. Wait-list band APS 35–37 with English L6 and Mathematics L6. Source: docs/prospectus/2027/Wits_2027_Prospectus_compressed.pdf"
+    "notes": "2027 Commerce prospectus: direct admission at APS 38+ with English L5 and Mathematics L5. If your APS is 35–37, Wits may consider a separate wait-list band that asks for English L6 and Mathematics L6—see the official table."
   },
   {
     "id": "wits-baccsci",
@@ -19,7 +19,7 @@
       { "subject": "English", "minLevel": 5 },
       { "subject": "Mathematics", "minLevel": 6 }
     ],
-    "notes": "APS 44+. Wait-list APS 39–43 with English L6 and Mathematics L6."
+    "notes": "APS 44+ with English L5 and Mathematics L6 for this programme. Wait-list band APS 39–43 may require English L6 and Mathematics L6—confirm in the 2027 Commerce prospectus."
   },
   {
     "id": "wits-bcom-acc",
@@ -30,7 +30,7 @@
       { "subject": "English", "minLevel": 5 },
       { "subject": "Mathematics", "minLevel": 5 }
     ],
-    "notes": "APS 38+. Wait-list APS 35–37 with English L6 and Mathematics L6."
+    "notes": "2027 Commerce prospectus: direct admission at APS 38+ with English L5 and Mathematics L5. If your APS is 35–37, a wait-list band may require English L6 and Mathematics L6—see the official table."
   },
   {
     "id": "wits-beconsci",
@@ -63,7 +63,7 @@
       { "subject": "English", "minLevel": 5 },
       { "subject": "Mathematics", "minLevel": 5 }
     ],
-    "notes": "APS 43+. Wait-list APS 35–42 with English L6 and Mathematics L6."
+    "notes": "2027 Commerce prospectus: direct admission at APS 43+ with English L5 and Mathematics L5. Lower APS (35–42) may only be considered under a different wait-list profile with higher subject levels—see the official LLB/BCom(Law) table."
   },
   {
     "id": "wits-llb",

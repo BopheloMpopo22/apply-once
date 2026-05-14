@@ -557,67 +557,80 @@ h4 {
 .vcGuideFrame {
   display: block;
   width: 100%;
-  min-height: min(78vh, 900px);
+  min-height: min(92vh, 1200px);
   border: 0;
   background: rgba(2, 6, 23, 0.04);
 }
 
 @media (max-width: 720px) {
   .vcGuideFrame {
-    min-height: 65vh;
+    min-height: 80vh;
   }
 }
 
 .vcProspectusBtn {
-  margin-top: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--space-3);
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.25;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: #fff !important;
+  background: linear-gradient(165deg, #2563eb 0%, #1d4ed8 55%, #1e40af 100%);
+  border: 1px solid rgba(30, 64, 175, 0.95);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+  transition: filter 0.15s ease, transform 0.12s ease;
 }
 
-.vcSpotlightHint {
-  margin: 0 0 var(--space-3);
+.vcProspectusBtn:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.vcFacultyHint {
+  margin: 0 0 var(--space-4);
   font-size: 13px;
   line-height: 1.45;
 }
 
-.vcSpotlightGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: var(--space-4);
+.vcFacultyStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
 }
 
-.vcSpotlightCol {
-  min-width: 0;
+.vcFacultySection {
+  margin: 0;
 }
 
-.vcSpotlightFaculty {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-  margin-bottom: var(--space-2);
-}
-
-.vcProgListTight .vcProgItem {
-  padding: var(--space-2) 0;
-}
-
-.vcProgListBelow {
-  margin-top: var(--space-4);
-}
-
-.vcDetailsAll {
-  margin-top: var(--space-4);
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(2, 6, 23, 0.08);
-  padding: var(--space-2) var(--space-3);
-  background: rgba(2, 6, 23, 0.02);
-}
-
-.vcDetailsSummary {
-  cursor: pointer;
-  font-weight: 600;
+.vcFacultyHeading {
+  margin: 0 0 var(--space-3);
   font-size: 14px;
-  padding: var(--space-2) 0;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: rgba(2, 6, 23, 0.55);
+}
+
+.vcProgSummaryLine {
+  font-weight: 650;
+  color: rgba(2, 6, 23, 0.88);
+}
+
+.vcProgExtraNotes {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(2, 6, 23, 0.68);
+  font-weight: 500;
+}
+
+.vcHubFrameWrap .vcGuideFrame {
+  min-height: min(94vh, 1400px);
 }
 
 .vcHubIntro {
