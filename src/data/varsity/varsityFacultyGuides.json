@@ -142,11 +142,111 @@
   {
     "id": "uj-2027-prospectus",
     "universityId": "uj",
-    "title": "UJ 2027 undergraduate prospectus (full PDF)",
-    "description": "Full prospectus bundled in Apply-Once. Use search or thumbnails to jump to a faculty; tell us page numbers if you want separate deep links like UCT.",
+    "title": "UJ 2027 undergraduate prospectus (from cover)",
+    "description": "Opens the bundled prospectus at the cover. Use the faculty links below for admission tables, or the contents / applying links for navigation.",
     "embedMode": "local",
     "pdfPath": "/varsity-prospectus/2027/UJ-prospectus-2027.pdf",
     "pdfPage": 1,
+    "officialUrl": "https://www.uj.ac.za"
+  },
+  {
+    "id": "uj-contents",
+    "universityId": "uj",
+    "title": "UJ prospectus — contents",
+    "description": "Table of contents (printed page 11 in the PDF).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UJ-prospectus-2027.pdf",
+    "pdfPage": 11,
+    "officialUrl": "https://www.uj.ac.za"
+  },
+  {
+    "id": "uj-applying",
+    "universityId": "uj",
+    "title": "UJ prospectus — applying at UJ",
+    "description": "“Applying at UJ” section start (printed page 12).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UJ-prospectus-2027.pdf",
+    "pdfPage": 12,
+    "officialUrl": "https://www.uj.ac.za"
+  },
+  {
+    "id": "uj-faculty-fada",
+    "universityId": "uj",
+    "title": "UJ — Faculty of Art, Design and Architecture (admission tables)",
+    "description": "Faculty programme and APS tables (PDF page ~30). If the viewer lands one page off, nudge with thumbnails.",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UJ-prospectus-2027.pdf",
+    "pdfPage": 30,
+    "officialUrl": "https://www.uj.ac.za"
+  },
+  {
+    "id": "uj-faculty-cbe",
+    "universityId": "uj",
+    "title": "UJ — College of Business and Economics (admission tables)",
+    "description": "College overview and degree tables (PDF page ~39).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UJ-prospectus-2027.pdf",
+    "pdfPage": 39,
+    "officialUrl": "https://www.uj.ac.za"
+  },
+  {
+    "id": "uj-faculty-education",
+    "universityId": "uj",
+    "title": "UJ — Faculty of Education (admission tables)",
+    "description": "Education faculty and BEd tables (PDF page ~52).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UJ-prospectus-2027.pdf",
+    "pdfPage": 52,
+    "officialUrl": "https://www.uj.ac.za"
+  },
+  {
+    "id": "uj-faculty-febe",
+    "universityId": "uj",
+    "title": "UJ — Faculty of Engineering and the Built Environment (admission tables)",
+    "description": "FEBE introduction and engineering tables (PDF page ~59).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UJ-prospectus-2027.pdf",
+    "pdfPage": 59,
+    "officialUrl": "https://www.uj.ac.za"
+  },
+  {
+    "id": "uj-faculty-health",
+    "universityId": "uj",
+    "title": "UJ — Faculty of Health Sciences (admission tables)",
+    "description": "Health Sciences overview and programme tables (PDF page ~64).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UJ-prospectus-2027.pdf",
+    "pdfPage": 64,
+    "officialUrl": "https://www.uj.ac.za"
+  },
+  {
+    "id": "uj-faculty-humanities",
+    "universityId": "uj",
+    "title": "UJ — Faculty of Humanities (admission tables)",
+    "description": "Humanities faculty introduction and BA / extended programmes (PDF page ~72).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UJ-prospectus-2027.pdf",
+    "pdfPage": 72,
+    "officialUrl": "https://www.uj.ac.za"
+  },
+  {
+    "id": "uj-faculty-law",
+    "universityId": "uj",
+    "title": "UJ — Faculty of Law (admission tables)",
+    "description": "Law faculty introduction and LLB pathway (PDF page ~81).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UJ-prospectus-2027.pdf",
+    "pdfPage": 81,
+    "officialUrl": "https://www.uj.ac.za"
+  },
+  {
+    "id": "uj-faculty-science",
+    "universityId": "uj",
+    "title": "UJ — Faculty of Science (admission tables)",
+    "description": "Science faculty overview and BSc / IT programme tables (PDF page ~84).",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UJ-prospectus-2027.pdf",
+    "pdfPage": 84,
     "officialUrl": "https://www.uj.ac.za"
   },
   {
