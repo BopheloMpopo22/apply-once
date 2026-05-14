@@ -8,7 +8,9 @@ import type { Programme, SubjectMarkInput, UniversityId } from '../utils/varsity
 import { coercePercent } from '../utils/varsity/levels'
 import { validateMarkRows } from '../utils/varsity/validation'
 import { fetchVarsityCatalogue } from '../utils/varsity/catalogueClient'
+import { persistCalculator, initialCatalogueYear, initialReportType, initialRows, initialSearch, initialShowIneligible } from '../utils/varsity/calculatorPersist'
 import { getFacultyGuidesForUniversity } from '../utils/varsity/facultyGuides'
+import { countSpotlight, spotlightEligibleByFaculty } from '../utils/varsity/spotlight'
 
 const COMMON_SUBJECTS = [
   'English HL',
@@ -58,18 +60,11 @@ function emptyRow(): SubjectMarkInput {
 }
 
 export function VarsityCalculatorPage() {
-  const [reportType, setReportType] = useState<ReportType>('grade11t4')
-  const [catalogueYear, setCatalogueYear] = useState(2026)
-  const [rows, setRows] = useState<SubjectMarkInput[]>([
-    { subject: 'English HL', percent: 60 },
-    { subject: 'Mathematics', percent: 60 },
-    { subject: 'Physical Sciences', percent: 60 },
-    { subject: 'Life Orientation', percent: 60 },
-    emptyRow(),
-    emptyRow(),
-  ])
-  const [showIneligible, setShowIneligible] = useState(false)
-  const [search, setSearch] = useState('')
+  const [reportType, setReportType] = useState<ReportType>(initialReportType)
+  const [catalogueYear, setCatalogueYear] = useState(initialCatalogueYear)
+  const [rows, setRows] = useState<SubjectMarkInput[]>(initialRows)
+  const [showIneligible, setShowIneligible] = useState(initialShowIneligible)
+  const [search, setSearch] = useState(initialSearch)
   const [catalogueBusy, setCatalogueBusy] = useState(false)
   const [catalogueError, setCatalogueError] = useState<string | null>(null)
   const [catalogue, setCatalogue] = useState<{
@@ -113,6 +108,10 @@ export function VarsityCalculatorPage() {
   useEffect(() => {
     void loadCatalogue(catalogueYear)
   }, [catalogueYear, loadCatalogue])
+
+  useEffect(() => {
+    persistCalculator({ reportType, catalogueYear, rows, showIneligible, search })
+  }, [reportType, catalogueYear, rows, showIneligible, search])
 
   const validationIssues = useMemo(() => validateMarkRows(rows), [rows])
   const marks = useMemo(() => normalizeMarks(rows), [rows])
@@ -261,6 +260,14 @@ export function VarsityCalculatorPage() {
                 <li>APS systems differ by university, so the same marks can give different scores.</li>
                 <li>Meeting minimum requirements doesn’t guarantee admission—programmes are competitive.</li>
                 <li>If a programme requires a minimum percent (e.g. 70%), enter the percent—not only a level.</li>
+                <li>
+                  Eligibility uses APS plus subject rules stored in the catalogue (where we have transcribed them). Always
+                  confirm subject choices in the official prospectus—especially for health and science programmes.
+                </li>
+                <li>
+                  Your marks and search filters are saved in this browser tab session so you can open a prospectus and return
+                  without retyping.
+                </li>
               </ul>
             </div>
 
@@ -356,6 +363,9 @@ export function VarsityCalculatorPage() {
             <div className="vcUniGrid">
               {filteredByUni.map((u) => {
                 const shownIneligible = showIneligible ? u.ineligible : []
+                const spotlight = spotlightEligibleByFaculty(u.eligible, 4)
+                const spotTotal = countSpotlight(spotlight)
+                const allEligibleInSpotlight = u.eligible.length > 0 && spotTotal >= u.eligible.length
 
                 return (
                   <article className="card vcUniCard" key={u.uni.id}>
@@ -381,7 +391,7 @@ export function VarsityCalculatorPage() {
                       <div className="vcProgTitle">Eligible programmes ({u.eligible.length})</div>
                       {u.eligible.length === 0 ? (
                         <div className="muted">No matches yet—add more subjects/marks, or try increasing accuracy.</div>
-                      ) : (
+                      ) : allEligibleInSpotlight ? (
                         <ul className="vcProgList">
                           {u.eligible.map((p) => (
                             <li key={p.programme.id} className="vcProgItem">
@@ -394,6 +404,48 @@ export function VarsityCalculatorPage() {
                             </li>
                           ))}
                         </ul>
+                      ) : (
+                        <>
+                          <p className="vcSpotlightHint muted">
+                            Highlights show up to four programmes per faculty that you still qualify for, favouring higher
+                            published minimum APS (a rough proxy for competitive programmes). We don’t yet store real
+                            application-volume data—use the prospectus for the full list.
+                          </p>
+                          <div className="vcSpotlightGrid">
+                            {spotlight.map(({ faculty, items }) =>
+                              items.length ? (
+                                <div className="vcSpotlightCol" key={faculty}>
+                                  <div className="vcSpotlightFaculty">{faculty}</div>
+                                  <ul className="vcProgList vcProgListTight">
+                                    {items.map((p) => (
+                                      <li key={p.programme.id} className="vcProgItem">
+                                        <div className="vcProgName">{p.programme.name}</div>
+                                        <div className="vcProgMeta">
+                                          <span className="tag">Min APS {p.programme.minAps}</span>
+                                        </div>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              ) : null,
+                            )}
+                          </div>
+                          <details className="vcDetailsAll">
+                            <summary className="vcDetailsSummary">Show complete eligible list ({u.eligible.length})</summary>
+                            <ul className="vcProgList">
+                              {u.eligible.map((p) => (
+                                <li key={p.programme.id} className="vcProgItem">
+                                  <div className="vcProgName">{p.programme.name}</div>
+                                  <div className="vcProgMeta">
+                                    <span className="tag">{p.programme.faculty}</span>
+                                    <span className="tag">Min APS {p.programme.minAps}</span>
+                                  </div>
+                                  {p.programme.notes ? <div className="vcProgNotes">{p.programme.notes}</div> : null}
+                                </li>
+                              ))}
+                            </ul>
+                          </details>
+                        </>
                       )}
                     </div>
 
@@ -427,18 +479,14 @@ export function VarsityCalculatorPage() {
                       if (facultyGuides.length === 0) return null
                       return (
                         <div className="vcGuideBlock">
-                          <div className="vcProgTitle">Explore full prospectus sections</div>
+                          <div className="vcProgTitle">Official prospectus</div>
                           <p className="vcGuideHint">
-                            The calculator only models a sample of programmes. These in-app pages open the official PDF on a{' '}
-                            <strong>target page</strong> where possible—not a guarantee you meet every programme there.
+                            Opens an in-app viewer with a table of contents so you can jump to faculties in the PDF. Minimum
+                            requirements in the catalogue are not exhaustive—always confirm in the prospectus.
                           </p>
-                          <ul className="vcGuideList">
-                            {facultyGuides.map((g) => (
-                              <li key={g.id}>
-                                <Link to={`/varsity-guides/${g.id}`}>{g.title}</Link>
-                              </li>
-                            ))}
-                          </ul>
+                          <Link className="btn btnSmall vcProspectusBtn" to={`/varsity-guides/uni/${u.uni.id}`}>
+                            Open {u.uni.shortName} prospectus viewer
+                          </Link>
                         </div>
                       )
                     })()}

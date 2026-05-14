@@ -62,10 +62,10 @@
   {
     "id": "ufs-ug-prospectus",
     "universityId": "ufs",
-    "title": "UFS undergraduate prospectus (official PDF, new tab)",
-    "description": "UFS hosts this PDF on their own site. Many browsers block embedding other sites’ PDFs, so we open it in a new tab at the first page—you can scroll to your faculty. When you host a UFS PDF under Apply-Once (like Wits), we can switch this to an in-app viewer with exact page links.",
-    "embedMode": "external",
-    "externalPdfUrl": "https://www.ufs.ac.za/docs/librariesprovider44/prospectus/ug-prospectus-2027.pdf",
+    "title": "UFS 2027 undergraduate prospectus (full PDF)",
+    "description": "Bundled UFS undergraduate prospectus. Use the prospectus hub table of contents or the PDF’s own contents pages to find your faculty.",
+    "embedMode": "local",
+    "pdfPath": "/varsity-prospectus/2027/UFS-UG-prospectus-2027.pdf",
     "pdfPage": 1,
     "officialUrl": "https://www.ufs.ac.za"
   },

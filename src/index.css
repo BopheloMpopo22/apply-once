@@ -568,6 +568,175 @@ h4 {
   }
 }
 
+.vcProspectusBtn {
+  margin-top: var(--space-2);
+}
+
+.vcSpotlightHint {
+  margin: 0 0 var(--space-3);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.vcSpotlightGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-4);
+}
+
+.vcSpotlightCol {
+  min-width: 0;
+}
+
+.vcSpotlightFaculty {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-bottom: var(--space-2);
+}
+
+.vcProgListTight .vcProgItem {
+  padding: var(--space-2) 0;
+}
+
+.vcProgListBelow {
+  margin-top: var(--space-4);
+}
+
+.vcDetailsAll {
+  margin-top: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(2, 6, 23, 0.08);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(2, 6, 23, 0.02);
+}
+
+.vcDetailsSummary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  padding: var(--space-2) 0;
+}
+
+.vcHubIntro {
+  margin-bottom: var(--space-4);
+}
+
+.vcHubIntroRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.vcHubLogo {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.vcHubLayout {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.vcHubToc {
+  position: sticky;
+  top: calc(var(--space-3) + 64px);
+  max-height: calc(100vh - 120px);
+  overflow: auto;
+}
+
+.vcHubTocTitle {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: var(--space-3);
+}
+
+.vcHubTocList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vcHubTocBtn {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.35;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.vcHubTocBtn:hover {
+  background: rgba(2, 6, 23, 0.05);
+}
+
+.vcHubTocBtnActive {
+  border-color: rgba(2, 6, 23, 0.12);
+  background: rgba(2, 6, 23, 0.06);
+}
+
+.vcHubTocPage {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.vcHubTocLabel {
+  min-width: 0;
+}
+
+.vcHubMain {
+  min-width: 0;
+}
+
+.vcHubViewerCard {
+  padding-top: var(--space-4);
+}
+
+.vcHubViewerTitle {
+  font-size: 18px;
+  margin: 0 0 var(--space-2);
+}
+
+.vcHubViewerDesc {
+  margin: 0 0 var(--space-3);
+  font-size: 14px;
+}
+
+.vcHubFrameWrap {
+  margin-top: var(--space-2);
+}
+
+@media (max-width: 900px) {
+  .vcHubLayout {
+    grid-template-columns: 1fr;
+  }
+  .vcHubToc {
+    position: static;
+    max-height: none;
+  }
+}
+
 @media (max-width: 980px) {
   .vcControls {
     grid-template-columns: 1fr;

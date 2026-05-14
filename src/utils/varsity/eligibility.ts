@@ -7,12 +7,17 @@ import type {
   UniversityId,
 } from './types'
 import { calculateAps } from './calculators'
+import { normalizeSubjectName } from './subjectNormalization'
 
 function findBestMarkForSubject(marks: SubjectMark[], subjectLabel: string): SubjectMark | null {
-  const subjectKey = subjectLabel.trim().toLowerCase()
-  if (!subjectKey) return null
+  const trimmed = subjectLabel.trim()
+  if (!trimmed) return null
 
-  const candidates = marks.filter((m) => m.subject.toLowerCase() === subjectKey)
+  const key = normalizeSubjectName(trimmed)
+  const candidates = marks.filter((m) => {
+    if (key !== 'Other') return m.subject === key
+    return m.rawSubject.toLowerCase() === trimmed.toLowerCase()
+  })
   if (candidates.length === 0) return null
   return candidates.reduce((best, cur) => (cur.level > best.level ? cur : best), candidates[0])
 }
