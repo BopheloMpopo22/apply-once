@@ -1220,7 +1220,7 @@ app.get('/api/varsity/catalogue', async (req, res) => {
   })
 })
 
-/** Public: extract subject + % (and optional level) from a school report PDF/DOCX. File is processed in memory only—not stored. */
+/** Local dev + fallback: Vercel routes this path to api/varsity/report-import.js instead. */
 app.post('/api/varsity/report-import', varsityReportUpload.single('file'), async (req, res, next) => {
   try {
     if (!req.file?.buffer) {

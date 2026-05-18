@@ -8,10 +8,19 @@
     "api/index.js": {
       "maxDuration": 300,
       "memory": 1024,
-      "includeFiles": "{server/**,node_modules/.prisma/client/**,node_modules/@prisma/client/**,node_modules/pdf-parse/**,node_modules/pdfjs-dist/**,node_modules/mammoth/**,prisma/schema.prisma,src/data/varsity/**}"
+      "includeFiles": "{server/**,node_modules/.prisma/client/**,node_modules/@prisma/client/**,prisma/schema.prisma,src/data/varsity/**}"
+    },
+    "api/varsity/report-import.js": {
+      "maxDuration": 60,
+      "memory": 1024,
+      "includeFiles": "{server/varsityReportImport.js,node_modules/pdf-parse/**,node_modules/mammoth/**}"
     }
   },
   "rewrites": [
+    {
+      "source": "/api/varsity/report-import",
+      "destination": "/api/varsity/report-import"
+    },
     {
       "source": "/api/:path*",
       "destination": "/api"

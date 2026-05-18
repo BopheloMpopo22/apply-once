@@ -1,5 +1,6 @@
-import { PDFParse } from 'pdf-parse'
-import mammoth from 'mammoth'
+import { createRequire } from 'module'
+
+const require = createRequire(import.meta.url)
 
 const PDF_MIME = 'application/pdf'
 const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
@@ -24,17 +25,14 @@ export function varsityReportMimeFromFile(file) {
 }
 
 async function textFromPdf(buffer) {
-  const parser = new PDFParse({ data: buffer })
-  try {
-    const tr = await parser.getText({ lineEnforce: true })
-    return String(tr?.text || '').trim()
-  } finally {
-    await parser.destroy()
-  }
+  const pdf = require('pdf-parse/lib/pdf-parse.js')
+  const data = await pdf(buffer)
+  return String(data?.text || '').trim()
 }
 
 async function textFromDocx(buffer) {
-  const { value } = await mammoth.extractRawText({ buffer })
+  const mammoth = await import('mammoth')
+  const { value } = await mammoth.default.extractRawText({ buffer })
   return String(value || '').trim()
 }
 
