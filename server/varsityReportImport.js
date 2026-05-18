@@ -1,6 +1,3 @@
-import { PDFParse } from 'pdf-parse'
-import mammoth from 'mammoth'
-
 const PDF_MIME = 'application/pdf'
 const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 
@@ -24,6 +21,7 @@ export function varsityReportMimeFromFile(file) {
 }
 
 async function textFromPdf(buffer) {
+  const { PDFParse } = await import('pdf-parse')
   const parser = new PDFParse({ data: buffer })
   try {
     const tr = await parser.getText({ lineEnforce: true })
@@ -34,7 +32,8 @@ async function textFromPdf(buffer) {
 }
 
 async function textFromDocx(buffer) {
-  const { value } = await mammoth.extractRawText({ buffer })
+  const mammoth = await import('mammoth')
+  const { value } = await mammoth.default.extractRawText({ buffer })
   return String(value || '').trim()
 }
 

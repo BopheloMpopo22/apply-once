@@ -16,8 +16,6 @@ import { PrismaClient } from '@prisma/client'
 import { remoteDownloadBuffer, remotePut, remoteRemove, useRemoteFiles } from './storage.js'
 import { seedVarsityCatalogueFromRepo } from './varsitySeed.js'
 import { sortProgrammesForCatalogue, sortUniversitiesForCatalogue } from './varsityDisplayOrder.js'
-import { importVarsityReportMarksFromBuffer, varsityReportMimeFromFile } from './varsityReportImport.js'
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const prisma = new PrismaClient()
 const app = express()
@@ -1228,6 +1226,9 @@ app.post('/api/varsity/report-import', varsityReportUpload.single('file'), async
     if (!req.file?.buffer) {
       return res.status(400).json({ error: 'file required (multipart field name: file)' })
     }
+    const { importVarsityReportMarksFromBuffer, varsityReportMimeFromFile } = await import(
+      './varsityReportImport.js',
+    )
     const mimetype = varsityReportMimeFromFile(req.file)
     if (!mimetype) {
       return res.status(400).json({ error: 'Only PDF or Word (.docx) school reports are supported' })
