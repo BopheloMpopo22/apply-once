@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { Navbar } from '../components/Navbar'
@@ -14,6 +14,8 @@ import { groupProgrammesByFaculty } from '../utils/varsity/spotlight'
 import { buildCatalogueRequirementSummary } from '../utils/varsity/programmeCatalogSummary'
 import { getStudentCatalogueYear } from '../utils/varsity/studentCatalogueYear'
 import { VARSITY_CALCULATOR_SUBJECT_SUGGESTIONS } from '../data/varsity/calculatorSubjectSuggestions'
+import { importVarsityReportMarks } from '../api/client'
+import type { VarsityReportImportResult, VarsityReportImportRow } from '../api/client'
 import { UNIVERSITY_RESULT_TINT_HEX, universityResultCardTintStyle } from '../utils/varsity/universityResultTints'
 
 type ReportType = 'grade11t4' | 'grade12t1' | 'grade12t2'
@@ -47,6 +49,27 @@ function emptyRow(): SubjectMarkInput {
   return { subject: '', percent: null }
 }
 
+function mergeReportImportIntoRows(current: SubjectMarkInput[], imported: VarsityReportImportRow[]): SubjectMarkInput[] {
+  const out = current.map((r) => ({ ...r }))
+  let i = 0
+  for (const imp of imported) {
+    while (i < out.length && (out[i].subject.trim() !== '' || out[i].percent != null)) i++
+    const row: SubjectMarkInput = {
+      subject: imp.subject,
+      percent: imp.percent,
+      level: imp.level ?? null,
+    }
+    if (i < out.length) {
+      out[i] = row
+      i++
+    } else {
+      out.push(row)
+    }
+  }
+  while (out.length < 7) out.push(emptyRow())
+  return out
+}
+
 function levelForSubjectRow(row: SubjectMarkInput): number | null {
   const m = normalizeMarks([row])
   return m[0]?.level ?? null
@@ -54,6 +77,7 @@ function levelForSubjectRow(row: SubjectMarkInput): number | null {
 
 export function VarsityCalculatorPage() {
   const catalogueYear = getStudentCatalogueYear()
+  const reportFileInputRef = useRef<HTMLInputElement>(null)
   const [reportType, setReportType] = useState<ReportType>(initialReportType)
   const [rows, setRows] = useState<SubjectMarkInput[]>(initialRows)
   const [showIneligible, setShowIneligible] = useState(initialShowIneligible)
@@ -72,6 +96,10 @@ export function VarsityCalculatorPage() {
     }>
     programmesByUniversity: Partial<Record<UniversityId, Programme[]>>
   } | null>(null)
+
+  const [reportImportBusy, setReportImportBusy] = useState(false)
+  const [reportImportError, setReportImportError] = useState<string | null>(null)
+  const [reportImportPreview, setReportImportPreview] = useState<VarsityReportImportResult | null>(null)
 
   const loadCatalogue = useCallback(async (year: number) => {
     setCatalogueBusy(true)
@@ -145,6 +173,40 @@ export function VarsityCalculatorPage() {
   function removeRow(idx: number) {
     setRows((prev) => prev.filter((_, i) => i !== idx))
   }
+
+  const openReportImportPicker = useCallback(() => {
+    reportFileInputRef.current?.click()
+  }, [])
+
+  const onReportFileSelected = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]
+    e.target.value = ''
+    if (!f) return
+    setReportImportBusy(true)
+    setReportImportError(null)
+    setReportImportPreview(null)
+    try {
+      const res = await importVarsityReportMarks(f)
+      setReportImportPreview(res)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Could not read that report'
+      setReportImportError(msg)
+    } finally {
+      setReportImportBusy(false)
+    }
+  }, [])
+
+  const applyReportImport = useCallback(() => {
+    if (!reportImportPreview?.rows?.length) return
+    const incoming = reportImportPreview.rows
+    setRows((cur) => mergeReportImportIntoRows(cur, incoming))
+    setReportImportPreview(null)
+    setReportImportError(null)
+  }, [reportImportPreview])
+
+  const dismissReportImportPreview = useCallback(() => {
+    setReportImportPreview(null)
+  }, [])
 
   return (
     <div className="appShell vcPageModern">
@@ -257,13 +319,86 @@ export function VarsityCalculatorPage() {
                   <div className="vcMarksTitle">Your subjects</div>
                   <p className="vcMarksLead muted">
                     Seven rows to start (English, Maths, Afrikaans, LO + three electives). Type a subject or pick from
-                    suggestions—add more rows if you take extra subjects.
+                    suggestions—add more rows if you take extra subjects. You can also upload a text-based PDF or Word report;
+                    we fill empty rows first—always check names and percentages.
                   </p>
                 </div>
-                <button type="button" className="vcCalcBtn vcCalcBtnPrimary" onClick={addRow}>
-                  + Add another subject
-                </button>
+                <div className="vcMarksHeaderActions">
+                  <input
+                    ref={reportFileInputRef}
+                    type="file"
+                    accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    style={{ display: 'none' }}
+                    aria-hidden
+                    onChange={onReportFileSelected}
+                  />
+                  <button
+                    type="button"
+                    className="vcCalcBtn vcCalcBtnGhost"
+                    onClick={openReportImportPicker}
+                    disabled={reportImportBusy}
+                  >
+                    {reportImportBusy ? 'Reading report…' : 'Import from report (PDF / Word)'}
+                  </button>
+                  <button type="button" className="vcCalcBtn vcCalcBtnPrimary" onClick={addRow}>
+                    + Add another subject
+                  </button>
+                </div>
               </div>
+
+              {reportImportError ? <div className="vcHint vcHintError vcReportImportBanner">{reportImportError}</div> : null}
+
+              {reportImportPreview ? (
+                <div className="vcReportImportPreview card">
+                  <div className="vcReportImportPreviewTitle">Report import — check before using</div>
+                  <p className="muted vcReportImportPrivacy">
+                    The file is sent to our server for extraction only and is not stored. Parsing mistakes happen—edit any
+                    wrong subject or mark below.
+                  </p>
+                  {reportImportPreview.warnings.length ? (
+                    <ul className="vcReportImportWarnings">
+                      {reportImportPreview.warnings.map((w) => (
+                        <li key={w}>{w}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                  {reportImportPreview.rows.length ? (
+                    <div className="vcReportImportPreviewTable" role="table" aria-label="Parsed subjects preview">
+                      <div className="vcReportImportPreviewRow vcReportImportPreviewHead" role="row">
+                        <span role="columnheader">Subject</span>
+                        <span role="columnheader">%</span>
+                        <span role="columnheader">Level</span>
+                      </div>
+                      {reportImportPreview.rows.map((r, idx) => (
+                        <div className="vcReportImportPreviewRow" role="row" key={`${r.subject}-${r.percent}-${idx}`}>
+                          <span role="cell">{r.subject}</span>
+                          <span role="cell">{r.percent ?? '—'}</span>
+                          <span role="cell">{r.level != null ? r.level : '—'}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                  {reportImportPreview.textSample ? (
+                    <details className="vcReportImportRaw">
+                      <summary>Show extracted text sample</summary>
+                      <pre className="vcReportImportRawPre">{reportImportPreview.textSample}</pre>
+                    </details>
+                  ) : null}
+                  <div className="vcReportImportActions">
+                    <button
+                      type="button"
+                      className="vcCalcBtn vcCalcBtnPrimary"
+                      onClick={applyReportImport}
+                      disabled={!reportImportPreview.rows.length}
+                    >
+                      Apply to my subjects
+                    </button>
+                    <button type="button" className="vcCalcBtn vcCalcBtnGhost" onClick={dismissReportImportPreview}>
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              ) : null}
 
               <div className="vcTable" role="table" aria-label="Subject marks entry">
                 <div className="vcRow vcRowHead" role="row">

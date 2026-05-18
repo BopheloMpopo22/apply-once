@@ -100,6 +100,39 @@ export async function uploadAvatar(file: File) {
   return data as { ok: boolean; hasAvatar: boolean }
 }
 
+export type VarsityReportImportRow = {
+  subject: string
+  percent: number | null
+  level?: number | null
+}
+
+export type VarsityReportImportResult = {
+  rows: VarsityReportImportRow[]
+  warnings: string[]
+  textSample?: string
+  confidence?: string
+}
+
+/** Upload a PDF or .docx school report; server returns parsed subject rows (verify before trusting). */
+export async function importVarsityReportMarks(file: File): Promise<VarsityReportImportResult> {
+  const fd = new FormData()
+  fd.append('file', file)
+  const res = await fetch('/api/varsity/report-import', {
+    method: 'POST',
+    body: fd,
+  })
+  const text = await res.text()
+  const data = parseJsonResponse(text, '/api/varsity/report-import')
+  if (!res.ok) {
+    const msg =
+      typeof data === 'object' && data !== null && 'error' in data
+        ? String((data as { error: string }).error)
+        : res.statusText
+    throw new Error(msg)
+  }
+  return data as VarsityReportImportResult
+}
+
 export async function uploadDocument(category: string, file: File) {
   const fd = new FormData()
   fd.append('category', category)

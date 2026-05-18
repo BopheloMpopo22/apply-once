@@ -268,10 +268,94 @@ h4 {
 
 .vcMarksHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-4);
   margin-bottom: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.vcMarksHeaderActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.vcReportImportBanner {
+  margin-bottom: var(--space-3);
+}
+
+.vcReportImportPreview {
+  margin-bottom: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg, 14px);
+}
+
+.vcReportImportPreviewTitle {
+  font-weight: 750;
+  margin-bottom: var(--space-2);
+}
+
+.vcReportImportPrivacy {
+  font-size: 14px;
+  margin: 0 0 var(--space-3);
+}
+
+.vcReportImportWarnings {
+  margin: 0 0 var(--space-3);
+  padding-left: 18px;
+  color: rgba(180, 83, 9, 0.95);
+  font-size: 14px;
+}
+
+.vcReportImportPreviewTable {
+  display: grid;
+  gap: 6px;
+  margin-bottom: var(--space-3);
+  font-size: 14px;
+}
+
+.vcReportImportPreviewRow {
+  display: grid;
+  grid-template-columns: 1fr 64px 56px;
+  gap: 10px;
+  align-items: center;
+}
+
+.vcReportImportPreviewHead {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.vcReportImportRaw {
+  margin-bottom: var(--space-3);
+  font-size: 13px;
+}
+
+.vcReportImportRawPre {
+  margin: var(--space-2) 0 0;
+  padding: var(--space-3);
+  max-height: 200px;
+  overflow: auto;
+  font-size: 12px;
+  line-height: 1.45;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(2, 6, 23, 0.03);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.vcReportImportActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
 }
 
 .vcMarksTitle {

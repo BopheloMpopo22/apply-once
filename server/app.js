@@ -16,6 +16,7 @@ import { PrismaClient } from '@prisma/client'
 import { remoteDownloadBuffer, remotePut, remoteRemove, useRemoteFiles } from './storage.js'
 import { seedVarsityCatalogueFromRepo } from './varsitySeed.js'
 import { sortProgrammesForCatalogue, sortUniversitiesForCatalogue } from './varsityDisplayOrder.js'
+import { importVarsityReportMarksFromBuffer, varsityReportMimeFromFile } from './varsityReportImport.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const prisma = new PrismaClient()
@@ -296,6 +297,26 @@ const documentUploadDisk = multer({
 const documentUploadMemory = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 8 * 1024 * 1024 },
+})
+
+const varsityReportUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 8 * 1024 * 1024 },
+  fileFilter(_req, file, cb) {
+    const name = String(file.originalname || '')
+    const mt = String(file.mimetype || '').toLowerCase()
+    const ok =
+      mt === 'application/pdf' ||
+      mt === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+      /\.pdf$/i.test(name) ||
+      /\.docx$/i.test(name)
+    if (!ok) {
+      const err = new Error('Only PDF or Word (.docx) school reports are supported')
+      err.code = 'INVALID_FILE_TYPE'
+      return cb(err)
+    }
+    cb(null, true)
+  },
 })
 
 function documentUploadMiddleware(req, res, next) {
@@ -1201,6 +1222,31 @@ app.get('/api/varsity/catalogue', async (req, res) => {
   })
 })
 
+/** Public: extract subject + % (and optional level) from a school report PDF/DOCX. File is processed in memory only—not stored. */
+app.post('/api/varsity/report-import', varsityReportUpload.single('file'), async (req, res, next) => {
+  try {
+    if (!req.file?.buffer) {
+      return res.status(400).json({ error: 'file required (multipart field name: file)' })
+    }
+    const mimetype = varsityReportMimeFromFile(req.file)
+    if (!mimetype) {
+      return res.status(400).json({ error: 'Only PDF or Word (.docx) school reports are supported' })
+    }
+    const payload = await importVarsityReportMarksFromBuffer({
+      buffer: req.file.buffer,
+      mimetype,
+    })
+    res.json({
+      rows: payload.rows,
+      warnings: payload.warnings,
+      textSample: payload.textSample,
+      confidence: payload.confidence,
+    })
+  } catch (e) {
+    next(e)
+  }
+})
+
 app.get('/api/admin/varsity/catalogue', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res) => {
   const year = parseCatalogueYear(req)
   const universitiesRaw = await prisma.varsityUniversity.findMany({
@@ -1383,6 +1429,9 @@ app.post(
 
 app.use((err, _req, res, _next) => {
   console.error(err)
+  if (err && err.code === 'INVALID_FILE_TYPE') {
+    return res.status(400).json({ error: err.message })
+  }
   if (err instanceof MulterError) {
     const hint =
       err.code === 'LIMIT_FILE_SIZE'
