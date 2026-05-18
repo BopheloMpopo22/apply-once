@@ -13,6 +13,8 @@ import 'multer'
 import '@supabase/supabase-js'
 import 'pdfkit'
 import '@prisma/client'
+import 'pdf-parse'
+import 'mammoth'
 
 import app from '../server/app.js'
 

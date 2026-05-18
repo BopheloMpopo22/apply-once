@@ -1,3 +1,6 @@
+import { PDFParse } from 'pdf-parse'
+import mammoth from 'mammoth'
+
 const PDF_MIME = 'application/pdf'
 const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 
@@ -21,7 +24,6 @@ export function varsityReportMimeFromFile(file) {
 }
 
 async function textFromPdf(buffer) {
-  const { PDFParse } = await import('pdf-parse')
   const parser = new PDFParse({ data: buffer })
   try {
     const tr = await parser.getText({ lineEnforce: true })
@@ -32,8 +34,7 @@ async function textFromPdf(buffer) {
 }
 
 async function textFromDocx(buffer) {
-  const mammoth = await import('mammoth')
-  const { value } = await mammoth.default.extractRawText({ buffer })
+  const { value } = await mammoth.extractRawText({ buffer })
   return String(value || '').trim()
 }
 
@@ -144,15 +145,17 @@ export async function importVarsityReportMarksFromBuffer({ buffer, mimetype }) {
   let plain = ''
 
   if (mimetype === PDF_MIME) {
+    let pdfReadOk = false
     try {
       plain = await textFromPdf(buffer)
+      pdfReadOk = true
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e)
       warnings.push(`Could not read PDF: ${msg}`)
     }
-    if (!plain.trim()) {
+    if (pdfReadOk && plain.replace(/\s+/g, '').length < 40) {
       warnings.push(
-        'This PDF has very little extractable text. It may be a scan or image-only export—try a text-based PDF or Word report.',
+        'This report looks like a scanned image or photo PDF—we could not read subject names or marks from it. Ask your school for a digital (text) PDF or Word export, or type your marks in manually. Photo/scanned import needs OCR, which we have not added yet.',
       )
     }
   } else if (mimetype === DOCX_MIME) {
