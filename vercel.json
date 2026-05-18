@@ -8,7 +8,7 @@
     "api/index.js": {
       "maxDuration": 300,
       "memory": 1024,
-      "includeFiles": "{node_modules/.prisma/client/**,node_modules/@prisma/client/**,prisma/schema.prisma,src/data/varsity/**}"
+      "includeFiles": "{server/**,node_modules/.prisma/client/**,node_modules/@prisma/client/**,node_modules/express/**,node_modules/cors/**,node_modules/bcryptjs/**,node_modules/jsonwebtoken/**,node_modules/multer/**,node_modules/dotenv/**,node_modules/@supabase/**,node_modules/pdfkit/**,prisma/schema.prisma,src/data/varsity/**}"
     }
   },
   "rewrites": [
