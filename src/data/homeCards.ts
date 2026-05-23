@@ -1,3 +1,6 @@
+import applicationFormImg from '../assets/Application-form.png'
+import varsityCalculatorImg from '../assets/Varsity-calculator.png'
+
 /** Home page card imagery — Unsplash (free to use with attribution in production). */
 const u = (id: string, w = 800) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`
@@ -7,19 +10,19 @@ export const HOME_PRIMARY_CARDS = [
     id: 'varsity-calculator',
     title: 'Varsity Calculator',
     description: 'Estimate your points and see which programmes you might qualify for.',
-    image: u('photo-1523050854058-8df90110c9f1'),
-    imageAlt: 'Students on a university campus',
+    image: varsityCalculatorImg,
+    imageAlt: 'Varsity calculator illustration',
     href: '/varsity-calculator',
-    accent: 'blue' as const,
+    hoverTheme: 'blue' as const,
   },
   {
     id: 'application',
     title: 'Application Form',
-    description: 'Complete your full application once and reuse it across opportunities.',
-    image: u('photo-1522202176988-66273c2fd55f'),
-    imageAlt: 'Students working together on laptops',
+    description: 'Complete your application and allow us to apply to bursaries matched to you.',
+    image: applicationFormImg,
+    imageAlt: 'Application form illustration',
     href: '/application',
-    accent: 'green' as const,
+    hoverTheme: 'orange' as const,
   },
 ]
 

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { HomeHeroVisual } from '../components/home/HomeHeroVisual'
+import { HomePrimaryCard } from '../components/home/HomePrimaryCard'
 import { HomeSelectCard } from '../components/home/HomeSelectCard'
 import { Navbar } from '../components/Navbar'
 import { Section } from '../components/Section'
@@ -9,7 +10,6 @@ import { SiteFooter } from '../components/SiteFooter'
 import { HOME_FEATURE_CARDS, HOME_PRIMARY_CARDS, HOME_RESOURCE_CARDS } from '../data/homeCards'
 
 export function HomePage() {
-  const [selectedPrimary, setSelectedPrimary] = useState<string | null>(null)
   const [selectedSecondary, setSelectedSecondary] = useState<string | null>(null)
 
   return (
@@ -70,16 +70,10 @@ export function HomePage() {
             <h2 id="home-primary-heading" className="homeSectionLabel">
               Start here
             </h2>
-            <p className="homeSectionLead muted">Tap a card to select it, then press Open.</p>
+            <p className="homeSectionLead muted">Tap a card to open.</p>
             <div className="homePrimaryGrid">
               {HOME_PRIMARY_CARDS.map((card) => (
-                <HomeSelectCard
-                  key={card.id}
-                  {...card}
-                  size="primary"
-                  selected={selectedPrimary === card.id}
-                  onSelect={() => setSelectedPrimary((prev) => (prev === card.id ? null : card.id))}
-                />
+                <HomePrimaryCard key={card.id} {...card} />
               ))}
             </div>
           </div>

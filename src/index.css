@@ -3027,25 +3027,24 @@ body {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  padding-left: 0;
-  overflow: visible;
+  justify-content: flex-end;
+  overflow: hidden;
 }
 
 .homeHeroMainImage {
-  --hero-img-shift: -14%;
   position: relative;
   z-index: 1;
-  width: min(118%, 520px);
+  width: 100%;
+  max-width: 520px;
   max-height: min(480px, 58vh);
   height: auto;
   object-fit: contain;
-  object-position: left center;
+  /* Keep block on the right; subject in artwork faces inward (left) */
+  object-position: right center;
   display: block;
-  margin: 0;
-  margin-right: auto;
+  margin-left: auto;
+  margin-right: 0;
   border-radius: 28px;
-  transform: translateX(var(--hero-img-shift));
   filter: drop-shadow(0 28px 56px rgba(15, 23, 42, 0.22));
   animation: homeHeroImageFloat 5.5s ease-in-out infinite;
   pointer-events: none;
@@ -3055,10 +3054,10 @@ body {
 @keyframes homeHeroImageFloat {
   0%,
   100% {
-    transform: translateX(var(--hero-img-shift)) translateY(0);
+    transform: translateY(0);
   }
   50% {
-    transform: translateX(var(--hero-img-shift)) translateY(-18px);
+    transform: translateY(-18px);
   }
 }
 
@@ -3145,6 +3144,92 @@ body {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-5);
+}
+
+/* Primary entry cards — full-card link, centered art, hover fill */
+.homePrimaryCard {
+  display: flex;
+  flex-direction: column;
+  border-radius: 22px;
+  background: #fff;
+  border: 2px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition),
+    border-color var(--transition),
+    background var(--transition);
+}
+
+.homePrimaryCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: transparent;
+}
+
+.homePrimaryCardBlue:hover {
+  background: linear-gradient(165deg, var(--hfc-blue) 0%, var(--hfc-blue-bright) 100%);
+}
+
+.homePrimaryCardOrange:hover {
+  background: linear-gradient(165deg, #ea580c 0%, #fb923c 100%);
+}
+
+.homePrimaryCardArt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 168px;
+  padding: 24px 28px 8px;
+  background: #f1f5f9;
+  transition: background var(--transition);
+}
+
+.homePrimaryCard:hover .homePrimaryCardArt {
+  background: transparent;
+}
+
+.homePrimaryCardImg {
+  width: auto;
+  max-width: 52%;
+  max-height: 132px;
+  object-fit: contain;
+  display: block;
+  border-radius: 14px;
+  transition: transform var(--transition);
+}
+
+.homePrimaryCard:hover .homePrimaryCardImg {
+  transform: scale(1.03);
+}
+
+.homePrimaryCardBody {
+  padding: var(--space-5) var(--space-5) var(--space-6);
+  transition: color var(--transition);
+}
+
+.homePrimaryCardTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2vw, 26px);
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+
+.homePrimaryCardText {
+  margin: var(--space-2) 0 0;
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.homePrimaryCard:hover .homePrimaryCardTitle,
+.homePrimaryCard:hover .homePrimaryCardText {
+  color: rgba(255, 255, 255, 0.96);
 }
 
 .homeSecondaryGrid {
@@ -3337,12 +3422,13 @@ body {
     min-height: 280px;
     margin-top: var(--space-4);
     justify-content: center;
-    padding-left: 0;
   }
 
   .homeHeroMainImage {
-    --hero-img-shift: -10%;
     width: min(100%, 400px);
+    margin-left: auto;
+    margin-right: auto;
+    object-position: center center;
     border-radius: 24px;
   }
 
@@ -3367,8 +3453,7 @@ body {
   }
 
   .homeHeroMainImage {
-    --hero-img-shift: -8%;
-    width: min(105%, 340px);
+    width: min(100%, 340px);
     border-radius: 20px;
   }
 
@@ -3385,6 +3470,6 @@ body {
   }
 
   .homeHeroMainImage {
-    transform: translateX(var(--hero-img-shift, -14%));
+    transform: none;
   }
 }
