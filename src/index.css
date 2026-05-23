@@ -21,6 +21,8 @@
   --muted: rgba(15, 23, 42, 0.68);
   --blue: #2563eb;
   --blueDeep: #1d4ed8;
+  --green: #10b981;
+  --greenDeep: #059669;
   --border: rgba(15, 23, 42, 0.12);
 
   --shadow-sm: 0 8px 20px rgba(2, 6, 23, 0.08);
@@ -2856,4 +2858,378 @@ body {
 
 .vcPageModern .vcHeaderRight .btn:hover {
   filter: brightness(1.05);
+}
+
+/* —— Home (HFC-inspired) —— */
+.homeShell {
+  background: linear-gradient(180deg, #ffffff 0%, var(--bg) 42%, #f0f4ff 100%);
+}
+
+.navShellLight {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+
+.navShellLight.navShellScrolled {
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
+}
+
+.navShellLight .navBrand,
+.navShellLight .navBrandText {
+  color: var(--text);
+}
+
+.navShellLight .navLink {
+  color: rgba(15, 23, 42, 0.72);
+}
+
+.navShellLight .navLink:hover {
+  color: var(--text);
+}
+
+.navShellLight .navAuth .btnPrimary {
+  background: linear-gradient(135deg, var(--blue) 0%, var(--blueDeep) 100%);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.28);
+}
+
+.navShellLight .navAuth .btnGhost {
+  color: rgba(15, 23, 42, 0.78);
+  border-color: var(--border);
+}
+
+.homeHeroWrap {
+  padding: var(--space-6) 0 var(--space-4);
+}
+
+.homeHeroPanel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  padding: clamp(28px, 4vw, 48px) clamp(24px, 4vw, 44px);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 38%, #1d4ed8 72%, #1e40af 100%);
+  box-shadow: 0 28px 70px rgba(29, 78, 216, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.homeHeroShine {
+  position: absolute;
+  inset: -40% -20%;
+  background: radial-gradient(ellipse 45% 55% at 30% 40%, rgba(255, 255, 255, 0.45), transparent 58%),
+    radial-gradient(ellipse 40% 50% at 75% 25%, rgba(16, 185, 129, 0.22), transparent 55%);
+  animation: homeHeroShineMove 9s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes homeHeroShineMove {
+  0% {
+    transform: translate(-8%, -6%) scale(1);
+    opacity: 0.75;
+  }
+  100% {
+    transform: translate(12%, 8%) scale(1.08);
+    opacity: 1;
+  }
+}
+
+.homeHeroContent {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+}
+
+.homeHeroPanel .heroBadge {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.homeHeroPanel .heroTitle,
+.homeHeroPanel .heroSubtitle {
+  color: rgba(255, 255, 255, 0.98);
+}
+
+.btnHeroPrimary {
+  background: #fff;
+  color: rgba(15, 23, 42, 0.92);
+  box-shadow: 0 14px 36px rgba(2, 6, 23, 0.2);
+}
+
+.btnHeroPrimary:hover {
+  transform: translateY(-1px);
+}
+
+.btnHeroSecondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.btnHeroSecondary:hover {
+  background: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
+}
+
+.homeHeroMarquee {
+  margin-top: var(--space-6);
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.homeHeroMarqueeTrack {
+  display: flex;
+  gap: var(--space-4);
+  width: max-content;
+  animation: homeMarquee 22s linear infinite;
+}
+
+.homeHeroMarqueeTrack span {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.homeHeroMarqueeTrack span:nth-child(odd) {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+@keyframes homeMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.homeMain {
+  padding-top: var(--space-6);
+}
+
+.homePrimarySection {
+  padding: var(--space-4) 0 var(--space-8);
+}
+
+.homeSectionLabel {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 2.2vw, 28px);
+  letter-spacing: -0.4px;
+}
+
+.homeSectionLead {
+  margin: var(--space-2) 0 var(--space-5);
+  font-size: 15px;
+}
+
+.homePrimaryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+.homeSecondaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-4);
+}
+
+.homeSecondaryGrid3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.homeSelectCard {
+  display: flex;
+  flex-direction: column;
+  border-radius: 22px;
+  background: #fff;
+  border: 2px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+
+.homeSelectCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.homeSelectCardSelected {
+  border-color: var(--blue);
+  box-shadow: 0 20px 50px rgba(37, 99, 235, 0.22);
+}
+
+.homeSelectCardSelected.homeCardAccentGreen {
+  border-color: var(--green);
+  box-shadow: 0 20px 50px rgba(16, 185, 129, 0.22);
+}
+
+.homeSelectCardSelected .homeSelectCardBody {
+  background: linear-gradient(180deg, var(--blue) 0%, var(--blueDeep) 100%);
+}
+
+.homeSelectCardSelected.homeCardAccentGreen .homeSelectCardBody {
+  background: linear-gradient(180deg, var(--green) 0%, var(--greenDeep) 100%);
+}
+
+.homeSelectCardSelected .homeSelectCardTitle,
+.homeSelectCardSelected .homeSelectCardText {
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.homeSelectCardHit {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+}
+
+.homeSelectCardMedia {
+  position: relative;
+  overflow: hidden;
+  background: #e2e8f0;
+}
+
+.homeCardPrimary .homeSelectCardMedia {
+  aspect-ratio: 16 / 10;
+}
+
+.homeCardSecondary .homeSelectCardMedia {
+  aspect-ratio: 4 / 3;
+}
+
+.homeSelectCardImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 400ms ease;
+}
+
+.homeSelectCard:hover .homeSelectCardImg {
+  transform: scale(1.04);
+}
+
+.homeSelectCardMediaFade {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 45%;
+  background: linear-gradient(180deg, transparent, rgba(15, 23, 42, 0.35));
+  pointer-events: none;
+}
+
+.homeSelectCardBody {
+  padding: var(--space-5);
+  transition: background var(--transition), color var(--transition);
+}
+
+.homeCardPrimary .homeSelectCardTitle {
+  font-size: clamp(20px, 2vw, 26px);
+}
+
+.homeSelectCardTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+
+.homeSelectCardText {
+  margin: var(--space-2) 0 0;
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.homeSelectCardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0 var(--space-5) var(--space-4);
+  min-height: 44px;
+}
+
+.homeSelectCardFooterVisible {
+  padding-top: var(--space-2);
+}
+
+.homeSelectCardOpen {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 14px;
+  text-decoration: none;
+  background: linear-gradient(135deg, var(--blue), var(--blueDeep));
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+  transition: transform var(--transition), filter var(--transition);
+}
+
+.homeSelectCardSelected.homeCardAccentGreen .homeSelectCardOpen {
+  background: linear-gradient(135deg, var(--green), var(--greenDeep));
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
+
+.homeSelectCardFooterVisible .homeSelectCardOpen {
+  display: inline-flex;
+}
+
+.homeSelectCardOpen:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.homeSelectCardHint {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.45);
+  letter-spacing: 0.02em;
+}
+
+.homeSelectCardSelected .homeSelectCardHint {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .homePrimaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .homeSecondaryGrid3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .homeHeroPanel {
+    border-radius: 22px;
+  }
+
+  .homeSecondaryGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .homeHeroShine,
+  .homeHeroMarqueeTrack {
+    animation: none;
+  }
 }

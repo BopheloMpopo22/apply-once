@@ -4,7 +4,8 @@ import { NavAuth } from './NavAuth'
 
 type NavLink = { label: string; to: string }
 
-export function Navbar(props: { logo: ReactNode; links: NavLink[] }) {
+export function Navbar(props: { logo: ReactNode; links: NavLink[]; variant?: 'brand' | 'light' }) {
+  const variant = props.variant ?? 'brand'
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -14,8 +15,16 @@ export function Navbar(props: { logo: ReactNode; links: NavLink[] }) {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  const shellClass = [
+    'navShell',
+    variant === 'light' ? 'navShellLight' : '',
+    scrolled ? 'navShellScrolled' : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+
   return (
-    <div className={scrolled ? 'navShell navShellScrolled' : 'navShell'}>
+    <div className={shellClass}>
       <div className="container nav">
         <Link className="navBrand" to="/" aria-label="Apply Once home">
           {props.logo}
