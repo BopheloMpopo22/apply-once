@@ -3020,25 +3020,28 @@ body {
   font-size: 15px;
 }
 
-/* Hero right: custom image + glass cards */
+/* Hero right: custom floating artwork only */
 .homeHeroVisual {
   position: relative;
-  min-height: 340px;
+  min-height: 360px;
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding-left: clamp(0px, 2vw, 16px);
 }
 
 .homeHeroMainImage {
   position: relative;
   z-index: 1;
-  width: min(100%, 440px);
-  max-height: min(420px, 52vh);
+  width: min(118%, 520px);
+  max-height: min(480px, 58vh);
   height: auto;
   object-fit: contain;
   display: block;
-  margin: 0 auto;
+  margin: 0;
+  margin-right: auto;
+  transform: translateX(-6%);
   filter: drop-shadow(0 28px 56px rgba(15, 23, 42, 0.22));
   animation: homeHeroImageFloat 5.5s ease-in-out infinite;
   pointer-events: none;
@@ -3048,102 +3051,10 @@ body {
 @keyframes homeHeroImageFloat {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translateX(-6%) translateY(0);
   }
   50% {
-    transform: translateY(-18px);
-  }
-}
-
-.homeHeroFloatCard {
-  z-index: 2;
-  position: absolute;
-  border-radius: 24px;
-  padding: 16px 18px;
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
-  color: #fff;
-  animation: homeCardFloat 6s ease-in-out infinite;
-}
-
-.homeHeroFloatLabel {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.85;
-}
-
-.homeHeroFloatAps {
-  margin-top: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  opacity: 0.9;
-}
-
-.homeHeroFloatScore {
-  margin-top: 4px;
-  font-size: 36px;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 1;
-}
-
-.homeHeroFloatStatus {
-  margin-top: 10px;
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.homeHeroFloatStatusGreen {
-  color: #a7f3d0;
-}
-
-.homeHeroFloatBar {
-  margin-top: 10px;
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.2);
-  overflow: hidden;
-}
-
-.homeHeroFloatBar span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #92e3a9, #deed60);
-}
-
-.homeHeroFloatMeta {
-  margin-top: 8px;
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-.homeHeroFloatCardAps {
-  top: 6%;
-  left: 0;
-  width: min(178px, 42%);
-  animation-delay: 0.4s;
-}
-
-.homeHeroFloatCardApp {
-  bottom: 10%;
-  right: 0;
-  width: min(188px, 44%);
-  animation-delay: 1.6s;
-}
-
-@keyframes homeCardFloat {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-10px) rotate(1.2deg);
+    transform: translateX(-6%) translateY(-18px);
   }
 }
 
@@ -3419,8 +3330,15 @@ body {
   }
 
   .homeHeroVisual {
-    min-height: 260px;
+    min-height: 280px;
     margin-top: var(--space-4);
+    justify-content: center;
+    padding-left: 0;
+  }
+
+  .homeHeroMainImage {
+    width: min(100%, 400px);
+    transform: translateX(-4%);
   }
 
   .homeHeroPanel {
@@ -3440,9 +3358,12 @@ body {
   }
 
   .homeHeroVisual {
-    min-height: 220px;
-    transform: scale(0.92);
-    transform-origin: top center;
+    min-height: 240px;
+  }
+
+  .homeHeroMainImage {
+    width: min(105%, 340px);
+    transform: translateX(-3%);
   }
 
   .homeSecondaryGrid {
@@ -3453,8 +3374,11 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .homeHeroShine,
   .homeHeroMarqueeTrack,
-  .homeHeroFloatCard,
   .homeHeroMainImage {
     animation: none;
+  }
+
+  .homeHeroMainImage {
+    transform: translateX(-6%);
   }
 }
