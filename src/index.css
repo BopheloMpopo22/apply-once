@@ -3028,20 +3028,24 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding-left: clamp(0px, 2vw, 16px);
+  padding-left: 0;
+  overflow: visible;
 }
 
 .homeHeroMainImage {
+  --hero-img-shift: -14%;
   position: relative;
   z-index: 1;
   width: min(118%, 520px);
   max-height: min(480px, 58vh);
   height: auto;
-  object-fit: contain;
+  object-fit: cover;
+  object-position: center;
   display: block;
   margin: 0;
   margin-right: auto;
-  transform: translateX(-6%);
+  border-radius: 28px;
+  transform: translateX(var(--hero-img-shift));
   filter: drop-shadow(0 28px 56px rgba(15, 23, 42, 0.22));
   animation: homeHeroImageFloat 5.5s ease-in-out infinite;
   pointer-events: none;
@@ -3051,10 +3055,10 @@ body {
 @keyframes homeHeroImageFloat {
   0%,
   100% {
-    transform: translateX(-6%) translateY(0);
+    transform: translateX(var(--hero-img-shift)) translateY(0);
   }
   50% {
-    transform: translateX(-6%) translateY(-18px);
+    transform: translateX(var(--hero-img-shift)) translateY(-18px);
   }
 }
 
@@ -3337,8 +3341,9 @@ body {
   }
 
   .homeHeroMainImage {
+    --hero-img-shift: -10%;
     width: min(100%, 400px);
-    transform: translateX(-4%);
+    border-radius: 24px;
   }
 
   .homeHeroPanel {
@@ -3362,8 +3367,9 @@ body {
   }
 
   .homeHeroMainImage {
+    --hero-img-shift: -8%;
     width: min(105%, 340px);
-    transform: translateX(-3%);
+    border-radius: 20px;
   }
 
   .homeSecondaryGrid {
@@ -3379,6 +3385,6 @@ body {
   }
 
   .homeHeroMainImage {
-    transform: translateX(-6%);
+    transform: translateX(var(--hero-img-shift, -14%));
   }
 }
