@@ -2918,18 +2918,38 @@ body {
 }
 
 .homeHeroWrap {
-  padding: var(--space-4) 0 var(--space-3);
+  padding: var(--space-5) var(--space-6) var(--space-4);
+}
+
+/* Match Home From College hero container width (1328px) */
+.homeHeroOuter {
+  width: 100%;
+  max-width: 1328px;
+  margin: 0 auto;
 }
 
 .homeHeroPanel {
   position: relative;
   overflow: hidden;
   border-radius: 24px;
-  padding: clamp(22px, 3vw, 36px) clamp(22px, 3.5vw, 40px);
+  min-height: clamp(400px, 58vh, 560px);
+  padding: clamp(40px, 5vw, 60px) clamp(28px, 4vw, 48px);
   background-color: var(--hfc-blue);
   background-image: linear-gradient(-45deg, var(--hfc-blue-bright) 0%, var(--hfc-blue) 100%);
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+}
+
+.homeHeroGrid {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(20px, 4vw, 48px);
+  align-items: center;
 }
 
 .homeHeroShine {
@@ -2957,11 +2977,12 @@ body {
 .homeHeroContent {
   position: relative;
   z-index: 1;
-  max-width: 640px;
+  max-width: 560px;
 }
 
 .homeHeroKicker {
   margin: 0;
+  font-family: Inter, var(--font-sans);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -2970,29 +2991,176 @@ body {
 }
 
 .homeHeroTitle {
-  margin: 10px 0 0;
-  font-size: clamp(32px, 4.2vw, 46px);
-  line-height: 1.05;
-  letter-spacing: -0.03em;
+  margin: 12px 0 0;
+  font-family: Inter, var(--font-sans);
+  font-size: clamp(38px, 4.8vw, 56px);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
   color: rgba(255, 255, 255, 0.98);
 }
 
 .homeHeroSubtitle {
-  margin: 12px 0 0;
-  font-size: clamp(15px, 1.8vw, 17px);
-  line-height: 1.35;
-  color: rgba(255, 255, 255, 0.88);
-  max-width: 36ch;
+  margin: 16px 0 0;
+  font-family: Inter, var(--font-sans);
+  font-size: clamp(16px, 1.9vw, 19px);
+  font-weight: 500;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.82);
+  max-width: 38ch;
 }
 
 .homeHeroCtas {
-  margin-top: var(--space-4);
-  gap: var(--space-2);
+  margin-top: var(--space-6);
+  gap: var(--space-3);
 }
 
-.homeHeroPanel .heroTitle,
-.homeHeroPanel .heroSubtitle {
-  color: rgba(255, 255, 255, 0.98);
+.homeHeroCtas .btn {
+  padding: 14px 22px;
+  font-size: 15px;
+}
+
+/* Floating glass cards — right side */
+.homeHeroVisual {
+  position: relative;
+  min-height: 320px;
+  width: 100%;
+}
+
+.homeHeroFloatCard {
+  position: absolute;
+  border-radius: 24px;
+  padding: 16px 18px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+  color: #fff;
+  animation: homeCardFloat 6s ease-in-out infinite;
+}
+
+.homeHeroFloatLabel {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.homeHeroFloatAps {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.homeHeroFloatScore {
+  margin-top: 4px;
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.homeHeroFloatStatus {
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.homeHeroFloatStatusGreen {
+  color: #a7f3d0;
+}
+
+.homeHeroFloatBar {
+  margin-top: 10px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+
+.homeHeroFloatBar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #92e3a9, #deed60);
+}
+
+.homeHeroFloatMeta {
+  margin-top: 8px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.homeHeroFloatCardAps {
+  top: 8%;
+  left: 6%;
+  width: min(200px, 46%);
+  animation-delay: 0s;
+}
+
+.homeHeroFloatCardApp {
+  top: 38%;
+  right: 4%;
+  width: min(210px, 50%);
+  animation-delay: 1.2s;
+}
+
+.homeHeroFloatCardBursary {
+  bottom: 6%;
+  left: 22%;
+  width: min(190px, 44%);
+  animation-delay: 2.4s;
+}
+
+.homeHeroLogoChip {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.15);
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  animation: homeCardFloat 7s ease-in-out infinite;
+}
+
+.homeHeroLogoChip img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.homeHeroLogoChip1 {
+  top: 4%;
+  right: 18%;
+  animation-delay: 0.6s;
+}
+
+.homeHeroLogoChip2 {
+  bottom: 28%;
+  right: 2%;
+  animation-delay: 1.8s;
+}
+
+.homeHeroLogoChip3 {
+  bottom: 8%;
+  right: 38%;
+  animation-delay: 3s;
+}
+
+@keyframes homeCardFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(1.2deg);
+  }
 }
 
 .btnHeroPrimary {
@@ -3261,11 +3429,36 @@ body {
   .homeSecondaryGrid3 {
     grid-template-columns: 1fr;
   }
+
+  .homeHeroGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .homeHeroVisual {
+    min-height: 260px;
+    margin-top: var(--space-4);
+  }
+
+  .homeHeroPanel {
+    min-height: auto;
+    padding: 40px 24px 36px;
+  }
 }
 
 @media (max-width: 640px) {
+  .homeHeroWrap {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+
   .homeHeroPanel {
     border-radius: 22px;
+  }
+
+  .homeHeroVisual {
+    min-height: 220px;
+    transform: scale(0.92);
+    transform-origin: top center;
   }
 
   .homeSecondaryGrid {
@@ -3275,7 +3468,9 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .homeHeroShine,
-  .homeHeroMarqueeTrack {
+  .homeHeroMarqueeTrack,
+  .homeHeroFloatCard,
+  .homeHeroLogoChip {
     animation: none;
   }
 }

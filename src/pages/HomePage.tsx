@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
+import { HomeHeroVisual } from '../components/home/HomeHeroVisual'
 import { HomeSelectCard } from '../components/home/HomeSelectCard'
 import { Navbar } from '../components/Navbar'
 import { Section } from '../components/Section'
@@ -23,37 +24,41 @@ export function HomePage() {
       />
 
       <section className="homeHeroWrap" aria-label="Apply Once introduction">
-        <div className="container">
+        <div className="homeHeroOuter">
           <div className="homeHeroPanel">
             <div className="homeHeroShine" aria-hidden />
-            <div className="homeHeroContent">
-              <p className="homeHeroKicker">Built for high school</p>
-              <h1 className="heroTitle homeHeroTitle">Apply once. Go further.</h1>
-              <p className="heroSubtitle homeHeroSubtitle">One profile. Bursaries, varsity &amp; applications.</p>
+            <div className="homeHeroGrid">
+              <div className="homeHeroContent">
+                <p className="homeHeroKicker">Built for high school</p>
+                <h1 className="homeHeroTitle">Apply once. Go further.</h1>
+                <p className="homeHeroSubtitle">One profile. Bursaries, varsity &amp; applications.</p>
 
-              <div className="heroCtas homeHeroCtas" id="get-started">
-                <Link className="btn btnHeroPrimary" to="/register">
-                  Get started
-                </Link>
-                <Link className="btn btnHeroSecondary" to="/varsity-calculator">
-                  Varsity calculator
-                </Link>
-              </div>
+                <div className="heroCtas homeHeroCtas" id="get-started">
+                  <Link className="btn btnHeroPrimary" to="/register">
+                    Get started
+                  </Link>
+                  <Link className="btn btnHeroSecondary" to="/varsity-calculator">
+                    Varsity calculator
+                  </Link>
+                </div>
 
-              <div className="homeHeroMarquee" aria-hidden>
-                <div className="homeHeroMarqueeTrack">
-                  <span>Bursaries</span>
-                  <span>Scholarships</span>
-                  <span>Universities</span>
-                  <span>Learnerships</span>
-                  <span>Varsity</span>
-                  <span>Bursaries</span>
-                  <span>Scholarships</span>
-                  <span>Universities</span>
-                  <span>Learnerships</span>
-                  <span>Varsity</span>
+                <div className="homeHeroMarquee" aria-hidden>
+                  <div className="homeHeroMarqueeTrack">
+                    <span>Bursaries</span>
+                    <span>Scholarships</span>
+                    <span>Universities</span>
+                    <span>Learnerships</span>
+                    <span>Varsity</span>
+                    <span>Bursaries</span>
+                    <span>Scholarships</span>
+                    <span>Universities</span>
+                    <span>Learnerships</span>
+                    <span>Varsity</span>
+                  </div>
                 </div>
               </div>
+
+              <HomeHeroVisual />
             </div>
           </div>
         </div>
