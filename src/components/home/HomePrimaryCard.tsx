@@ -15,7 +15,16 @@ export function HomePrimaryCard({ title, description, image, imageAlt, href, hov
   return (
     <Link className={`homePrimaryCard ${themeClass}`} to={href}>
       <div className="homePrimaryCardArt">
-        <img className="homePrimaryCardImg" src={image} alt={imageAlt} loading="lazy" decoding="async" />
+        <img
+          className="homePrimaryCardImg"
+          src={image}
+          alt={imageAlt}
+          width={1536}
+          height={1024}
+          loading="eager"
+          decoding="sync"
+          fetchPriority="high"
+        />
       </div>
       <div className="homePrimaryCardBody">
         <h3 className="homePrimaryCardTitle">{title}</h3>

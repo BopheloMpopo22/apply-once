@@ -1,5 +1,4 @@
-import applicationFormImg from '../assets/application-logos.png'
-import varsityCalculatorImg from '../assets/Varsity-calculator.png'
+import { HOME_PRIMARY_IMAGES } from '../utils/preloadHomeAssets'
 
 /** Home page card imagery — Unsplash (free to use with attribution in production). */
 const u = (id: string, w = 800) =>
@@ -10,7 +9,7 @@ export const HOME_PRIMARY_CARDS = [
     id: 'application',
     title: 'Application Form',
     description: 'Complete your application and allow us to apply to bursaries matched to you.',
-    image: applicationFormImg,
+    image: HOME_PRIMARY_IMAGES.application,
     imageAlt: 'Application form illustration',
     href: '/application',
     hoverTheme: 'orange' as const,
@@ -19,7 +18,7 @@ export const HOME_PRIMARY_CARDS = [
     id: 'varsity-calculator',
     title: 'Varsity Calculator',
     description: 'Estimate your points and see which programmes you might qualify for.',
-    image: varsityCalculatorImg,
+    image: HOME_PRIMARY_IMAGES.varsityCalculator,
     imageAlt: 'Varsity calculator illustration',
     href: '/varsity-calculator',
     hoverTheme: 'blue' as const,
