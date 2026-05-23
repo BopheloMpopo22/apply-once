@@ -1,4 +1,4 @@
-import applicationFormImg from '../assets/Application-form.png'
+import applicationFormImg from '../assets/application-logos.png'
 import varsityCalculatorImg from '../assets/Varsity-calculator.png'
 
 /** Home page card imagery — Unsplash (free to use with attribution in production). */

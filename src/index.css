@@ -3142,15 +3142,21 @@ body {
 
 .homePrimaryGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-5);
+  grid-template-columns: repeat(2, minmax(260px, 300px));
+  justify-content: center;
+  gap: var(--space-6);
+  max-width: 680px;
+  margin: 0 auto;
 }
 
 /* Primary entry cards — full-card link, centered art, hover fill */
 .homePrimaryCard {
   display: flex;
   flex-direction: column;
-  min-height: 340px;
+  min-height: 400px;
+  max-width: 300px;
+  width: 100%;
+  margin: 0 auto;
   border-radius: 22px;
   background: #fff;
   border: 2px solid var(--border);
@@ -3184,10 +3190,11 @@ body {
   align-items: center;
   justify-content: center;
   flex: 1;
-  min-height: 228px;
-  padding: 28px 32px 12px;
+  min-height: 268px;
+  padding: 20px 16px 10px;
   background: #f1f5f9;
   transition: background var(--transition);
+  overflow: hidden;
 }
 
 .homePrimaryCard:hover .homePrimaryCardArt {
@@ -3196,17 +3203,18 @@ body {
 
 .homePrimaryCardImg {
   width: auto;
-  max-width: 68%;
-  max-height: 188px;
+  max-width: 94%;
+  max-height: 232px;
   object-fit: contain;
   display: block;
   border-radius: 14px;
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
   transform-origin: center center;
+  will-change: transform;
 }
 
 .homePrimaryCard:hover .homePrimaryCardImg {
-  transform: scale(1.16);
+  transform: scale(1.26);
 }
 
 .homePrimaryCardBody {
@@ -3410,7 +3418,8 @@ body {
 
 @media (max-width: 900px) {
   .homePrimaryGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 300px);
+    max-width: 100%;
   }
 
   .homeSecondaryGrid3 {
