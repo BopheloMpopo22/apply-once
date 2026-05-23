@@ -3039,8 +3039,8 @@ body {
   width: min(118%, 520px);
   max-height: min(480px, 58vh);
   height: auto;
-  object-fit: cover;
-  object-position: center;
+  object-fit: contain;
+  object-position: left center;
   display: block;
   margin: 0;
   margin-right: auto;
