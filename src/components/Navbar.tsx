@@ -26,18 +26,20 @@ export function Navbar(props: { logo: ReactNode; links: NavLink[]; variant?: 'br
   return (
     <div className={shellClass}>
       <div className="container nav">
-        <Link className="navBrand" to="/" aria-label="Apply Once home">
-          {props.logo}
-          <span className="navBrandText">Apply Once</span>
-        </Link>
+        <div className="navLeft">
+          <Link className="navBrand" to="/" aria-label="Apply Once home">
+            {props.logo}
+            <span className="navBrandText">Apply Once</span>
+          </Link>
 
-        <nav className="navLinks" aria-label="Primary navigation">
-          {props.links.map((l) => (
-            <Link key={l.to} className="navLink" to={l.to}>
-              {l.label}
-            </Link>
-          ))}
-        </nav>
+          <nav className="navLinks" aria-label="Primary navigation">
+            {props.links.map((l) => (
+              <Link key={l.to} className="navLink" to={l.to}>
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
 
         <NavAuth />
       </div>

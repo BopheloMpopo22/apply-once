@@ -27,19 +27,16 @@ export function HomePage() {
           <div className="homeHeroPanel">
             <div className="homeHeroShine" aria-hidden />
             <div className="homeHeroContent">
-              <div className="heroBadge">Premium, simple, student-first</div>
-              <h1 className="heroTitle">Apply once. Get matched to bursaries &amp; opportunities.</h1>
-              <p className="heroSubtitle">
-                All your bursary and further‑education needs in one place. Create a profile once, then we help you apply
-                to opportunities that fit you.
-              </p>
+              <p className="homeHeroKicker">Built for high school</p>
+              <h1 className="heroTitle homeHeroTitle">Apply once. Go further.</h1>
+              <p className="heroSubtitle homeHeroSubtitle">One profile. Bursaries, varsity &amp; applications.</p>
 
-              <div className="heroCtas" id="get-started">
+              <div className="heroCtas homeHeroCtas" id="get-started">
                 <Link className="btn btnHeroPrimary" to="/register">
-                  Get Started
+                  Get started
                 </Link>
                 <Link className="btn btnHeroSecondary" to="/varsity-calculator">
-                  Try Varsity Calculator
+                  Varsity calculator
                 </Link>
               </div>
 

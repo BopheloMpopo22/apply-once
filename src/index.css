@@ -21,6 +21,9 @@
   --muted: rgba(15, 23, 42, 0.68);
   --blue: #2563eb;
   --blueDeep: #1d4ed8;
+  /* Home From College hero blues (homefromcollege.com) */
+  --hfc-blue: #2132e6;
+  --hfc-blue-bright: #009dfe;
   --green: #10b981;
   --greenDeep: #059669;
   --border: rgba(15, 23, 42, 0.12);
@@ -112,7 +115,20 @@ h4 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-5);
+  gap: var(--space-6);
+  width: 100%;
+}
+
+.navLeft {
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 4vw, 40px);
+  min-width: 0;
+  flex: 1;
+}
+
+.navLeft .navLinks {
+  margin-left: 0;
 }
 
 .navBrand {
@@ -1819,6 +1835,8 @@ body {
   gap: var(--space-3);
   flex-wrap: wrap;
   justify-content: flex-end;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .navSecondaryLink {
@@ -2889,9 +2907,9 @@ body {
 }
 
 .navShellLight .navAuth .btnPrimary {
-  background: linear-gradient(135deg, var(--blue) 0%, var(--blueDeep) 100%);
+  background: linear-gradient(95deg, var(--hfc-blue) 0%, var(--hfc-blue-bright) 100%);
   color: #fff;
-  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.28);
+  box-shadow: 0 10px 24px rgba(33, 50, 230, 0.28);
 }
 
 .navShellLight .navAuth .btnGhost {
@@ -2900,25 +2918,28 @@ body {
 }
 
 .homeHeroWrap {
-  padding: var(--space-6) 0 var(--space-4);
+  padding: var(--space-4) 0 var(--space-3);
 }
 
 .homeHeroPanel {
   position: relative;
   overflow: hidden;
-  border-radius: 28px;
-  padding: clamp(28px, 4vw, 48px) clamp(24px, 4vw, 44px);
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 38%, #1d4ed8 72%, #1e40af 100%);
-  box-shadow: 0 28px 70px rgba(29, 78, 216, 0.28);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 24px;
+  padding: clamp(22px, 3vw, 36px) clamp(22px, 3.5vw, 40px);
+  background-color: var(--hfc-blue);
+  background-image: linear-gradient(-45deg, var(--hfc-blue-bright) 0%, var(--hfc-blue) 100%);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .homeHeroShine {
   position: absolute;
-  inset: -40% -20%;
-  background: radial-gradient(ellipse 45% 55% at 30% 40%, rgba(255, 255, 255, 0.45), transparent 58%),
-    radial-gradient(ellipse 40% 50% at 75% 25%, rgba(16, 185, 129, 0.22), transparent 55%);
-  animation: homeHeroShineMove 9s ease-in-out infinite alternate;
+  inset: -50% -30%;
+  background:
+    radial-gradient(circle at 28% 42%, rgba(96, 192, 243, 0.55) 0%, transparent 50%),
+    radial-gradient(circle at 72% 28%, rgba(96, 192, 243, 0.4) 0%, transparent 48%),
+    radial-gradient(circle at 55% 75%, rgba(22, 113, 190, 0.35) 0%, transparent 45%);
+  animation: homeHeroShineMove 8s ease-in-out infinite alternate;
   pointer-events: none;
 }
 
@@ -2936,12 +2957,37 @@ body {
 .homeHeroContent {
   position: relative;
   z-index: 1;
-  max-width: 720px;
+  max-width: 640px;
 }
 
-.homeHeroPanel .heroBadge {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.22);
+.homeHeroKicker {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.homeHeroTitle {
+  margin: 10px 0 0;
+  font-size: clamp(32px, 4.2vw, 46px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: rgba(255, 255, 255, 0.98);
+}
+
+.homeHeroSubtitle {
+  margin: 12px 0 0;
+  font-size: clamp(15px, 1.8vw, 17px);
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.88);
+  max-width: 36ch;
+}
+
+.homeHeroCtas {
+  margin-top: var(--space-4);
+  gap: var(--space-2);
 }
 
 .homeHeroPanel .heroTitle,
@@ -2971,7 +3017,7 @@ body {
 }
 
 .homeHeroMarquee {
-  margin-top: var(--space-6);
+  margin-top: var(--space-4);
   overflow: hidden;
   mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
 }
