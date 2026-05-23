@@ -262,7 +262,7 @@ export function ProfilePage() {
   }
 
   return (
-    <div className="formShell">
+    <div className="formShell profileShell">
       <Navbar
         logo={<ApplyOnceLogo />}
         links={[
@@ -270,9 +270,9 @@ export function ProfilePage() {
           { label: 'Resources', to: '/#resources' },
         ]}
       />
-      <main className="formMain">
-        <div className="formCard formCardWide profileHub">
-          <div className="profileHubHero">
+      <main className="formMain profileMain">
+        <div className="profileHubCard">
+          <header className="profileHubHero">
             <div className="profileHeroAvatarWrap">
               <label className="profileHeroAvatarLabel">
                 <input
@@ -296,68 +296,130 @@ export function ProfilePage() {
               </label>
             </div>
             <div className="profileHeroText">
-              <h1 className="formTitle">{displayName}</h1>
+              <p className="profileHeroKicker">Your student hub</p>
+              <h1 className="formTitle profileHeroTitle">{displayName}</h1>
               <p className="formLead profileHeroEmail">{user?.email}</p>
               <p className="profileHeroHelp">
-                This is your student hub. We’ll message you here if we need anything (documents,
-                essays, or extra details) and keep you updated on bursaries we apply for.
+                You are building something big — one profile, many bursaries. We will guide you,
+                cheer you on, and message you here when we need anything extra.
               </p>
             </div>
-          </div>
+          </header>
 
           {error ? <div className="formError">{error}</div> : null}
 
-          <section className="profileSection" aria-labelledby="profile-application-heading">
-            <h2 id="profile-application-heading" className="profileSectionTitle">
-              Application progress
-            </h2>
-            {loading ? (
-              <p className="profileMuted">Loading…</p>
-            ) : (
-              <>
-                <div className="progressRow">
-                  <div
-                    className="progressBar"
-                    role="progressbar"
-                    aria-valuenow={completion.percent}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                  >
-                    <div className="progressFill" style={{ width: `${completion.percent}%` }} />
+          <div className="profileHubGrid">
+            <section
+              className="profilePanel profilePanelProgress"
+              aria-labelledby="profile-application-heading"
+            >
+              <div className="profilePanelHead">
+                <h2 id="profile-application-heading" className="profileSectionTitle">
+                  Application progress
+                </h2>
+                <p className="profilePanelTag">Keep going — you are closer than you think</p>
+              </div>
+              {loading ? (
+                <p className="profileMuted">Loading…</p>
+              ) : (
+                <>
+                  <div className="profileProgressRingWrap">
+                    <div
+                      className="profileProgressRing"
+                      style={{
+                        background: `conic-gradient(var(--hfc-blue) ${completion.percent}%, rgba(33, 50, 230, 0.12) 0)`,
+                      }}
+                      aria-hidden="true"
+                    >
+                      <span className="profileProgressRingValue">{completion.percent}%</span>
+                    </div>
+                    <div className="profileProgressCopy">
+                      <div className="progressRow profileProgressRow">
+                        <div
+                          className="progressBar profileProgressBar"
+                          role="progressbar"
+                          aria-valuenow={completion.percent}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                        >
+                          <div
+                            className="progressFill profileProgressFill"
+                            style={{ width: `${completion.percent}%` }}
+                          />
+                        </div>
+                      </div>
+                      <p className="profileSectionLead profileProgressLead">
+                        Step{' '}
+                        <strong>
+                          {draftStep + 1} of {STEP_LABELS.length}
+                        </strong>{' '}
+                        — <strong>{stepLabel}</strong>
+                      </p>
+                    </div>
                   </div>
-                  <div className="progressMeta">
-                    <strong>{completion.percent}%</strong> complete
+                  <div className="profileStepPills" aria-label="Application sections">
+                    {STEP_LABELS.map((label, i) => (
+                      <Link
+                        key={label}
+                        className={
+                          i === draftStep
+                            ? 'profileStepPill profileStepPillActive'
+                            : i < draftStep
+                              ? 'profileStepPill profileStepPillDone'
+                              : 'profileStepPill'
+                        }
+                        to="/application"
+                        title={`Go to ${label}`}
+                      >
+                        {i + 1}. {label}
+                      </Link>
+                    ))}
                   </div>
-                </div>
-                <p className="profileSectionLead">
-                  You’re on step{' '}
-                  <strong>
-                    {draftStep + 1} of {STEP_LABELS.length}
-                  </strong>{' '}
-                  — <strong>{stepLabel}</strong>. Finish once and reuse your answers everywhere you
-                  apply.
-                </p>
-                {completion.missing.length ? (
-                  <div className="tipBox">
-                    <strong>Next to fill in</strong>
-                    <ul>
-                      {completion.missing.slice(0, 6).map((m) => (
-                        <li key={m}>{m}</li>
-                      ))}
-                    </ul>
+                  {completion.missing.length ? (
+                    <div className="tipBox profileTipBox">
+                      <strong>Next to fill in</strong>
+                      <ul>
+                        {completion.missing.slice(0, 5).map((m) => (
+                          <li key={m}>{m}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                  <div className="profileActionsRow">
+                    <Link className="btn btnBrand btnSmall" to="/application">
+                      Continue application
+                    </Link>
+                    <a className="btn btnOutline btnSmall" href="/api/application/pdf">
+                      Download PDF
+                    </a>
                   </div>
-                ) : null}
+                </>
+              )}
+            </section>
+
+            <section className="profilePanel profilePanelChat" aria-labelledby="profile-chat-heading">
+              <div className="profilePanelHead profilePanelHeadChat">
+                <h2 id="profile-chat-heading" className="profileSectionTitle">
+                  Chat with Apply Once
+                </h2>
+                <p className="profilePanelTag">We are on your side — ask anything</p>
+              </div>
+              <ChatThread messages={chat} role="student" />
+              <form className="chatComposer profileChatComposer" onSubmit={(ev) => void onChatSend(ev)}>
+                <textarea
+                  className="chatInput profileChatInput"
+                  placeholder="Ask a question, share an update, or tell us which bursaries excite you…"
+                  value={chatDraft}
+                  onChange={(e) => setChatDraft(e.target.value)}
+                />
                 <div className="profileActionsRow">
-                  <Link className="btn btnDark btnSmall" to="/application">
-                    Continue application
-                  </Link>
-                  <a className="btn btnOutline btnSmall" href="/api/application/pdf">
-                    Download PDF
-                  </a>
+                  <button type="submit" className="btn btnBrand btnSmall" disabled={chatBusy}>
+                    {chatBusy ? 'Sending…' : 'Send message'}
+                  </button>
                 </div>
-              </>
-            )}
-          </section>
+              </form>
+            </section>
+          </div>
 
           <section className="profileSection" aria-labelledby="profile-status-heading">
             <h2 id="profile-status-heading" className="profileSectionTitle">
@@ -440,7 +502,7 @@ export function ProfilePage() {
                             <div className="formActions">
                               <button
                                 type="submit"
-                                className="btn btnDark btnSmall"
+                                className="btn btnBrand btnSmall"
                                 disabled={replyBusyId === item.id}
                               >
                                 {replyBusyId === item.id ? 'Sending…' : 'Send reply'}
@@ -459,29 +521,6 @@ export function ProfilePage() {
             )}
           </section>
 
-          <section className="profileSection" aria-labelledby="profile-chat-heading">
-            <h2 id="profile-chat-heading" className="profileSectionTitle">
-              Private chat with Apply Once
-            </h2>
-            <p className="profileSectionLead">
-              Send a message anytime. Use this space to ask questions, share missing information, or
-              tell us which bursaries you want to apply for.
-            </p>
-            <ChatThread messages={chat} role="student" />
-            <form className="chatComposer" onSubmit={(ev) => void onChatSend(ev)}>
-              <textarea
-                className="chatInput"
-                placeholder="Type your message…"
-                value={chatDraft}
-                onChange={(e) => setChatDraft(e.target.value)}
-              />
-              <div className="profileActionsRow">
-                <button type="submit" className="btn btnDark btnSmall" disabled={chatBusy}>
-                  {chatBusy ? 'Sending…' : 'Send'}
-                </button>
-              </div>
-            </form>
-          </section>
         </div>
       </main>
     </div>

@@ -2073,12 +2073,50 @@ body {
 
 .chatBubbleSelf {
   margin-left: auto;
-  background: rgba(37, 99, 235, 0.1);
-  border-color: rgba(37, 99, 235, 0.18);
+  background: linear-gradient(135deg, rgba(33, 50, 230, 0.14), rgba(0, 157, 254, 0.12));
+  border-color: rgba(33, 50, 230, 0.28);
 }
 
 .chatBubbleOther {
   margin-right: auto;
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(33, 50, 230, 0.14);
+}
+
+.chatSender {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--hfc-blue);
+  margin-bottom: 4px;
+}
+
+.chatBubbleSelf .chatSender {
+  color: rgba(33, 50, 230, 0.85);
+}
+
+.chatEmptyState {
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(145deg, rgba(33, 50, 230, 0.06), rgba(0, 157, 254, 0.05));
+  border: 1px dashed rgba(33, 50, 230, 0.22);
+}
+
+.chatEmptyTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.9);
+}
+
+.chatEmptyText {
+  margin: var(--space-2) 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(15, 23, 42, 0.62);
 }
 
 .chatBody {
@@ -2176,6 +2214,23 @@ body {
 .btnDark:hover {
   transform: translateY(-1px);
   filter: brightness(1.05);
+}
+
+.btnBrand {
+  border: none;
+  color: #fff;
+  background: linear-gradient(95deg, var(--hfc-blue) 0%, var(--hfc-blue-bright) 100%);
+  box-shadow: 0 8px 24px rgba(33, 50, 230, 0.28);
+}
+
+.btnBrand:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(33, 50, 230, 0.34);
+}
+
+.btnBrand:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .btnOutline {
@@ -2822,6 +2877,10 @@ body {
 
 .profileActionsRow {
   margin-top: var(--space-4);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
 }
 
 .profileCard {
@@ -2912,6 +2971,257 @@ body {
   white-space: pre-wrap;
   line-height: 1.55;
   color: rgba(15, 23, 42, 0.82);
+}
+
+/* Profile hub — wide layout, progress + chat grid */
+.profileShell {
+  background: radial-gradient(900px 520px at 10% 0%, rgba(33, 50, 230, 0.1), transparent 55%),
+    radial-gradient(700px 480px at 95% 8%, rgba(0, 157, 254, 0.08), transparent 52%),
+    var(--bg);
+}
+
+.profileMain {
+  width: 100%;
+  justify-content: center;
+  padding-left: max(var(--space-4), 2vw);
+  padding-right: max(var(--space-4), 2vw);
+}
+
+.profileHubCard {
+  width: min(96vw, 1280px);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(33, 50, 230, 0.14);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-7) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
+
+.profileHeroKicker {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hfc-blue);
+}
+
+.profileHeroTitle {
+  font-size: clamp(28px, 4vw, 36px);
+  background: linear-gradient(95deg, var(--hfc-blue), var(--hfc-blue-bright));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.profileHubGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: var(--space-6);
+  align-items: stretch;
+}
+
+.profilePanel {
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(33, 50, 230, 0.14);
+  background: rgba(255, 255, 255, 0.92);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-height: 0;
+}
+
+.profilePanelHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.profilePanelHeadChat {
+  padding-bottom: var(--space-1);
+  border-bottom: 1px solid rgba(33, 50, 230, 0.1);
+}
+
+.profilePanelTag {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(33, 50, 230, 0.82);
+}
+
+.profilePanelChat {
+  background: linear-gradient(160deg, rgba(33, 50, 230, 0.04), rgba(0, 157, 254, 0.05));
+}
+
+.profilePanelChat .chatThread {
+  flex: 1;
+  min-height: 280px;
+  max-height: 420px;
+  margin-top: 0;
+  border-color: rgba(33, 50, 230, 0.16);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.profilePanelChat .chatComposer {
+  margin-top: auto;
+}
+
+.profileChatInput {
+  min-height: 72px;
+  border-color: rgba(33, 50, 230, 0.18);
+}
+
+.profileChatInput:focus {
+  outline: 2px solid rgba(33, 50, 230, 0.25);
+  outline-offset: 1px;
+}
+
+.profileProgressRingWrap {
+  display: flex;
+  gap: var(--space-5);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.profileProgressRing {
+  width: 88px;
+  height: 88px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 6px rgba(255, 255, 255, 0.96);
+}
+
+.profileProgressRingValue {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--hfc-blue);
+}
+
+.profileProgressCopy {
+  flex: 1;
+  min-width: min(220px, 100%);
+}
+
+.profileProgressRow {
+  margin-top: 0;
+}
+
+.profileProgressBar {
+  flex: 1;
+}
+
+.profileProgressFill {
+  background: linear-gradient(90deg, var(--hfc-blue), var(--hfc-blue-bright));
+}
+
+.profileProgressLead {
+  margin-top: var(--space-2);
+}
+
+.profileStepPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.profileStepPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  color: rgba(15, 23, 42, 0.72);
+  transition: transform var(--transition), border-color var(--transition), background var(--transition);
+}
+
+.profileStepPill:hover {
+  transform: translateY(-1px);
+  border-color: rgba(33, 50, 230, 0.35);
+  color: var(--hfc-blue);
+}
+
+.profileStepPillActive {
+  border-color: rgba(33, 50, 230, 0.45);
+  background: linear-gradient(95deg, rgba(33, 50, 230, 0.14), rgba(0, 157, 254, 0.1));
+  color: var(--hfc-blue);
+}
+
+.profileStepPillDone {
+  border-color: rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.08);
+  color: rgba(5, 150, 105, 0.95);
+}
+
+.profileTipBox {
+  border-color: rgba(33, 50, 230, 0.18);
+  background: linear-gradient(135deg, rgba(33, 50, 230, 0.06), rgba(0, 157, 254, 0.04));
+}
+
+/* Auth pages */
+.authShell {
+  background: radial-gradient(800px 480px at 15% 0%, rgba(33, 50, 230, 0.12), transparent 55%),
+    radial-gradient(640px 420px at 90% 10%, rgba(0, 157, 254, 0.08), transparent 52%),
+    var(--bg);
+}
+
+.authCard {
+  width: min(460px, 100%);
+  border-color: rgba(33, 50, 230, 0.14);
+}
+
+.authKicker {
+  margin: 0 0 var(--space-2);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hfc-blue);
+}
+
+.authTitle {
+  font-size: clamp(26px, 4vw, 32px);
+  background: linear-gradient(95deg, var(--hfc-blue), var(--hfc-blue-bright));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.authLead {
+  color: rgba(15, 23, 42, 0.68);
+  line-height: 1.55;
+}
+
+@media (max-width: 960px) {
+  .profileHubGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .profileHubCard {
+    padding: var(--space-6) var(--space-5);
+  }
+}
+
+@media (max-width: 640px) {
+  .profileHubCard {
+    width: min(96vw, 100%);
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .profileStepPill {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
 }
 
 /* Admin dashboard (/admin) */

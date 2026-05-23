@@ -44,7 +44,7 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="formShell">
+    <div className="formShell authShell">
       <Navbar
         logo={<ApplyOnceLogo />}
         links={[
@@ -53,9 +53,12 @@ export function RegisterPage() {
         ]}
       />
       <main className="formMain">
-        <div className="formCard">
-          <h1 className="formTitle">Create or open your account</h1>
-          <p className="formLead">Create an account with email/password, or use Google/Facebook.</p>
+        <div className="formCard authCard">
+          <p className="authKicker">Start your journey</p>
+          <h1 className="formTitle authTitle">Create your Apply Once account</h1>
+          <p className="formLead authLead">
+            One profile, many bursaries. Sign up in minutes and we will guide you every step of the way.
+          </p>
           {error ? <div className="formError">{error}</div> : null}
           <div className="formFields">
             <form className="formFields" onSubmit={onEmailPassword}>
@@ -105,7 +108,7 @@ export function RegisterPage() {
                 />
               </div>
               <div className="formActions">
-                <button type="submit" className="btn btnDark" disabled={busy || !email.trim()}>
+                <button type="submit" className="btn btnBrand" disabled={busy || !email.trim()}>
                   {busy ? 'Creating…' : 'Create account'}
                 </button>
                 <Link className="btnOutline" to="/login">

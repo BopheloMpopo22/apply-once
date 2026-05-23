@@ -7,9 +7,17 @@ export type ChatMessage = {
   createdAt: string
 }
 
-export function ChatThread(props: { messages: ChatMessage[]; role: 'student' | 'admin' }) {
-  const ref = useRef<HTMLDivElement | null>(null)
+function senderLabel(sender: string, role: 'student' | 'admin') {
+  if (sender === role) return 'You'
+  return role === 'student' ? 'Apply Once team' : 'Student'
+}
 
+export function ChatThread(props: {
+  messages: ChatMessage[]
+  role: 'student' | 'admin'
+  emptyHint?: string
+}) {
+  const ref = useRef<HTMLDivElement | null>(null)
   const items = useMemo(() => props.messages ?? [], [props.messages])
 
   useEffect(() => {
@@ -21,23 +29,28 @@ export function ChatThread(props: { messages: ChatMessage[]; role: 'student' | '
   return (
     <div className="chatThread" ref={ref}>
       {items.length === 0 ? (
-        <p className="profileMuted">No messages yet.</p>
+        <div className="chatEmptyState">
+          <p className="chatEmptyTitle">Start the conversation</p>
+          <p className="chatEmptyText">
+            {props.emptyHint ??
+              'Ask us anything — missing documents, bursary questions, or where you are stuck. We are here to help.'}
+          </p>
+        </div>
       ) : (
-        items.map((m) => (
-          <div
-            key={m.id}
-            className={
-              m.sender === props.role ? 'chatBubble chatBubbleSelf' : 'chatBubble chatBubbleOther'
-            }
-          >
-            <div className="chatBody">{m.body}</div>
-            <div className="chatMeta">
-              {m.sender} · {new Date(m.createdAt).toLocaleString()}
+        items.map((m) => {
+          const isSelf = m.sender === props.role
+          return (
+            <div
+              key={m.id}
+              className={isSelf ? 'chatBubble chatBubbleSelf' : 'chatBubble chatBubbleOther'}
+            >
+              <div className="chatSender">{senderLabel(m.sender, props.role)}</div>
+              <div className="chatBody">{m.body}</div>
+              <div className="chatMeta">{new Date(m.createdAt).toLocaleString()}</div>
             </div>
-          </div>
-        ))
+          )
+        })
       )}
     </div>
   )
 }
-

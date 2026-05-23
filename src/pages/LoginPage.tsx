@@ -46,7 +46,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="formShell">
+    <div className="formShell authShell">
       <Navbar
         logo={<ApplyOnceLogo />}
         links={[
@@ -55,9 +55,12 @@ export function LoginPage() {
         ]}
       />
       <main className="formMain">
-        <div className="formCard">
-          <h1 className="formTitle">Sign in</h1>
-          <p className="formLead">Sign in with email/password, or use Google/Facebook.</p>
+        <div className="formCard authCard">
+          <p className="authKicker">Welcome back</p>
+          <h1 className="formTitle authTitle">Sign in to Apply Once</h1>
+          <p className="formLead authLead">
+            Pick up your application, check messages, and chat with our team — all in one place.
+          </p>
           {error ? <div className="formError">{error}</div> : null}
           <div className="formFields">
             <form className="formFields" onSubmit={onEmailPassword}>
@@ -87,7 +90,7 @@ export function LoginPage() {
                 />
               </div>
               <div className="formActions">
-                <button type="submit" className="btn btnDark" disabled={busy || !email.trim()}>
+                <button type="submit" className="btn btnBrand" disabled={busy || !email.trim()}>
                   {busy ? 'Signing in…' : 'Sign in'}
                 </button>
               </div>
