@@ -1,10 +1,18 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { api, uploadDocument } from '../api/client'
+import { ApplicationNavModePicker, type ApplicationNavMode } from '../components/application/ApplicationNavModePicker'
+import { ApplicationStepActions } from '../components/application/ApplicationStepActions'
+import { BursaryLogoMarquee } from '../components/application/BursaryLogoMarquee'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { Navbar } from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
 import { computeCompletion } from '../utils/applicationCompletion'
+
+type ApplicationUiMeta = {
+  navigationMode?: ApplicationNavMode
+  navigationModeChosen?: boolean
+}
 
 type Profile = {
   firstName?: string | null
@@ -159,6 +167,9 @@ export function ApplicationPage() {
   const [saveBusy, setSaveBusy] = useState(false)
   const [docCategory, setDocCategory] = useState('id_proof')
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null)
+  const [navMode, setNavMode] = useState<ApplicationNavMode>('horizontal')
+  const [navModeChosen, setNavModeChosen] = useState(false)
+  const [showModePicker, setShowModePicker] = useState(false)
 
   const loadDocs = useCallback(async () => {
     const list = await api<
@@ -175,23 +186,28 @@ export function ApplicationPage() {
       try {
         const [p, d] = await Promise.all([
           api<Profile>('/api/profile'),
-          api<{ stepIndex: number; payload: ApplicationPayload }>('/api/application'),
+          api<{ stepIndex: number; payload: ApplicationPayload & { _meta?: ApplicationUiMeta } }>(
+            '/api/application',
+          ),
         ])
         if (cancelled) return
+        const { _meta, ...payloadRest } = d.payload ?? {}
         setProfile({
           ...p,
           disability: Boolean(p.disability),
         })
         setStep(Math.min(Math.max(d.stepIndex ?? 0, 0), STEP_LABELS.length - 1))
+        setNavMode(_meta?.navigationMode ?? 'horizontal')
+        setNavModeChosen(Boolean(_meta?.navigationModeChosen))
         setPayload({
           ...emptyPayload(),
-          ...d.payload,
-          academics: { ...emptyPayload().academics, ...(d.payload?.academics ?? {}) },
-          studyPlan: { ...emptyPayload().studyPlan, ...(d.payload?.studyPlan ?? {}) },
-          household: { ...emptyPayload().household, ...(d.payload?.household ?? {}) },
-          financial: { ...emptyPayload().financial, ...(d.payload?.financial ?? {}) },
-          fit: { ...emptyPayload().fit, ...(d.payload?.fit ?? {}) },
-          compliance: { ...emptyPayload().compliance, ...(d.payload?.compliance ?? {}) },
+          ...payloadRest,
+          academics: { ...emptyPayload().academics, ...(payloadRest?.academics ?? {}) },
+          studyPlan: { ...emptyPayload().studyPlan, ...(payloadRest?.studyPlan ?? {}) },
+          household: { ...emptyPayload().household, ...(payloadRest?.household ?? {}) },
+          financial: { ...emptyPayload().financial, ...(payloadRest?.financial ?? {}) },
+          fit: { ...emptyPayload().fit, ...(payloadRest?.fit ?? {}) },
+          compliance: { ...emptyPayload().compliance, ...(payloadRest?.compliance ?? {}) },
         })
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Could not load')
@@ -206,24 +222,52 @@ export function ApplicationPage() {
   }, [])
 
   useEffect(() => {
-    if (step === STEP_LABELS.length - 1 && !loading) {
+    if (!loading && (step === STEP_LABELS.length - 1 || navMode === 'vertical')) {
       loadDocs().catch(() => {})
     }
-  }, [step, loading, loadDocs])
+  }, [step, loading, loadDocs, navMode])
+
+  useEffect(() => {
+    if (navMode !== 'vertical' || loading) return
+    const sections = STEP_LABELS.map((_, i) => document.getElementById(`app-step-${i}`)).filter(
+      Boolean,
+    ) as HTMLElement[]
+    if (!sections.length) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const best = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+        if (!best?.target.id) return
+        const idx = Number(best.target.id.replace('app-step-', ''))
+        if (!Number.isNaN(idx)) setStep(idx)
+      },
+      { rootMargin: '-18% 0px -52% 0px', threshold: [0.12, 0.35, 0.6] },
+    )
+
+    sections.forEach((el) => observer.observe(el))
+    return () => observer.disconnect()
+  }, [navMode, loading])
+
+  function payloadForSave() {
+    return {
+      ...payload,
+      _meta: { navigationMode: navMode, navigationModeChosen: navModeChosen } satisfies ApplicationUiMeta,
+    }
+  }
 
   async function persist(nextStep: number) {
     setSaveBusy(true)
     setError(null)
     try {
-      if (step === 0) {
-        await api('/api/profile', {
-          method: 'PUT',
-          json: profile,
-        })
-      }
+      await api('/api/profile', {
+        method: 'PUT',
+        json: profile,
+      })
       await api('/api/application', {
         method: 'PUT',
-        json: { payload, stepIndex: nextStep },
+        json: { payload: payloadForSave(), stepIndex: nextStep },
       })
       setStep(nextStep)
       setLastSavedAt(new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }))
@@ -243,6 +287,59 @@ export function ApplicationPage() {
   async function onBack() {
     const prev = Math.max(step - 1, 0)
     await persist(prev)
+  }
+
+  async function chooseNavigationMode(mode: ApplicationNavMode) {
+    setNavMode(mode)
+    setNavModeChosen(true)
+    setShowModePicker(false)
+    setSaveBusy(true)
+    setError(null)
+    try {
+      await api('/api/profile', { method: 'PUT', json: profile })
+      await api('/api/application', {
+        method: 'PUT',
+        json: {
+          payload: { ...payload, _meta: { navigationMode: mode, navigationModeChosen: true } },
+          stepIndex: step,
+        },
+      })
+      setLastSavedAt(new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not save preference')
+    } finally {
+      setSaveBusy(false)
+    }
+  }
+
+  function scrollToStep(index: number) {
+    setStep(index)
+    document.getElementById(`app-step-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  async function onSaveSection(sectionIndex: number, advance: boolean) {
+    const isLast = sectionIndex >= STEP_LABELS.length - 1
+    const next = advance && !isLast ? sectionIndex + 1 : sectionIndex
+    await persist(next)
+    if (advance && navMode === 'vertical' && !isLast) {
+      requestAnimationFrame(() => scrollToStep(next))
+    }
+  }
+
+  const showStep = (index: number) => navMode === 'vertical' || step === index
+
+  function renderVerticalStepActions(stepIndex: number) {
+    if (navMode !== 'vertical') return null
+    const isLast = stepIndex === STEP_LABELS.length - 1
+    return (
+      <ApplicationStepActions
+        stepIndex={stepIndex}
+        isLast={isLast}
+        saveBusy={saveBusy}
+        onBack={stepIndex > 0 ? () => void onSaveSection(stepIndex - 1, false) : undefined}
+        onContinue={() => void onSaveSection(stepIndex, !isLast)}
+      />
+    )
   }
 
   async function onUpload(file: File | null, category: string) {
@@ -272,7 +369,7 @@ export function ApplicationPage() {
   }
 
   return (
-    <div className="formShell">
+    <div className="formShell appFormShell">
       <Navbar
         logo={<ApplyOnceLogo />}
         links={[
@@ -281,10 +378,12 @@ export function ApplicationPage() {
         ]}
       />
       <main className="formMain">
-        <div className="formCard formCardWide">
-          <h1 className="formTitle">Your application</h1>
-          <p className="formLead">
-            Step-by-step profile and bursary answers — saved when you move between steps.
+        <div className="formCard formCardWide appFormCard">
+          <BursaryLogoMarquee />
+          <h1 className="formTitle appFormTitle">South Africa Bursary Application</h1>
+          <p className="formLead appFormLead">
+            Apply to multiple bursaries with one form. Complete your details below and we&apos;ll match you to
+            bursaries you qualify for.
           </p>
           <div className="progressRow">
             <div className="progressBar" role="progressbar" aria-valuenow={completion.percent} aria-valuemin={0} aria-valuemax={100}>
@@ -296,27 +395,68 @@ export function ApplicationPage() {
           </div>
           {error ? <div className="formError">{error}</div> : null}
 
-          <div className="wizardBar" role="tablist" aria-label="Application steps">
-            {STEP_LABELS.map((label, i) => (
-              <button
-                key={label}
-                type="button"
-                role="tab"
-                aria-selected={i === step}
-                className={i === step ? 'wizardStep wizardStepActive' : 'wizardStep'}
-                onClick={() => !loading && !saveBusy && setStep(i)}
-              >
-                {i + 1}. {label}
-              </button>
-            ))}
-          </div>
-
           {loading ? (
             <p className="formLead">Loading…</p>
+          ) : !navModeChosen || showModePicker ? (
+            <ApplicationNavModePicker onChoose={(mode) => void chooseNavigationMode(mode)} disabled={saveBusy} />
           ) : (
-            <form className="formFields" onSubmit={onNext}>
-              {step === 0 ? (
-                <>
+            <>
+              <div className="appNavModeToolbar">
+                <span>
+                  {navMode === 'horizontal'
+                    ? 'Page-by-page mode — use Back and Save & continue.'
+                    : 'Scroll mode — all sections visible; use the sidebar to jump.'}
+                </span>
+                <button type="button" className="appNavModeSwitch" onClick={() => setShowModePicker(true)}>
+                  Change navigation style
+                </button>
+              </div>
+
+              <div className={`appFormLayout ${navMode === 'vertical' ? 'appFormLayoutVertical' : ''}`}>
+                {navMode === 'vertical' ? (
+                  <aside className="appFormSidebar" aria-label="Application sections">
+                    <nav className="appSidebarNav">
+                      {STEP_LABELS.map((label, i) => (
+                        <button
+                          key={label}
+                          type="button"
+                          className={i === step ? 'appSidebarStep appSidebarStepActive' : 'appSidebarStep'}
+                          onClick={() => !saveBusy && scrollToStep(i)}
+                        >
+                          {i + 1}. {label}
+                        </button>
+                      ))}
+                    </nav>
+                  </aside>
+                ) : null}
+
+                <div className="appFormContent">
+                  {navMode === 'horizontal' ? (
+                    <div className="wizardBar" role="tablist" aria-label="Application steps">
+                      {STEP_LABELS.map((label, i) => (
+                        <button
+                          key={label}
+                          type="button"
+                          role="tab"
+                          aria-selected={i === step}
+                          className={i === step ? 'wizardStep wizardStepActive' : 'wizardStep'}
+                          onClick={() => !saveBusy && setStep(i)}
+                        >
+                          {i + 1}. {label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  <form className="formFields" onSubmit={navMode === 'horizontal' ? onNext : (e) => e.preventDefault()}>
+              {showStep(0) ? (
+                <section id="app-step-0" className="appStepSection">
+                  {navMode === 'vertical' ? (
+                    <h2 className="appSectionTitle">
+                      <span className="appSectionNum">1</span>
+                      {STEP_LABELS[0]}
+                    </h2>
+                  ) : null}
                   <div className="fieldRow">
                     <div className="field">
                       <label htmlFor="fn">First name</label>
@@ -432,11 +572,18 @@ export function ApplicationPage() {
                       onChange={(e) => setProfile({ ...profile, postalAddress: e.target.value })}
                     />
                   </div>
-                </>
+                  {renderVerticalStepActions(0)}
+                </section>
               ) : null}
 
-              {step === 1 ? (
-                <>
+              {showStep(1) ? (
+                <section id="app-step-1" className="appStepSection">
+                  {navMode === 'vertical' ? (
+                    <h2 className="appSectionTitle">
+                      <span className="appSectionNum">2</span>
+                      {STEP_LABELS[1]}
+                    </h2>
+                  ) : null}
                   <div className="tipBox">
                     <strong>Tips</strong>
                     <ul>
@@ -603,11 +750,18 @@ export function ApplicationPage() {
                       <span className="fieldHelp">Include leadership, awards, Olympiads, sport, debate, volunteering.</span>
                     </div>
                   </div>
-                </>
+                  {renderVerticalStepActions(1)}
+                </section>
               ) : null}
 
-              {step === 2 ? (
-                <>
+              {showStep(2) ? (
+                <section id="app-step-2" className="appStepSection">
+                  {navMode === 'vertical' ? (
+                    <h2 className="appSectionTitle">
+                      <span className="appSectionNum">3</span>
+                      {STEP_LABELS[2]}
+                    </h2>
+                  ) : null}
                   <div className="tipBox">
                     <strong>Tips</strong>
                     <ul>
@@ -665,11 +819,18 @@ export function ApplicationPage() {
                       }
                     />
                   </div>
-                </>
+                  {renderVerticalStepActions(2)}
+                </section>
               ) : null}
 
-              {step === 3 ? (
-                <>
+              {showStep(3) ? (
+                <section id="app-step-3" className="appStepSection">
+                  {navMode === 'vertical' ? (
+                    <h2 className="appSectionTitle">
+                      <span className="appSectionNum">4</span>
+                      {STEP_LABELS[3]}
+                    </h2>
+                  ) : null}
                   <div className="field">
                     <label htmlFor="gname">Parent / guardian full name</label>
                     <input
@@ -754,11 +915,18 @@ export function ApplicationPage() {
                       }
                     />
                   </div>
-                </>
+                  {renderVerticalStepActions(3)}
+                </section>
               ) : null}
 
-              {step === 4 ? (
-                <>
+              {showStep(4) ? (
+                <section id="app-step-4" className="appStepSection">
+                  {navMode === 'vertical' ? (
+                    <h2 className="appSectionTitle">
+                      <span className="appSectionNum">5</span>
+                      {STEP_LABELS[4]}
+                    </h2>
+                  ) : null}
                   <div className="tipBox">
                     <strong>Tips</strong>
                     <ul>
@@ -847,11 +1015,18 @@ export function ApplicationPage() {
                       <option value="unknown">Not sure</option>
                     </select>
                   </div>
-                </>
+                  {renderVerticalStepActions(4)}
+                </section>
               ) : null}
 
-              {step === 5 ? (
-                <>
+              {showStep(5) ? (
+                <section id="app-step-5" className="appStepSection">
+                  {navMode === 'vertical' ? (
+                    <h2 className="appSectionTitle">
+                      <span className="appSectionNum">6</span>
+                      {STEP_LABELS[5]}
+                    </h2>
+                  ) : null}
                   <div className="tipBox">
                     <strong>Tips</strong>
                     <ul>
@@ -888,11 +1063,18 @@ export function ApplicationPage() {
                       }
                     />
                   </div>
-                </>
+                  {renderVerticalStepActions(5)}
+                </section>
               ) : null}
 
-              {step === 6 ? (
-                <>
+              {showStep(6) ? (
+                <section id="app-step-6" className="appStepSection">
+                  {navMode === 'vertical' ? (
+                    <h2 className="appSectionTitle">
+                      <span className="appSectionNum">7</span>
+                      {STEP_LABELS[6]}
+                    </h2>
+                  ) : null}
                   <div className="tipBox">
                     <strong>Note</strong>
                     <ul>
@@ -929,11 +1111,18 @@ export function ApplicationPage() {
                       I declare the information I provided is truthful to the best of my knowledge
                     </label>
                   </div>
-                </>
+                  {renderVerticalStepActions(6)}
+                </section>
               ) : null}
 
-              {step === 7 ? (
-                <>
+              {showStep(7) ? (
+                <section id="app-step-7" className="appStepSection">
+                  {navMode === 'vertical' ? (
+                    <h2 className="appSectionTitle">
+                      <span className="appSectionNum">8</span>
+                      {STEP_LABELS[7]}
+                    </h2>
+                  ) : null}
                   <div className="field">
                     <label htmlFor="cat">Document type</label>
                     <select
@@ -988,32 +1177,38 @@ export function ApplicationPage() {
                       ))
                     )}
                   </div>
-                </>
+                  {renderVerticalStepActions(7)}
+                </section>
               ) : null}
 
-              <div className="formActions">
-                {step > 0 ? (
-                  <button type="button" className="btn btnOutline" onClick={() => void onBack()} disabled={saveBusy}>
-                    Back
-                  </button>
-                ) : (
-                  <Link className="btn btnOutline" to="/">
-                    Home
-                  </Link>
-                )}
-                <div className="formActionsRight">
-                  {step < STEP_LABELS.length - 1 ? (
-                    <button type="submit" className="btn btnDark" disabled={saveBusy}>
-                      {saveBusy ? 'Saving…' : 'Save & continue'}
+              {navMode === 'horizontal' ? (
+                <div className="formActions">
+                  {step > 0 ? (
+                    <button type="button" className="btn btnOutline appBtn" onClick={() => void onBack()} disabled={saveBusy}>
+                      Back
                     </button>
                   ) : (
-                    <button type="submit" className="btn btnDark" disabled={saveBusy}>
-                      {saveBusy ? 'Saving…' : 'Finish & save'}
-                    </button>
+                    <Link className="btn btnOutline appBtn" to="/">
+                      Home
+                    </Link>
                   )}
+                  <div className="formActionsRight">
+                    {step < STEP_LABELS.length - 1 ? (
+                      <button type="submit" className="btn btnDark appBtn" disabled={saveBusy}>
+                        {saveBusy ? 'Saving…' : 'Save & continue'}
+                      </button>
+                    ) : (
+                      <button type="submit" className="btn btnDark appBtn" disabled={saveBusy}>
+                        {saveBusy ? 'Saving…' : 'Finish & save'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ) : null}
+            </form>
                 </div>
               </div>
-            </form>
+            </>
           )}
         </div>
       </main>
