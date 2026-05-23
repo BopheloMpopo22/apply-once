@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
+import { ScrollToTop } from './components/ScrollToTop'
 import { ApplicationGate, ApplicationPage } from './pages/ApplicationPage'
 import { AuthCallbackPage } from './pages/AuthCallbackPage'
 import { HomePage } from './pages/HomePage'
@@ -12,7 +13,9 @@ import { VarsityProspectusHubPage } from './pages/VarsityProspectusHubPage'
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/varsity-calculator" element={<VarsityCalculatorPage />} />
@@ -38,5 +41,6 @@ export default function App() {
         }
       />
     </Routes>
+    </>
   )
 }

@@ -3150,6 +3150,7 @@ body {
 .homePrimaryCard {
   display: flex;
   flex-direction: column;
+  min-height: 340px;
   border-radius: 22px;
   background: #fff;
   border: 2px solid var(--border);
@@ -3182,8 +3183,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 168px;
-  padding: 24px 28px 8px;
+  flex: 1;
+  min-height: 228px;
+  padding: 28px 32px 12px;
   background: #f1f5f9;
   transition: background var(--transition);
 }
@@ -3194,16 +3196,17 @@ body {
 
 .homePrimaryCardImg {
   width: auto;
-  max-width: 52%;
-  max-height: 132px;
+  max-width: 68%;
+  max-height: 188px;
   object-fit: contain;
   display: block;
   border-radius: 14px;
-  transition: transform var(--transition);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: center center;
 }
 
 .homePrimaryCard:hover .homePrimaryCardImg {
-  transform: scale(1.03);
+  transform: scale(1.16);
 }
 
 .homePrimaryCardBody {

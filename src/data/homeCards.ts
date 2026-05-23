@@ -7,15 +7,6 @@ const u = (id: string, w = 800) =>
 
 export const HOME_PRIMARY_CARDS = [
   {
-    id: 'varsity-calculator',
-    title: 'Varsity Calculator',
-    description: 'Estimate your points and see which programmes you might qualify for.',
-    image: varsityCalculatorImg,
-    imageAlt: 'Varsity calculator illustration',
-    href: '/varsity-calculator',
-    hoverTheme: 'blue' as const,
-  },
-  {
     id: 'application',
     title: 'Application Form',
     description: 'Complete your application and allow us to apply to bursaries matched to you.',
@@ -23,6 +14,15 @@ export const HOME_PRIMARY_CARDS = [
     imageAlt: 'Application form illustration',
     href: '/application',
     hoverTheme: 'orange' as const,
+  },
+  {
+    id: 'varsity-calculator',
+    title: 'Varsity Calculator',
+    description: 'Estimate your points and see which programmes you might qualify for.',
+    image: varsityCalculatorImg,
+    imageAlt: 'Varsity calculator illustration',
+    href: '/varsity-calculator',
+    hoverTheme: 'blue' as const,
   },
 ]
 

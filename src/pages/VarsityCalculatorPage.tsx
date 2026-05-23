@@ -127,6 +127,10 @@ export function VarsityCalculatorPage() {
   }, [])
 
   useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
+  useEffect(() => {
     void loadCatalogue(catalogueYear)
   }, [catalogueYear, loadCatalogue])
 
