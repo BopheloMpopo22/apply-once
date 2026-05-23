@@ -2230,7 +2230,94 @@ body {
 }
 
 .appFormCard {
-  width: min(1040px, 100%);
+  width: min(100%, 1180px);
+}
+
+.appFormMain {
+  display: grid;
+  grid-template-columns: minmax(0, 148px) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+  width: min(1320px, 96vw);
+  margin: 0 auto;
+}
+
+.appProfileRail {
+  position: sticky;
+  top: var(--space-6);
+}
+
+.appProfileRailCard {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-3);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition),
+    border-color var(--transition);
+}
+
+.appProfileRailCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(33, 50, 230, 0.28);
+  box-shadow: var(--shadow-md);
+}
+
+.appProfileRailAvatar,
+.appProfileRailAvatarImg {
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  border: 3px solid rgba(33, 50, 230, 0.18);
+  box-shadow: 0 8px 22px rgba(33, 50, 230, 0.14);
+}
+
+.appProfileRailAvatar {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg, var(--hfc-blue), var(--hfc-blue-bright));
+}
+
+.appProfileRailAvatarImg {
+  display: block;
+  object-fit: cover;
+}
+
+.appProfileRailAvatarInitials {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.appProfileRailName {
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.3;
+  color: rgba(15, 23, 42, 0.9);
+}
+
+.appProfileRailMeta {
+  font-size: 12px;
+  text-align: center;
+  color: rgba(15, 23, 42, 0.58);
+  line-height: 1.35;
+}
+
+.appProfileRailAction {
+  margin-top: var(--space-1);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--hfc-blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .appFormTitle {
@@ -2546,6 +2633,41 @@ body {
 @media (max-width: 768px) {
   .appNavModeOptions {
     grid-template-columns: 1fr;
+  }
+
+  .appFormMain {
+    grid-template-columns: 1fr;
+    width: min(100%, 96vw);
+  }
+
+  .appProfileRail {
+    position: static;
+  }
+
+  .appProfileRailCard {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    justify-items: start;
+    align-items: center;
+    column-gap: var(--space-4);
+    row-gap: 2px;
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .appProfileRailAvatar,
+  .appProfileRailAvatarImg {
+    width: 52px;
+    height: 52px;
+    grid-row: 1 / span 2;
+  }
+
+  .appProfileRailAvatarInitials {
+    font-size: 16px;
+  }
+
+  .appProfileRailAction {
+    margin-top: 0;
+    grid-column: 2;
   }
 
   .appFormLayoutVertical {
@@ -3487,7 +3609,7 @@ body {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--space-6);
-  max-width: 960px;
+  max-width: 1180px;
   margin: 0 auto;
 }
 
@@ -3531,20 +3653,20 @@ body {
   justify-content: center;
   flex: 1;
   min-height: 300px;
-  padding: 20px 16px 10px;
+  padding: 28px 32px 16px;
   background: #f1f5f9;
   transition: background var(--transition);
   overflow: hidden;
 }
 
 .homePrimaryCard:hover .homePrimaryCardArt {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .homePrimaryCardImg {
   width: auto;
-  max-width: 96%;
-  max-height: 268px;
+  max-width: 72%;
+  max-height: 228px;
   object-fit: contain;
   display: block;
   border-radius: 14px;
@@ -3554,7 +3676,7 @@ body {
 }
 
 .homePrimaryCard:hover .homePrimaryCardImg {
-  transform: scale(1.22);
+  transform: scale(1.1);
 }
 
 .homePrimaryCardBody {
@@ -3758,8 +3880,8 @@ body {
 
 @media (max-width: 900px) {
   .homePrimaryGrid {
-    grid-template-columns: minmax(0, 300px);
-    max-width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 520px;
   }
 
   .homeSecondaryGrid3 {

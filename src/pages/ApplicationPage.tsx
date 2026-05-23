@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { api, uploadDocument } from '../api/client'
 import { ApplicationNavModePicker, type ApplicationNavMode } from '../components/application/ApplicationNavModePicker'
+import { ApplicationProfileRail } from '../components/application/ApplicationProfileRail'
 import { ApplicationStepActions } from '../components/application/ApplicationStepActions'
 import { BursaryLogoMarquee } from '../components/application/BursaryLogoMarquee'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
@@ -377,7 +378,12 @@ export function ApplicationPage() {
           { label: 'Resources', to: '/#resources' },
         ]}
       />
-      <main className="formMain">
+      <main className="formMain appFormMain">
+        <ApplicationProfileRail
+          firstName={profile.firstName}
+          lastName={profile.lastName}
+          completionPercent={completion.percent}
+        />
         <div className="formCard formCardWide appFormCard">
           <BursaryLogoMarquee />
           <h1 className="formTitle appFormTitle">South Africa Bursary Application</h1>
