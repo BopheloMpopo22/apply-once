@@ -29,9 +29,10 @@ export function HomePage() {
             <div className="homeHeroShine" aria-hidden />
             <div className="homeHeroGrid">
               <div className="homeHeroContent">
-                <p className="homeHeroKicker">Built for high school</p>
-                <h1 className="homeHeroTitle">Apply once. Go further.</h1>
-                <p className="homeHeroSubtitle">One profile. Bursaries, varsity &amp; applications.</p>
+                <p className="homeHeroBrand">Apply Once</p>
+                <h1 className="homeHeroTitle">
+                  The all-in-one platform for SA learners applying to bursaries and varsity.
+                </h1>
 
                 <div className="heroCtas homeHeroCtas" id="get-started">
                   <Link className="btn btnHeroPrimary" to="/register">

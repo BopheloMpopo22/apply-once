@@ -3707,7 +3707,7 @@ body {
   position: relative;
   overflow: hidden;
   border-radius: 24px;
-  min-height: clamp(400px, 58vh, 560px);
+  min-height: clamp(440px, 62vh, 600px);
   padding: clamp(40px, 5vw, 60px) clamp(28px, 4vw, 48px);
   background-color: var(--hfc-blue);
   background-image: linear-gradient(-45deg, var(--hfc-blue-bright) 0%, var(--hfc-blue) 100%);
@@ -3752,7 +3752,17 @@ body {
 .homeHeroContent {
   position: relative;
   z-index: 1;
-  max-width: 560px;
+  max-width: 620px;
+}
+
+.homeHeroBrand {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(15px, 1.6vw, 18px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.92);
+  white-space: nowrap;
 }
 
 .homeHeroKicker {
@@ -3766,12 +3776,12 @@ body {
 }
 
 .homeHeroTitle {
-  margin: 12px 0 0;
+  margin: 10px 0 0;
   font-family: Inter, var(--font-sans);
-  font-size: clamp(38px, 4.8vw, 56px);
-  font-weight: 800;
-  line-height: 1.02;
-  letter-spacing: -0.04em;
+  font-size: clamp(26px, 2.85vw, 38px);
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.03em;
   color: rgba(255, 255, 255, 0.98);
 }
 
@@ -3798,20 +3808,20 @@ body {
 /* Hero right: custom floating artwork only */
 .homeHeroVisual {
   position: relative;
-  min-height: 360px;
+  min-height: 420px;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .homeHeroMainImage {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 520px;
-  max-height: min(480px, 58vh);
+  max-width: min(680px, 52vw);
+  max-height: min(560px, 68vh);
   height: auto;
   object-fit: contain;
   /* Keep block on the right; subject in artwork faces inward (left) */
@@ -4203,13 +4213,15 @@ body {
   }
 
   .homeHeroVisual {
-    min-height: 280px;
+    min-height: 320px;
     margin-top: var(--space-4);
     justify-content: center;
   }
 
   .homeHeroMainImage {
-    width: min(100%, 400px);
+    width: min(100%, 480px);
+    max-width: min(100%, 480px);
+    max-height: min(440px, 52vh);
     margin-left: auto;
     margin-right: auto;
     object-position: center center;
@@ -4233,11 +4245,13 @@ body {
   }
 
   .homeHeroVisual {
-    min-height: 240px;
+    min-height: 280px;
   }
 
   .homeHeroMainImage {
-    width: min(100%, 340px);
+    width: min(100%, 400px);
+    max-width: min(100%, 400px);
+    max-height: min(380px, 48vh);
     border-radius: 20px;
   }
 
