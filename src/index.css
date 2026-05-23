@@ -3020,14 +3020,43 @@ body {
   font-size: 15px;
 }
 
-/* Floating glass cards — right side */
+/* Hero right: custom image + glass cards */
 .homeHeroVisual {
   position: relative;
-  min-height: 320px;
+  min-height: 340px;
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.homeHeroMainImage {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 440px);
+  max-height: min(420px, 52vh);
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 28px 56px rgba(15, 23, 42, 0.22));
+  animation: homeHeroImageFloat 5.5s ease-in-out infinite;
+  pointer-events: none;
+  user-select: none;
+}
+
+@keyframes homeHeroImageFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-18px);
+  }
 }
 
 .homeHeroFloatCard {
+  z-index: 2;
   position: absolute;
   border-radius: 24px;
   padding: 16px 18px;
@@ -3095,62 +3124,17 @@ body {
 }
 
 .homeHeroFloatCardAps {
-  top: 8%;
-  left: 6%;
-  width: min(200px, 46%);
-  animation-delay: 0s;
+  top: 6%;
+  left: 0;
+  width: min(178px, 42%);
+  animation-delay: 0.4s;
 }
 
 .homeHeroFloatCardApp {
-  top: 38%;
-  right: 4%;
-  width: min(210px, 50%);
-  animation-delay: 1.2s;
-}
-
-.homeHeroFloatCardBursary {
-  bottom: 6%;
-  left: 22%;
-  width: min(190px, 44%);
-  animation-delay: 2.4s;
-}
-
-.homeHeroLogoChip {
-  position: absolute;
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.15);
-  display: grid;
-  place-items: center;
-  padding: 8px;
-  animation: homeCardFloat 7s ease-in-out infinite;
-}
-
-.homeHeroLogoChip img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.homeHeroLogoChip1 {
-  top: 4%;
-  right: 18%;
-  animation-delay: 0.6s;
-}
-
-.homeHeroLogoChip2 {
-  bottom: 28%;
-  right: 2%;
-  animation-delay: 1.8s;
-}
-
-.homeHeroLogoChip3 {
-  bottom: 8%;
-  right: 38%;
-  animation-delay: 3s;
+  bottom: 10%;
+  right: 0;
+  width: min(188px, 44%);
+  animation-delay: 1.6s;
 }
 
 @keyframes homeCardFloat {
@@ -3470,7 +3454,7 @@ body {
   .homeHeroShine,
   .homeHeroMarqueeTrack,
   .homeHeroFloatCard,
-  .homeHeroLogoChip {
+  .homeHeroMainImage {
     animation: none;
   }
 }
