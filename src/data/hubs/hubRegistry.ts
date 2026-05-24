@@ -88,7 +88,7 @@ export const HUB_REGISTRY: HubMeta[] = [
     image: u('photo-1600880292203-757bb62b4baf', 600),
     imageAlt: 'Young professionals collaborating',
     accent: 'green',
-    status: 'coming-soon',
+    status: 'live',
   },
   {
     slug: 'bridging',
@@ -102,7 +102,7 @@ export const HUB_REGISTRY: HubMeta[] = [
     image: u('photo-1523240795612-9a054b0db644', 600),
     imageAlt: 'Students walking on campus',
     accent: 'blue',
-    status: 'coming-soon',
+    status: 'live',
   },
   {
     slug: 'learnerships',
@@ -116,7 +116,7 @@ export const HUB_REGISTRY: HubMeta[] = [
     image: u('photo-1552664730-d307ca884978', 600),
     imageAlt: 'Team meeting in a modern office',
     accent: 'green',
-    status: 'coming-soon',
+    status: 'live',
   },
   {
     slug: 'vacation-work',
@@ -130,7 +130,7 @@ export const HUB_REGISTRY: HubMeta[] = [
     image: u('photo-1600880292203-757bb62b4baf', 600),
     imageAlt: 'Interns in an office',
     accent: 'blue',
-    status: 'coming-soon',
+    status: 'live',
   },
 ]
 

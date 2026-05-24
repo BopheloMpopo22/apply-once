@@ -178,3 +178,81 @@ export const COURSE_CATEGORY_LABELS: Record<CourseCategory, string> = {
   'business-digital': 'Business & digital skills',
   'bootcamp-sa': 'SA coding bootcamps',
 }
+
+export type WorkOpportunityCategory =
+  | 'cultural-exchange'
+  | 'hospitality-tourism'
+  | 'aviation'
+  | 'retail-service'
+  | 'trades-entry'
+  | 'gap-year'
+
+export type BridgingCategory =
+  | 'extended-degree'
+  | 'foundation-access'
+  | 'stem-bridge'
+  | 'higher-certificate'
+
+export type LearnershipCategory =
+  | 'seta-portal'
+  | 'corporate'
+  | 'government'
+  | 'sector-programme'
+
+export type VacationWorkCategory =
+  | 'professional-services'
+  | 'banking-finance'
+  | 'government-soe'
+  | 'corporate-industrial'
+  | 'research-ngo'
+
+export type HubListingEntry = {
+  id: string
+  name: string
+  shortName: string
+  category: string
+  categoryLabel: string
+  location: string
+  website: string
+  summary: string
+  knownFor: string[]
+  whoCanApply: string[]
+  applicationOpens: string
+  applicationCloses: string
+  duration: string
+  compensation: string
+  links: HubResourceLink[]
+  notes: string
+  popularityRank: number
+}
+
+export const WORK_OPPORTUNITY_CATEGORY_LABELS: Record<WorkOpportunityCategory, string> = {
+  'cultural-exchange': 'Cultural exchange & au pair',
+  'hospitality-tourism': 'Hospitality & tourism',
+  aviation: 'Aviation & travel',
+  'retail-service': 'Retail & customer service',
+  'trades-entry': 'Trades & entry-level training',
+  'gap-year': 'Gap year & working abroad',
+}
+
+export const BRIDGING_CATEGORY_LABELS: Record<BridgingCategory, string> = {
+  'extended-degree': 'Extended degree programmes',
+  'foundation-access': 'Foundation & access programmes',
+  'stem-bridge': 'STEM bridging (SciMathUS etc.)',
+  'higher-certificate': 'Higher certificates & pathways',
+}
+
+export const LEARNERSHIP_CATEGORY_LABELS: Record<LearnershipCategory, string> = {
+  'seta-portal': 'SETA learner portals',
+  corporate: 'Corporate learnerships',
+  government: 'Government programmes',
+  'sector-programme': 'Sector-specific programmes',
+}
+
+export const VACATION_WORK_CATEGORY_LABELS: Record<VacationWorkCategory, string> = {
+  'professional-services': 'Professional services (Big 4)',
+  'banking-finance': 'Banking & finance',
+  'government-soe': 'Government & SOEs',
+  'corporate-industrial': 'Corporate & industrial',
+  'research-ngo': 'Research, NGO & public sector',
+}
