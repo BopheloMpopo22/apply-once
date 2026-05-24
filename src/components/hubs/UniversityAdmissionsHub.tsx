@@ -1,13 +1,22 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { UNIVERSITY_ADMISSIONS } from '../../data/hubs/universityAdmissions'
-import type { HubMeta } from '../../types/hubs'
+import {
+  UNIVERSITY_ADMISSIONS,
+  UNIVERSITY_ADMISSIONS_INTAKE_YEAR,
+} from '../../data/hubs/universityAdmissionsData'
+import type { HubMeta, UniversityType } from '../../types/hubs'
 import { HubShell } from './HubShell'
 import { UniversityAdmissionCard } from './UniversityAdmissionCard'
+
+const TYPE_LABELS: Record<UniversityType, string> = {
+  traditional: 'Traditional university',
+  'university-of-technology': 'University of technology',
+  comprehensive: 'Comprehensive university',
+}
 
 export function UniversityAdmissionsHub(props: { hub: HubMeta }) {
   const [query, setQuery] = useState('')
   const [province, setProvince] = useState('all')
+  const [universityType, setUniversityType] = useState<'all' | UniversityType>('all')
 
   const provinces = useMemo(() => {
     const set = new Set(UNIVERSITY_ADMISSIONS.map((u) => u.province))
@@ -18,29 +27,41 @@ export function UniversityAdmissionsHub(props: { hub: HubMeta }) {
     const q = query.trim().toLowerCase()
     return UNIVERSITY_ADMISSIONS.filter((u) => {
       if (province !== 'all' && u.province !== province) return false
+      if (universityType !== 'all' && u.universityType !== universityType) return false
       if (!q) return true
       return (
         u.name.toLowerCase().includes(q) ||
         u.shortName.toLowerCase().includes(q) ||
         u.province.toLowerCase().includes(q) ||
-        u.knownFor.some((k) => k.toLowerCase().includes(q))
+        u.knownFor.some((k) => k.toLowerCase().includes(q)) ||
+        u.applicationOpens.toLowerCase().includes(q) ||
+        u.applicationCloses.toLowerCase().includes(q)
       )
-    })
-  }, [query, province])
+    }).sort((a, b) => a.name.localeCompare(b.name))
+  }, [query, province, universityType])
+
+  const hubWithIntakeDisclaimer: HubMeta = {
+    ...props.hub,
+    disclaimer: `${props.hub.disclaimer} Data below is for ${UNIVERSITY_ADMISSIONS_INTAKE_YEAR} undergraduate intake (application cycle in 2026). Programme-specific dates may close earlier — check each university's site.`,
+  }
 
   return (
-    <HubShell
-      hub={props.hub}
-      actions={
-        <Link className="btn btnOutline btnSmall hubHeroCalcLink" to="/varsity-calculator">
-          Varsity calculator (APS)
-        </Link>
-      }
-    >
+    <HubShell hub={hubWithIntakeDisclaimer}>
       <section className="hubSection" aria-labelledby="uni-list-heading">
+        <div className="hubIntakeBanner">
+          <p className="hubIntakeBannerTitle">
+            {UNIVERSITY_ADMISSIONS.length} public universities · {UNIVERSITY_ADMISSIONS_INTAKE_YEAR}{' '}
+            intake
+          </p>
+          <p className="hubIntakeBannerText">
+            Published opening and closing dates for undergraduate applications. Fees are for SA
+            citizens unless noted. Open day dates are listed on each university's official site.
+          </p>
+        </div>
+
         <div className="hubToolbar">
           <h2 id="uni-list-heading" className="hubSectionTitle">
-            {filtered.length} universities
+            {filtered.length} {filtered.length === 1 ? 'university' : 'universities'}
           </h2>
           <div className="hubFilters">
             <label className="hubFilterField">
@@ -48,7 +69,7 @@ export function UniversityAdmissionsHub(props: { hub: HubMeta }) {
               <input
                 type="search"
                 className="hubFilterInput"
-                placeholder="Name, province, or field…"
+                placeholder="Name, province, field, or date…"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
@@ -67,13 +88,23 @@ export function UniversityAdmissionsHub(props: { hub: HubMeta }) {
                 ))}
               </select>
             </label>
+            <label className="hubFilterField">
+              <span className="hubFilterLabel">Type</span>
+              <select
+                className="hubFilterSelect"
+                value={universityType}
+                onChange={(e) => setUniversityType(e.target.value as 'all' | UniversityType)}
+              >
+                <option value="all">All types</option>
+                {(Object.keys(TYPE_LABELS) as UniversityType[]).map((t) => (
+                  <option key={t} value={t}>
+                    {TYPE_LABELS[t]}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
         </div>
-
-        <p className="hubSectionLead">
-          The varsity calculator helps you check programme eligibility. This hub focuses on
-          admissions timing, fees, open days, and official links.
-        </p>
 
         <div className="hubListingGrid">
           {filtered.map((entry) => (
@@ -82,7 +113,7 @@ export function UniversityAdmissionsHub(props: { hub: HubMeta }) {
         </div>
 
         {filtered.length === 0 ? (
-          <p className="hubEmpty">No universities match your search. Try another province or name.</p>
+          <p className="hubEmpty">No universities match your search. Try another filter.</p>
         ) : null}
       </section>
     </HubShell>

@@ -1,11 +1,28 @@
-import type { UniversityAdmissionEntry } from '../../types/hubs'
+﻿import type { UniversityAdmissionEntry } from '../../types/hubs'
+
+function initialsFor(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase()
+}
 
 export function UniversityAdmissionCard(props: { entry: UniversityAdmissionEntry }) {
   const { entry } = props
+
   return (
     <article className="hubListingCard">
       <div className="hubListingCardHead">
-        <img className="hubListingLogo" src={entry.logo} alt="" width={48} height={48} />
+        {entry.logo ? (
+          <img className="hubListingLogo" src={entry.logo} alt="" width={48} height={48} />
+        ) : (
+          <span className="hubListingLogoFallback" aria-hidden>
+            {initialsFor(entry.shortName)}
+          </span>
+        )}
         <div>
           <h2 className="hubListingTitle">{entry.name}</h2>
           <p className="hubListingMeta">
@@ -41,14 +58,17 @@ export function UniversityAdmissionCard(props: { entry: UniversityAdmissionEntry
         </div>
       </dl>
 
+      {entry.programmeDeadlines ? (
+        <p className="hubListingProgrammeDates">
+          <strong>Earlier deadlines:</strong> {entry.programmeDeadlines}
+        </p>
+      ) : null}
+
       <p className="hubListingNotes">{entry.notes}</p>
 
       <div className="hubListingLinks">
-        <a className="btn btnBrand btnSmall" href={entry.applyUrl} target="_blank" rel="noreferrer">
-          Apply on official site
-        </a>
-        <a className="btn btnOutline btnSmall" href={entry.website} target="_blank" rel="noreferrer">
-          University website
+        <a className="btn btnBrand btnSmall" href={entry.website} target="_blank" rel="noreferrer">
+          Official website
         </a>
       </div>
     </article>

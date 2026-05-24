@@ -23,17 +23,23 @@ export type HubMeta = {
   status: 'live' | 'coming-soon'
 }
 
+export type UniversityType = 'traditional' | 'university-of-technology' | 'comprehensive'
+
 export type UniversityAdmissionEntry = {
   id: string
   name: string
   shortName: string
   province: string
   website: string
-  applyUrl: string
-  logo: string
+  logo?: string
+  universityType: UniversityType
   knownFor: string[]
+  /** Academic year you would start after this application cycle. */
+  intakeYear: number
   applicationOpens: string
   applicationCloses: string
+  /** Faculty- or programme-specific earlier deadlines. */
+  programmeDeadlines?: string
   applicationFee: string
   openDays: string
   notes: string
