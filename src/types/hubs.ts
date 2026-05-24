@@ -49,3 +49,66 @@ export type HubComingSoonSection = {
   heading: string
   items: string[]
 }
+
+export type HubResourceLink = {
+  label: string
+  url: string
+  kind?: 'official' | 'register' | 'prep' | 'past-paper' | 'centres' | 'guide'
+}
+
+export type TestCentreByProvince = {
+  province: string
+  centres: string
+}
+
+export type CollegeCategory =
+  | 'private-general'
+  | 'tvet-public'
+  | 'nursing-health'
+  | 'hospitality-culinary'
+  | 'artisan-trades'
+  | 'creative-media'
+
+export type CollegeEntry = {
+  id: string
+  name: string
+  shortName: string
+  category: CollegeCategory
+  province: string
+  website: string
+  institutionType: 'Private' | 'Public TVET'
+  knownFor: string[]
+  applicationOpens: string
+  applicationCloses: string
+  applicationFee: string
+  notes: string
+  popularityRank: number
+}
+
+export type AdmissionsTestEntry = {
+  id: string
+  name: string
+  shortName: string
+  region: 'south-africa' | 'international'
+  website: string
+  whatItIs: string
+  neededFor: string[]
+  registrationOpens: string
+  keyDeadlines: string
+  fee: string
+  testSchedule: string
+  testCentres: TestCentreByProvince[]
+  centresLink?: HubResourceLink
+  prepResources: HubResourceLink[]
+  notes: string
+  popularityRank: number
+}
+
+export const COLLEGE_CATEGORY_LABELS: Record<CollegeCategory, string> = {
+  'private-general': 'Private colleges & higher education',
+  'tvet-public': 'Public TVET colleges',
+  'nursing-health': 'Nursing & health sciences',
+  'hospitality-culinary': 'Hospitality & culinary',
+  'artisan-trades': 'Artisan & trades training',
+  'creative-media': 'Creative arts & media',
+}

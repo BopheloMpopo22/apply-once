@@ -33,7 +33,7 @@ export const HUB_REGISTRY: HubMeta[] = [
     image: u('photo-1524178232363-7fb08b96f219', 600),
     imageAlt: 'Students in a classroom',
     accent: 'green',
-    status: 'coming-soon',
+    status: 'live',
   },
   {
     slug: 'admissions-tests',
@@ -46,7 +46,7 @@ export const HUB_REGISTRY: HubMeta[] = [
     image: u('photo-1434030216411-0b793f4b4173', 600),
     imageAlt: 'Student studying for an exam',
     accent: 'green',
-    status: 'coming-soon',
+    status: 'live',
   },
   {
     slug: 'study-abroad',

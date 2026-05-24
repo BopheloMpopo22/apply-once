@@ -4686,6 +4686,140 @@ body {
   color: rgba(15, 23, 42, 0.55);
 }
 
+.hubCategoryBadge {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.1);
+  color: #047857;
+  border: 1px solid rgba(16, 185, 129, 0.22);
+}
+
+.hubListingGrid--wide {
+  grid-template-columns: 1fr;
+}
+
+.hubListingCard--wide {
+  max-width: 920px;
+}
+
+.hubSubheading {
+  margin: 0 0 var(--space-2);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(15, 23, 42, 0.5);
+}
+
+.hubNeededForBlock,
+.hubCentresBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.hubBulletList {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: grid;
+  gap: var(--space-2);
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(15, 23, 42, 0.78);
+}
+
+.hubCentresGrid {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.hubCentresGrid dt {
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(15, 23, 42, 0.72);
+}
+
+.hubCentresGrid dd {
+  margin: 2px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(15, 23, 42, 0.62);
+}
+
+.hubCentresOfficialLink {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--hfc-blue);
+  text-decoration: none;
+}
+
+.hubCentresOfficialLink:hover {
+  text-decoration: underline;
+}
+
+.hubResourceBlock {
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  background: rgba(33, 50, 230, 0.04);
+  border: 1px solid rgba(33, 50, 230, 0.1);
+}
+
+.hubResourceTitle {
+  margin: 0 0 var(--space-3);
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.85);
+}
+
+.hubResourceList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.hubResourceLink {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--hfc-blue);
+  text-decoration: none;
+}
+
+.hubResourceLink:hover {
+  text-decoration: underline;
+}
+
+.hubResourceKind {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(15, 23, 42, 0.06);
+  color: rgba(15, 23, 42, 0.55);
+}
+
+.hubResourceKind--past-paper {
+  background: rgba(245, 158, 11, 0.12);
+  color: #b45309;
+}
+
+.hubResourceKind--register {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+}
+
 .hubComingSoonBanner {
   padding: var(--space-6);
   border-radius: var(--radius-md);

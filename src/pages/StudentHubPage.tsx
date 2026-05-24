@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom'
 import { getHubBySlug } from '../data/hubs/hubRegistry'
 import { HubComingSoon } from '../components/hubs/HubComingSoon'
 import { UniversityAdmissionsHub } from '../components/hubs/UniversityAdmissionsHub'
+import { CollegesHub } from '../components/hubs/CollegesHub'
+import { AdmissionsTestsHub } from '../components/hubs/AdmissionsTestsHub'
 
 export function StudentHubPage() {
   const { hubSlug } = useParams<{ hubSlug: string }>()
@@ -26,6 +28,14 @@ export function StudentHubPage() {
 
   if (hub.slug === 'universities') {
     return <UniversityAdmissionsHub hub={hub} />
+  }
+
+  if (hub.slug === 'colleges') {
+    return <CollegesHub hub={hub} />
+  }
+
+  if (hub.slug === 'admissions-tests') {
+    return <AdmissionsTestsHub hub={hub} />
   }
 
   return <HubComingSoon hub={hub} />
