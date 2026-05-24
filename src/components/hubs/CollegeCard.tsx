@@ -15,7 +15,7 @@ export function CollegeCard(props: { entry: CollegeEntry }) {
   const { entry } = props
 
   return (
-    <article className="hubListingCard">
+    <article className="hubListingCard hubListingCardRich">
       <div className="hubListingCardHead">
         <span className="hubListingLogoFallback" aria-hidden>
           {initialsFor(entry.shortName)}
@@ -57,7 +57,7 @@ export function CollegeCard(props: { entry: CollegeEntry }) {
         </div>
       </dl>
 
-      <p className="hubListingNotes">{entry.notes}</p>
+      <p className="hubListingNotes hubBodyText">{entry.notes}</p>
 
       <div className="hubListingLinks">
         <a className="btn btnBrand btnSmall" href={entry.website} target="_blank" rel="noreferrer">

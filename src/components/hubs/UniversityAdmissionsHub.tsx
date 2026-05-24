@@ -108,7 +108,7 @@ export function UniversityAdmissionsHub(props: { hub: HubMeta }) {
           </div>
         </div>
 
-        <div className="hubListingGrid">
+        <div className="hubListingStack hubListingStackUni">
           {filtered.map((entry) => (
             <UniversityAdmissionCard key={entry.id} entry={entry} />
           ))}

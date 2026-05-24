@@ -1,11 +1,10 @@
 import type { CSSProperties } from 'react'
-import type { UniversityId } from './types'
 
 /**
  * Approximate brand colours for varsity result cards (subtle tint only — not official trademark assets).
  * Keys omitted fall back to default card styling.
  */
-export const UNIVERSITY_RESULT_TINT_HEX: Partial<Record<UniversityId, string>> = {
+export const UNIVERSITY_RESULT_TINT_HEX: Record<string, string> = {
   uct: '#003d7a',
   wits: '#003b6f',
   up: '#006d5b',
@@ -22,6 +21,16 @@ export const UNIVERSITY_RESULT_TINT_HEX: Partial<Record<UniversityId, string>> =
   cput: '#005f9e',
   vut: '#00843d',
   unisa: '#003b7a',
+  ufh: '#1e4d8c',
+  wsu: '#006633',
+  univen: '#2e7d32',
+  unizulu: '#1565c0',
+  smu: '#00838f',
+  ump: '#558b2f',
+  spu: '#4527a0',
+  dut: '#0277bd',
+  cut: '#ef6c00',
+  mut: '#00695c',
 }
 
 function hexToRgb(hex: string): { r: number; g: number; b: number } | null {

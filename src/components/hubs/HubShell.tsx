@@ -20,7 +20,8 @@ export function HubShell(props: {
         ]}
       />
       <main className="hubMain">
-        <div className="hubContainer">
+        <div className="hubContainer hubContainerWide">
+          <div className="hubPanel">
           <nav className="hubBreadcrumb" aria-label="Breadcrumb">
             <Link to="/">Home</Link>
             <span aria-hidden>/</span>
@@ -43,6 +44,7 @@ export function HubShell(props: {
           </header>
 
           {props.children}
+          </div>
         </div>
       </main>
     </div>

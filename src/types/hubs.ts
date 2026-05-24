@@ -45,6 +45,11 @@ export type UniversityAdmissionEntry = {
   notes: string
 }
 
+export type ProgrammeHighlight = {
+  name: string
+  description: string
+}
+
 export type HubComingSoonSection = {
   heading: string
   items: string[]
@@ -125,8 +130,12 @@ export type StudyAbroadEntry = {
   shortName: string
   category: StudyAbroadCategory
   destination: string
+  destinationFlag?: string
   website: string
   whatItOffers: string
+  /** Plain-language: what the scholarship pays for and what you commit to. */
+  scholarshipPurpose?: string
+  coversWhat?: string[]
   whoCanApply: string[]
   applicationOpens: string
   applicationCloses: string
@@ -205,6 +214,35 @@ export type VacationWorkCategory =
   | 'government-soe'
   | 'corporate-industrial'
   | 'research-ngo'
+
+export type BridgingFacultyOffer = {
+  faculty: string
+  programmes: string[]
+  routeType: string
+  whoQualifies: string
+}
+
+export type BridgingEntry = {
+  id: string
+  name: string
+  shortName: string
+  category: BridgingCategory
+  categoryLabel: string
+  location: string
+  website: string
+  summary: string
+  /** Faculties/programmes where bridging or extended routes exist */
+  offersBridging: BridgingFacultyOffer[]
+  /** Programmes that typically have NO extended route — mainstream only */
+  noBridgingFor: string[]
+  applicationOpens: string
+  applicationCloses: string
+  duration: string
+  compensation: string
+  links: HubResourceLink[]
+  notes: string
+  popularityRank: number
+}
 
 export type HubListingEntry = {
   id: string

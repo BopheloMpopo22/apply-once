@@ -4,8 +4,15 @@ import type { CourseCategory, CourseCostType, HubMeta } from '../../types/hubs'
 import { COURSE_CATEGORY_LABELS } from '../../types/hubs'
 import { HubShell } from './HubShell'
 import { CourseCard } from './CourseCard'
+import { HubCategorySection, groupByCategory } from './HubCategorySection'
 
-const CATEGORY_OPTIONS = Object.entries(COURSE_CATEGORY_LABELS) as [CourseCategory, string][]
+const CATEGORY_ORDER: CourseCategory[] = [
+  'cloud-tech',
+  'coding-ai',
+  'bootcamp-sa',
+  'business-digital',
+  'free-online',
+]
 
 const COST_OPTIONS: { value: 'all' | CourseCostType; label: string }[] = [
   { value: 'all', label: 'All costs' },
@@ -36,14 +43,23 @@ export function CoursesHub(props: { hub: HubMeta }) {
     })
   }, [query, category, costType])
 
+  const grouped = useMemo(
+    () =>
+      groupByCategory(
+        filtered.map((c) => ({ ...c, categoryLabel: COURSE_CATEGORY_LABELS[c.category] })),
+        category === 'all' ? CATEGORY_ORDER : [category],
+      ),
+    [filtered, category],
+  )
+
   return (
     <HubShell hub={props.hub}>
       <section className="hubSection" aria-labelledby="courses-list-heading">
         <div className="hubIntakeBanner">
           <p className="hubIntakeBannerTitle">{COURSES_BY_POPULARITY.length} courses & skills programmes</p>
-          <p className="hubIntakeBannerText">
-            Free and funded pathways — Microsoft & AWS certifications, Harvard CS50, Google Career
-            Certificates, SA coding bootcamps, and more. Filter by category or cost type.
+          <p className="hubIntakeBannerText hubBodyText">
+            Grouped by skill area — cloud certifications, coding, SA bootcamps, business skills, and free
+            online learning. Filter by cost to find free and funded options first.
           </p>
         </div>
 
@@ -70,11 +86,13 @@ export function CoursesHub(props: { hub: HubMeta }) {
                 onChange={(e) => setCategory(e.target.value as 'all' | CourseCategory)}
               >
                 <option value="all">All categories</option>
-                {CATEGORY_OPTIONS.map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
+                {(Object.entries(COURSE_CATEGORY_LABELS) as [CourseCategory, string][]).map(
+                  ([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ),
+                )}
               </select>
             </label>
             <label className="hubFilterField">
@@ -94,9 +112,20 @@ export function CoursesHub(props: { hub: HubMeta }) {
           </div>
         </div>
 
-        <div className="hubListingGrid">
-          {filtered.map((entry) => (
-            <CourseCard key={entry.id} entry={entry} />
+        <div className="hubCategoryStack">
+          {grouped.map((group) => (
+            <HubCategorySection
+              key={group.category}
+              categoryId={group.category}
+              title={group.label}
+              count={group.items.length}
+            >
+              <div className="hubListingGrid hubListingGridCategory">
+                {group.items.map((entry) => (
+                  <CourseCard key={entry.id} entry={entry} />
+                ))}
+              </div>
+            </HubCategorySection>
           ))}
         </div>
 

@@ -7,8 +7,25 @@ import type { CollegeCategory, HubMeta } from '../../types/hubs'
 import { COLLEGE_CATEGORY_LABELS } from '../../types/hubs'
 import { HubShell } from './HubShell'
 import { CollegeCard } from './CollegeCard'
+import { HubCategorySection, groupByCategory } from './HubCategorySection'
 
-const CATEGORY_OPTIONS = Object.entries(COLLEGE_CATEGORY_LABELS) as [CollegeCategory, string][]
+const CATEGORY_ORDER: CollegeCategory[] = [
+  'private-general',
+  'nursing-health',
+  'hospitality-culinary',
+  'artisan-trades',
+  'creative-media',
+  'tvet-public',
+]
+
+const CATEGORY_DESCRIPTIONS: Partial<Record<CollegeCategory, string>> = {
+  'private-general': 'Nationwide private colleges like Boston, Rosebank, and Emeris — business, IT, and general diplomas/degrees.',
+  'nursing-health': 'Nursing and allied health training — often linked to hospital groups.',
+  'hospitality-culinary': 'Chef schools, hotel management, and culinary institutes.',
+  'artisan-trades': 'Engineering trades and artisan pathways via TVET and private colleges.',
+  'creative-media': 'Film, design, audio, and creative industry training.',
+  'tvet-public': 'Public TVET colleges — use the DHET directory for all 50 institutions nationally.',
+}
 
 export function CollegesHub(props: { hub: HubMeta }) {
   const [query, setQuery] = useState('')
@@ -38,9 +55,18 @@ export function CollegesHub(props: { hub: HubMeta }) {
     })
   }, [query, province, category, institutionType])
 
+  const grouped = useMemo(
+    () =>
+      groupByCategory(
+        filtered.map((c) => ({ ...c, categoryLabel: COLLEGE_CATEGORY_LABELS[c.category] })),
+        category === 'all' ? CATEGORY_ORDER : [category],
+      ),
+    [filtered, category],
+  )
+
   const hubWithIntakeDisclaimer: HubMeta = {
     ...props.hub,
-    disclaimer: `${props.hub.disclaimer} Dates below target ${COLLEGES_INTAKE_YEAR} intakes where known. Private colleges often accept rolling applications — confirm on each site.`,
+    disclaimer: `${props.hub.disclaimer} This is a curated starter list (${COLLEGES_INTAKE_YEAR} intakes where known) — not every college in SA. For all 50 public TVET colleges, use the DHET directory entry under Public TVET below.`,
   }
 
   return (
@@ -48,12 +74,12 @@ export function CollegesHub(props: { hub: HubMeta }) {
       <section className="hubSection" aria-labelledby="colleges-list-heading">
         <div className="hubIntakeBanner">
           <p className="hubIntakeBannerTitle">
-            {COLLEGES_BY_POPULARITY.length} colleges & training institutions
+            {COLLEGES_BY_POPULARITY.length} featured colleges & training institutions
           </p>
-          <p className="hubIntakeBannerText">
-            Private colleges, nursing schools, culinary institutes, artisan/TVET colleges, and creative
-            media schools — grouped by category. For all 50 public TVET colleges, use the DHET directory
-            entry at the bottom of the list.
+          <p className="hubIntakeBannerText hubBodyText">
+            Colleges are grouped below by type so you can explore nursing schools, culinary institutes,
+            private colleges, and public TVET separately. We do not list every college in the country yet —
+            the DHET link covers all 50 public TVET colleges.
           </p>
         </div>
 
@@ -80,11 +106,13 @@ export function CollegesHub(props: { hub: HubMeta }) {
                 onChange={(e) => setCategory(e.target.value as 'all' | CollegeCategory)}
               >
                 <option value="all">All categories</option>
-                {CATEGORY_OPTIONS.map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
+                {(Object.entries(COLLEGE_CATEGORY_LABELS) as [CollegeCategory, string][]).map(
+                  ([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ),
+                )}
               </select>
             </label>
             <label className="hubFilterField">
@@ -118,9 +146,21 @@ export function CollegesHub(props: { hub: HubMeta }) {
           </div>
         </div>
 
-        <div className="hubListingGrid">
-          {filtered.map((entry) => (
-            <CollegeCard key={entry.id} entry={entry} />
+        <div className="hubCategoryStack">
+          {grouped.map((group) => (
+            <HubCategorySection
+              key={group.category}
+              categoryId={group.category}
+              title={group.label}
+              description={CATEGORY_DESCRIPTIONS[group.category as CollegeCategory]}
+              count={group.items.length}
+            >
+              <div className="hubListingGrid hubListingGridCategory">
+                {group.items.map((entry) => (
+                  <CollegeCard key={entry.id} entry={entry} />
+                ))}
+              </div>
+            </HubCategorySection>
           ))}
         </div>
 
