@@ -5,6 +5,8 @@ import { HubComingSoon } from '../components/hubs/HubComingSoon'
 import { UniversityAdmissionsHub } from '../components/hubs/UniversityAdmissionsHub'
 import { CollegesHub } from '../components/hubs/CollegesHub'
 import { AdmissionsTestsHub } from '../components/hubs/AdmissionsTestsHub'
+import { StudyAbroadHub } from '../components/hubs/StudyAbroadHub'
+import { CoursesHub } from '../components/hubs/CoursesHub'
 
 export function StudentHubPage() {
   const { hubSlug } = useParams<{ hubSlug: string }>()
@@ -36,6 +38,14 @@ export function StudentHubPage() {
 
   if (hub.slug === 'admissions-tests') {
     return <AdmissionsTestsHub hub={hub} />
+  }
+
+  if (hub.slug === 'study-abroad') {
+    return <StudyAbroadHub hub={hub} />
+  }
+
+  if (hub.slug === 'courses') {
+    return <CoursesHub hub={hub} />
   }
 
   return <HubComingSoon hub={hub} />
