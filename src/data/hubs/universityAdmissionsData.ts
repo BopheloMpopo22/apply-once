@@ -1,4 +1,5 @@
 import type { UniversityAdmissionEntry } from '../../types/hubs'
+import { compareUniversitiesByPopularity } from './universityPopularity'
 
 /**
  * Undergraduate application info for all 26 SA public universities.
@@ -293,6 +294,7 @@ export const UNIVERSITY_ADMISSIONS: UniversityAdmissionEntry[] = [
     shortName: 'UFH',
     province: 'Eastern Cape',
     website: 'https://www.ufh.ac.za',
+    logo: '/assets/universities/ufh.svg',
     universityType: 'traditional',
     knownFor: ['Law', 'Social sciences', 'Agriculture', 'Education'],
     intakeYear: 2027,
@@ -308,6 +310,7 @@ export const UNIVERSITY_ADMISSIONS: UniversityAdmissionEntry[] = [
     shortName: 'WSU',
     province: 'Eastern Cape',
     website: 'https://www.wsu.ac.za',
+    logo: '/assets/universities/wsu.svg',
     universityType: 'comprehensive',
     knownFor: ['Health sciences', 'Education', 'Management', 'Science'],
     intakeYear: 2027,
@@ -324,6 +327,7 @@ export const UNIVERSITY_ADMISSIONS: UniversityAdmissionEntry[] = [
     shortName: 'Univen',
     province: 'Limpopo',
     website: 'https://www.univen.ac.za',
+    logo: '/assets/universities/univen.svg',
     universityType: 'comprehensive',
     knownFor: ['Agriculture', 'Health sciences', 'Law', 'Environmental science'],
     intakeYear: 2027,
@@ -339,6 +343,7 @@ export const UNIVERSITY_ADMISSIONS: UniversityAdmissionEntry[] = [
     shortName: 'UniZulu',
     province: 'KwaZulu-Natal',
     website: 'https://www.unizulu.ac.za',
+    logo: '/assets/universities/unizulu.svg',
     universityType: 'traditional',
     knownFor: ['Education', 'Science', 'Commerce', 'Health'],
     intakeYear: 2027,
@@ -354,6 +359,7 @@ export const UNIVERSITY_ADMISSIONS: UniversityAdmissionEntry[] = [
     shortName: 'SMU',
     province: 'Gauteng',
     website: 'https://www.smu.ac.za',
+    logo: '/assets/universities/smu.svg',
     universityType: 'traditional',
     knownFor: ['Medicine', 'Health sciences', 'Allied health', 'Public health'],
     intakeYear: 2027,
@@ -370,6 +376,7 @@ export const UNIVERSITY_ADMISSIONS: UniversityAdmissionEntry[] = [
     shortName: 'UMP',
     province: 'Mpumalanga',
     website: 'https://www.ump.ac.za',
+    logo: '/assets/universities/ump.svg',
     universityType: 'comprehensive',
     knownFor: ['Agriculture', 'Education', 'Development studies', 'Nature conservation'],
     intakeYear: 2027,
@@ -386,6 +393,7 @@ export const UNIVERSITY_ADMISSIONS: UniversityAdmissionEntry[] = [
     shortName: 'SPU',
     province: 'Northern Cape',
     website: 'https://www.spu.ac.za',
+    logo: '/assets/universities/spu.svg',
     universityType: 'comprehensive',
     knownFor: ['Education', 'ICT', 'Heritage studies', 'Data science'],
     intakeYear: 2027,
@@ -402,6 +410,7 @@ export const UNIVERSITY_ADMISSIONS: UniversityAdmissionEntry[] = [
     shortName: 'DUT',
     province: 'KwaZulu-Natal',
     website: 'https://www.dut.ac.za',
+    logo: '/assets/universities/dut.svg',
     universityType: 'university-of-technology',
     knownFor: ['Engineering', 'Applied sciences', 'Management', 'Arts & design'],
     intakeYear: 2027,
@@ -418,6 +427,7 @@ export const UNIVERSITY_ADMISSIONS: UniversityAdmissionEntry[] = [
     shortName: 'CUT',
     province: 'Free State',
     website: 'https://www.cut.ac.za',
+    logo: '/assets/universities/cut.svg',
     universityType: 'university-of-technology',
     knownFor: ['Engineering', 'Health sciences', 'IT', 'Management'],
     intakeYear: 2027,
@@ -433,6 +443,7 @@ export const UNIVERSITY_ADMISSIONS: UniversityAdmissionEntry[] = [
     shortName: 'MUT',
     province: 'KwaZulu-Natal',
     website: 'https://www.mut.ac.za',
+    logo: '/assets/universities/mut.svg',
     universityType: 'university-of-technology',
     knownFor: ['Engineering', 'Natural sciences', 'Management', 'Diplomacy'],
     intakeYear: 2027,
@@ -445,6 +456,10 @@ export const UNIVERSITY_ADMISSIONS: UniversityAdmissionEntry[] = [
       'Located in Umlazi, Durban. Engineering applications close earlier than other faculties.',
   },
 ]
+
+export const UNIVERSITY_ADMISSIONS_BY_POPULARITY = [...UNIVERSITY_ADMISSIONS].sort((a, b) =>
+  compareUniversitiesByPopularity(a.id, b.id),
+)
 
 export function getUniversityAdmission(id: string): UniversityAdmissionEntry | undefined {
   return UNIVERSITY_ADMISSIONS.find((u) => u.id === id)

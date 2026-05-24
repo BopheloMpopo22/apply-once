@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
 import {
-  UNIVERSITY_ADMISSIONS,
+  UNIVERSITY_ADMISSIONS_BY_POPULARITY,
   UNIVERSITY_ADMISSIONS_INTAKE_YEAR,
 } from '../../data/hubs/universityAdmissionsData'
+import { compareUniversitiesByPopularity } from '../../data/hubs/universityPopularity'
 import type { HubMeta, UniversityType } from '../../types/hubs'
 import { HubShell } from './HubShell'
 import { UniversityAdmissionCard } from './UniversityAdmissionCard'
@@ -19,13 +20,13 @@ export function UniversityAdmissionsHub(props: { hub: HubMeta }) {
   const [universityType, setUniversityType] = useState<'all' | UniversityType>('all')
 
   const provinces = useMemo(() => {
-    const set = new Set(UNIVERSITY_ADMISSIONS.map((u) => u.province))
+    const set = new Set(UNIVERSITY_ADMISSIONS_BY_POPULARITY.map((u) => u.province))
     return ['all', ...Array.from(set).sort()]
   }, [])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    return UNIVERSITY_ADMISSIONS.filter((u) => {
+    return UNIVERSITY_ADMISSIONS_BY_POPULARITY.filter((u) => {
       if (province !== 'all' && u.province !== province) return false
       if (universityType !== 'all' && u.universityType !== universityType) return false
       if (!q) return true
@@ -37,7 +38,7 @@ export function UniversityAdmissionsHub(props: { hub: HubMeta }) {
         u.applicationOpens.toLowerCase().includes(q) ||
         u.applicationCloses.toLowerCase().includes(q)
       )
-    }).sort((a, b) => a.name.localeCompare(b.name))
+    }).sort((a, b) => compareUniversitiesByPopularity(a.id, b.id))
   }, [query, province, universityType])
 
   const hubWithIntakeDisclaimer: HubMeta = {
@@ -50,7 +51,8 @@ export function UniversityAdmissionsHub(props: { hub: HubMeta }) {
       <section className="hubSection" aria-labelledby="uni-list-heading">
         <div className="hubIntakeBanner">
           <p className="hubIntakeBannerTitle">
-            {UNIVERSITY_ADMISSIONS.length} public universities · {UNIVERSITY_ADMISSIONS_INTAKE_YEAR}{' '}
+            {UNIVERSITY_ADMISSIONS_BY_POPULARITY.length} public universities ·{' '}
+            {UNIVERSITY_ADMISSIONS_INTAKE_YEAR}{' '}
             intake
           </p>
           <p className="hubIntakeBannerText">
