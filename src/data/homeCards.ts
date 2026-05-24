@@ -1,4 +1,5 @@
 import { HOME_PRIMARY_IMAGES } from '../utils/preloadHomeAssets'
+import { HUB_REGISTRY } from './hubs/hubRegistry'
 
 /** Home page card imagery — Unsplash (free to use with attribution in production). */
 const u = (id: string, w = 800) =>
@@ -25,53 +26,16 @@ export const HOME_PRIMARY_CARDS = [
   },
 ]
 
-export const HOME_FEATURE_CARDS = [
-  {
-    id: 'nbt-sat',
-    title: 'NBT / SAT',
-    description: 'Checklists and prep resources for admissions tests.',
-    image: u('photo-1434030216411-0b793f4b4173', 600),
-    imageAlt: 'Student studying for an exam',
-    href: '/#resources',
-    accent: 'green' as const,
-  },
-  {
-    id: 'courses',
-    title: 'Other Free Courses',
-    description: 'Short courses and free learning to boost your profile.',
-    image: u('photo-1516321318423-f06f85e504b3', 600),
-    imageAlt: 'Online learning on a laptop',
-    href: '/#resources',
-    accent: 'blue' as const,
-  },
-  {
-    id: 'opportunities',
-    title: 'Other Opportunities',
-    description: 'Competitions, mentorships, bridging programmes, and more.',
-    image: u('photo-1523240795612-9a054b0db644', 600),
-    imageAlt: 'Group of diverse students outdoors',
-    href: '/#resources',
-    accent: 'green' as const,
-  },
-  {
-    id: 'learnership',
-    title: 'Learnership Applications',
-    description: 'Find learnerships and keep your info ready to apply quickly.',
-    image: u('photo-1552664730-d307ca884978', 600),
-    imageAlt: 'Team meeting in a modern office',
-    href: '/#resources',
-    accent: 'blue' as const,
-  },
-  {
-    id: 'vacation',
-    title: 'Vacation Work Applications',
-    description: 'Explore vacation work and internships with clear tracking.',
-    image: u('photo-1600880292203-757bb62b4baf', 600),
-    imageAlt: 'Young professionals collaborating',
-    href: '/#resources',
-    accent: 'green' as const,
-  },
-]
+export const HOME_FEATURE_CARDS = HUB_REGISTRY.map((hub) => ({
+  id: hub.slug,
+  title: hub.title,
+  description: hub.description,
+  image: hub.image,
+  imageAlt: hub.imageAlt,
+  href: `/hubs/${hub.slug}`,
+  accent: hub.accent,
+  status: hub.status,
+}))
 
 export const HOME_RESOURCE_CARDS = [
   {

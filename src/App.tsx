@@ -9,6 +9,7 @@ import { AdminPage } from './pages/AdminPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { VarsityCalculatorPage } from './pages/VarsityCalculatorPage'
 import { VarsityGuidePage } from './pages/VarsityGuidePage'
+import { StudentHubPage } from './pages/StudentHubPage'
 import { VarsityProspectusHubPage } from './pages/VarsityProspectusHubPage'
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/varsity-calculator" element={<VarsityCalculatorPage />} />
+      <Route path="/hubs/:hubSlug" element={<StudentHubPage />} />
       <Route path="/varsity-guides/uni/:universityId" element={<VarsityProspectusHubPage />} />
       <Route path="/varsity-guides/:guideId" element={<VarsityGuidePage />} />
       <Route path="/auth/callback" element={<AuthCallbackPage />} />

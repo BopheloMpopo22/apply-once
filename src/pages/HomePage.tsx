@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { HomeHeroVisual } from '../components/home/HomeHeroVisual'
 import { HomePrimaryCard } from '../components/home/HomePrimaryCard'
+import { HomeHubCard } from '../components/home/HomeHubCard'
 import { HomeSelectCard } from '../components/home/HomeSelectCard'
 import { Navbar } from '../components/Navbar'
 import { Section } from '../components/Section'
@@ -82,19 +83,13 @@ export function HomePage() {
 
         <Section
           id="features"
-          eyebrow="Features"
-          title="Everything you need for the next phase in your career."
-          subtitle="A clean workflow that keeps your info organised, reusable, and ready when applications open."
+          eyebrow="Explore"
+          title="Everything in one place for your next step."
+          subtitle="Info hubs for universities, colleges, tests, courses, learnerships, and more — separate from your bursary application and varsity calculator."
         >
-          <div className="homeSecondaryGrid">
+          <div className="homeSecondaryGrid homeHubGrid">
             {HOME_FEATURE_CARDS.map((card) => (
-              <HomeSelectCard
-                key={card.id}
-                {...card}
-                size="secondary"
-                selected={selectedSecondary === card.id}
-                onSelect={() => setSelectedSecondary((prev) => (prev === card.id ? null : card.id))}
-              />
+              <HomeHubCard key={card.id} {...card} />
             ))}
           </div>
         </Section>
