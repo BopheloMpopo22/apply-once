@@ -26,7 +26,6 @@ export function HomeHubCard({
       <div className="homeHubCardMedia">
         <img className="homeHubCardImg" src={image} alt={imageAlt} loading="lazy" decoding="async" />
         <div className="homeHubCardMediaFade" aria-hidden />
-        {status === 'live' ? <span className="homeHubCardBadge homeHubCardBadgeLive">Live</span> : null}
         {status === 'coming-soon' ? (
           <span className="homeHubCardBadge homeHubCardBadgeSoon">Coming soon</span>
         ) : null}

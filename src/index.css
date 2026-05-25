@@ -3808,7 +3808,7 @@ body {
 /* Hero right: custom floating artwork only */
 .homeHeroVisual {
   position: relative;
-  min-height: 500px;
+  min-height: 0;
   width: 100%;
   display: flex;
   align-items: center;
@@ -3819,18 +3819,19 @@ body {
 .homeHeroMainImage {
   position: relative;
   z-index: 1;
-  width: 100%;
-  max-width: min(820px, 60vw);
-  max-height: min(680px, 78vh);
+  width: min(720px, 56vw);
+  max-width: none;
   height: auto;
   object-fit: contain;
   /* Keep block on the right; subject in artwork faces inward (left) */
   object-position: right center;
   display: block;
   margin-left: auto;
-  margin-right: 0;
+  margin-right: -12px;
   border-radius: 28px;
   filter: drop-shadow(0 28px 56px rgba(15, 23, 42, 0.22));
+  transform: scale(1.14);
+  transform-origin: right center;
   animation: homeHeroImageFloat 5.5s ease-in-out infinite;
   pointer-events: none;
   user-select: none;
@@ -3839,10 +3840,10 @@ body {
 @keyframes homeHeroImageFloat {
   0%,
   100% {
-    transform: translateY(0);
+    transform: scale(1.14) translateY(0);
   }
   50% {
-    transform: translateY(-18px);
+    transform: scale(1.14) translateY(-18px);
   }
 }
 
@@ -4213,17 +4214,17 @@ body {
   }
 
   .homeHeroVisual {
-    min-height: 360px;
+    min-height: 0;
     margin-top: var(--space-4);
     justify-content: center;
   }
 
   .homeHeroMainImage {
-    width: min(100%, 540px);
-    max-width: min(100%, 540px);
-    max-height: min(500px, 58vh);
+    width: min(100%, 480px);
     margin-left: auto;
     margin-right: auto;
+    transform: scale(1.08);
+    transform-origin: center center;
     object-position: center center;
     border-radius: 24px;
   }
@@ -4245,13 +4246,12 @@ body {
   }
 
   .homeHeroVisual {
-    min-height: 300px;
+    min-height: 0;
   }
 
   .homeHeroMainImage {
-    width: min(100%, 440px);
-    max-width: min(100%, 440px);
-    max-height: min(420px, 52vh);
+    width: min(100%, 400px);
+    transform: scale(1.05);
     border-radius: 20px;
   }
 
@@ -4268,7 +4268,20 @@ body {
   }
 
   .homeHeroMainImage {
-    transform: none;
+    transform: scale(1.14);
+    animation: none;
+  }
+
+  @media (max-width: 980px) {
+    .homeHeroMainImage {
+      transform: scale(1.08);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .homeHeroMainImage {
+      transform: scale(1.05);
+    }
   }
 }
 

@@ -1,7 +1,5 @@
 import type { HubMeta, HubSlug } from '../../types/hubs'
-
-const u = (id: string, w = 800) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`
+import { HUB_CARD_IMAGES } from '../../assets/hubImages'
 
 const HUB_DISCLAIMER =
   'Dates, fees, and requirements change every year. Always confirm on the official website before you apply or pay.'
@@ -16,8 +14,8 @@ export const HUB_REGISTRY: HubMeta[] = [
     intro:
       'Your one-stop overview of public universities in South Africa — when applications open and close, what it costs to apply, open days, and where to go on the web for the latest undergraduate information.',
     disclaimer: HUB_DISCLAIMER,
-    image: u('photo-1523050854058-8df90110c9f1', 600),
-    imageAlt: 'University campus buildings',
+    image: HUB_CARD_IMAGES.universities,
+    imageAlt: 'University admissions hub',
     accent: 'blue',
     status: 'live',
   },
@@ -30,8 +28,8 @@ export const HUB_REGISTRY: HubMeta[] = [
     intro:
       'A growing directory of colleges and TVET institutions: what each is known for (engineering, nursing, hospitality, and more), when applications open and close, and direct links to their sites.',
     disclaimer: HUB_DISCLAIMER,
-    image: u('photo-1524178232363-7fb08b96f219', 600),
-    imageAlt: 'Students in a classroom',
+    image: HUB_CARD_IMAGES.colleges,
+    imageAlt: 'Colleges and TVET hub',
     accent: 'green',
     status: 'live',
   },
@@ -43,8 +41,8 @@ export const HUB_REGISTRY: HubMeta[] = [
     intro:
       'Understand admissions tests used in South Africa and abroad: what each test is, registration windows, fees, prep resources, and which universities or courses require them.',
     disclaimer: HUB_DISCLAIMER,
-    image: u('photo-1434030216411-0b793f4b4173', 600),
-    imageAlt: 'Student studying for an exam',
+    image: HUB_CARD_IMAGES['admissions-tests'],
+    imageAlt: 'Admissions tests hub',
     accent: 'green',
     status: 'live',
   },
@@ -57,8 +55,8 @@ export const HUB_REGISTRY: HubMeta[] = [
     intro:
       'Learn how South African students can study overseas — exchange programmes, scholarships, agencies that support African applicants, and government initiatives (including health and other sponsored pathways).',
     disclaimer: HUB_DISCLAIMER,
-    image: u('photo-1523050854058-8df90110c9f1', 600),
-    imageAlt: 'Students on an international campus',
+    image: HUB_CARD_IMAGES['study-abroad'],
+    imageAlt: 'Studying abroad hub',
     accent: 'blue',
     status: 'live',
   },
@@ -71,8 +69,8 @@ export const HUB_REGISTRY: HubMeta[] = [
     intro:
       'Skills beyond traditional degrees: Harvard and other free online courses, AWS and Microsoft learning, coding bootcamps, artisan and hospitality training, and diplomas that build employability.',
     disclaimer: HUB_DISCLAIMER,
-    image: u('photo-1516321318423-f06f85e504b3', 600),
-    imageAlt: 'Online learning on a laptop',
+    image: HUB_CARD_IMAGES.courses,
+    imageAlt: 'Courses and skills hub',
     accent: 'blue',
     status: 'live',
   },
@@ -85,8 +83,8 @@ export const HUB_REGISTRY: HubMeta[] = [
     intro:
       'For learners still exploring: paid training, entry-level roles, and programmes in South Africa and abroad that can lead to a career without a traditional four-year degree (some may need a matric or diploma).',
     disclaimer: HUB_DISCLAIMER,
-    image: u('photo-1600880292203-757bb62b4baf', 600),
-    imageAlt: 'Young professionals collaborating',
+    image: HUB_CARD_IMAGES['work-opportunities'],
+    imageAlt: 'Work opportunities hub',
     accent: 'green',
     status: 'live',
   },
@@ -99,8 +97,8 @@ export const HUB_REGISTRY: HubMeta[] = [
     intro:
       'Bridging and extended programmes at South African universities: improve your marks, meet entry requirements, and move into your target degree — with links and key dates in one place.',
     disclaimer: HUB_DISCLAIMER,
-    image: u('photo-1523240795612-9a054b0db644', 600),
-    imageAlt: 'Students walking on campus',
+    image: HUB_CARD_IMAGES.bridging,
+    imageAlt: 'Bridging programmes hub',
     accent: 'blue',
     status: 'live',
   },
@@ -113,8 +111,8 @@ export const HUB_REGISTRY: HubMeta[] = [
     intro:
       'SETA and employer learnerships for South Africans with a matric (and sometimes other levels): sectors, typical requirements, application timing, and where to find official listings.',
     disclaimer: HUB_DISCLAIMER,
-    image: u('photo-1552664730-d307ca884978', 600),
-    imageAlt: 'Team meeting in a modern office',
+    image: HUB_CARD_IMAGES.learnerships,
+    imageAlt: 'Learnerships hub',
     accent: 'green',
     status: 'live',
   },
@@ -127,8 +125,8 @@ export const HUB_REGISTRY: HubMeta[] = [
     intro:
       'Vacation work and internship opportunities for school leavers and students — build your CV, explore industries, and see closing dates before the holidays pass.',
     disclaimer: HUB_DISCLAIMER,
-    image: u('photo-1600880292203-757bb62b4baf', 600),
-    imageAlt: 'Interns in an office',
+    image: HUB_CARD_IMAGES['vacation-work'],
+    imageAlt: 'Vacation work and internships hub',
     accent: 'blue',
     status: 'live',
   },
