@@ -3808,7 +3808,7 @@ body {
 /* Hero right: custom floating artwork only */
 .homeHeroVisual {
   position: relative;
-  min-height: 420px;
+  min-height: 500px;
   width: 100%;
   display: flex;
   align-items: center;
@@ -3820,8 +3820,8 @@ body {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: min(680px, 52vw);
-  max-height: min(560px, 68vh);
+  max-width: min(820px, 60vw);
+  max-height: min(680px, 78vh);
   height: auto;
   object-fit: contain;
   /* Keep block on the right; subject in artwork faces inward (left) */
@@ -4213,15 +4213,15 @@ body {
   }
 
   .homeHeroVisual {
-    min-height: 320px;
+    min-height: 360px;
     margin-top: var(--space-4);
     justify-content: center;
   }
 
   .homeHeroMainImage {
-    width: min(100%, 480px);
-    max-width: min(100%, 480px);
-    max-height: min(440px, 52vh);
+    width: min(100%, 540px);
+    max-width: min(100%, 540px);
+    max-height: min(500px, 58vh);
     margin-left: auto;
     margin-right: auto;
     object-position: center center;
@@ -4245,13 +4245,13 @@ body {
   }
 
   .homeHeroVisual {
-    min-height: 280px;
+    min-height: 300px;
   }
 
   .homeHeroMainImage {
-    width: min(100%, 400px);
-    max-width: min(100%, 400px);
-    max-height: min(380px, 48vh);
+    width: min(100%, 440px);
+    max-width: min(100%, 440px);
+    max-height: min(420px, 52vh);
     border-radius: 20px;
   }
 
