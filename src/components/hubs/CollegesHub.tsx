@@ -8,6 +8,7 @@ import { COLLEGE_CATEGORY_LABELS } from '../../types/hubs'
 import { HubShell } from './HubShell'
 import { CollegeCard } from './CollegeCard'
 import { HubCategorySection, groupByCategory } from './HubCategorySection'
+import { HubSectionNav, hubSectionId } from './HubSectionNav'
 
 const CATEGORY_ORDER: CollegeCategory[] = [
   'private-general',
@@ -17,6 +18,15 @@ const CATEGORY_ORDER: CollegeCategory[] = [
   'creative-media',
   'tvet-public',
 ]
+
+const CATEGORY_NAV_LABELS: Record<CollegeCategory, string> = {
+  'private-general': 'Private colleges',
+  'nursing-health': 'Nursing & health',
+  'hospitality-culinary': 'Hospitality & culinary',
+  'artisan-trades': 'Artisan & trades',
+  'creative-media': 'Creative & media',
+  'tvet-public': 'Public TVET',
+}
 
 const CATEGORY_DESCRIPTIONS: Partial<Record<CollegeCategory, string>> = {
   'private-general': 'Nationwide private colleges like Boston, Rosebank, and Emeris — business, IT, and general diplomas/degrees.',
@@ -145,6 +155,17 @@ export function CollegesHub(props: { hub: HubMeta }) {
             </label>
           </div>
         </div>
+
+        {category === 'all' && grouped.length > 0 ? (
+          <HubSectionNav
+            ariaLabel="College categories"
+            items={grouped.map((group) => ({
+              id: hubSectionId(group.category),
+              label: CATEGORY_NAV_LABELS[group.category as CollegeCategory] ?? group.label,
+              count: group.items.length,
+            }))}
+          />
+        ) : null}
 
         <div className="hubCategoryStack">
           {grouped.map((group) => (

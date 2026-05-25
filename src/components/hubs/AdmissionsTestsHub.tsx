@@ -5,6 +5,19 @@ import type { HubMeta } from '../../types/hubs'
 import { HubShell } from './HubShell'
 import { AdmissionsTestCard } from './AdmissionsTestCard'
 
+const GUIDE_SHORT_LABELS: Record<string, string> = {
+  who: 'Who needs tests?',
+  placement: 'Placement',
+  prep: 'Prep tips',
+  timeline: 'Timeline',
+}
+
+function scrollToGuideSection(sectionId: string) {
+  const el = document.getElementById(sectionId)
+  if (!el) return
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
 export function AdmissionsTestsHub(props: { hub: HubMeta }) {
   const [query, setQuery] = useState('')
   const [region, setRegion] = useState<'all' | 'south-africa' | 'international'>('all')
@@ -87,23 +100,40 @@ export function AdmissionsTestsHub(props: { hub: HubMeta }) {
           </div>
 
           <aside className="hubTestsAside" aria-label="Admissions tests guide">
-            {ADMISSIONS_TESTS_GUIDE.map((section) => (
-              <div key={section.id} className="hubGuidePanel">
-                <h3 className="hubGuidePanelTitle">{section.title}</h3>
-                {section.paragraphs.map((p) => (
-                  <p key={p} className="hubGuidePanelText">
-                    {p}
-                  </p>
+            <div className="hubGuideAsideShell">
+              <p className="hubGuideAsideTitle">Student guide</p>
+              <nav className="hubGuideAsideNav" aria-label="Guide sections">
+                {ADMISSIONS_TESTS_GUIDE.map((section) => (
+                  <button
+                    key={section.id}
+                    type="button"
+                    className="hubGuideAsideNavChip"
+                    onClick={() => scrollToGuideSection(`guide-${section.id}`)}
+                  >
+                    {GUIDE_SHORT_LABELS[section.id] ?? section.title}
+                  </button>
                 ))}
-                {section.bullets ? (
-                  <ul className="hubGuidePanelList">
-                    {section.bullets.map((item) => (
-                      <li key={item}>{item}</li>
+              </nav>
+              <div className="hubTestsAsideScroll">
+                {ADMISSIONS_TESTS_GUIDE.map((section) => (
+                  <div key={section.id} id={`guide-${section.id}`} className="hubGuidePanel">
+                    <h3 className="hubGuidePanelTitle">{section.title}</h3>
+                    {section.paragraphs.map((p) => (
+                      <p key={p} className="hubGuidePanelText">
+                        {p}
+                      </p>
                     ))}
-                  </ul>
-                ) : null}
+                    {section.bullets ? (
+                      <ul className="hubGuidePanelList">
+                        {section.bullets.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </aside>
         </div>
       </section>

@@ -5,6 +5,7 @@ import { STUDY_ABROAD_CATEGORY_LABELS } from '../../types/hubs'
 import { HubShell } from './HubShell'
 import { StudyAbroadCard } from './StudyAbroadCard'
 import { HubCategorySection, groupByCategory } from './HubCategorySection'
+import { HubSectionNav, hubSectionId } from './HubSectionNav'
 
 const CATEGORY_OPTIONS = Object.entries(STUDY_ABROAD_CATEGORY_LABELS) as [
   StudyAbroadCategory,
@@ -18,6 +19,15 @@ const CATEGORY_ORDER: StudyAbroadCategory[] = [
   'country-pathway',
   'advising-support',
 ]
+
+/** Shorter labels for the jump menu at the top of the page. */
+const CATEGORY_NAV_LABELS: Record<StudyAbroadCategory, string> = {
+  'government-scholarship': 'SA government scholarships',
+  'international-scholarship': 'International scholarships',
+  'international-university': 'International universities',
+  'country-pathway': 'Country guides',
+  'advising-support': 'Advising & SAQA',
+}
 
 const CATEGORY_DESCRIPTIONS: Partial<Record<StudyAbroadCategory, string>> = {
   'government-scholarship': 'DHET-nominated scholarships to study in China, Germany, Russia, and more.',
@@ -126,6 +136,17 @@ export function StudyAbroadHub(props: { hub: HubMeta }) {
             </label>
           </div>
         </div>
+
+        {category === 'all' && grouped.length > 0 ? (
+          <HubSectionNav
+            ariaLabel="Study abroad sections"
+            items={grouped.map((group) => ({
+              id: hubSectionId(group.category),
+              label: CATEGORY_NAV_LABELS[group.category as StudyAbroadCategory] ?? group.label,
+              count: group.items.length,
+            }))}
+          />
+        ) : null}
 
         <div className="hubCategoryStack">
           {grouped.map((group) => (

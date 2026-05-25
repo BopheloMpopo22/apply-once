@@ -82,8 +82,14 @@ export function HubCategorySection(props: {
   const accent = CATEGORY_ACCENTS[props.categoryId] ?? '#2563eb'
   const icon = CATEGORY_ICONS[props.categoryId]
 
+  const sectionId = `hub-section-${props.categoryId}`
+
   return (
-    <section className="hubCategorySection" style={{ '--hub-cat-accent': accent } as CSSProperties}>
+    <section
+      id={sectionId}
+      className="hubCategorySection"
+      style={{ '--hub-cat-accent': accent } as CSSProperties}
+    >
       <header className="hubCategoryHeader">
         {icon ? (
           <span className="hubCategoryIcon" aria-hidden>
