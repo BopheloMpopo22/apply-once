@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { ADMISSIONS_TESTS_BY_POPULARITY } from '../../data/hubs/admissionsTestsData'
+import { ADMISSIONS_TESTS_GUIDE } from '../../data/hubs/admissionsTestsGuide'
 import type { HubMeta } from '../../types/hubs'
 import { HubShell } from './HubShell'
 import { AdmissionsTestCard } from './AdmissionsTestCard'
@@ -33,7 +34,7 @@ export function AdmissionsTestsHub(props: { hub: HubMeta }) {
           <p className="hubIntakeBannerTitle">
             {ADMISSIONS_TESTS_BY_POPULARITY.length} admissions tests & application services
           </p>
-          <p className="hubIntakeBannerText">
+          <p className="hubIntakeBannerText hubBodyText">
             NBT for SA universities, SAT/ACT/IELTS for study abroad, and the KZN CAO application portal.
             Each entry includes fees, deadlines, test centres by province, and prep links including past
             papers where available.
@@ -72,15 +73,39 @@ export function AdmissionsTestsHub(props: { hub: HubMeta }) {
           </div>
         </div>
 
-        <div className="hubListingGrid hubListingGrid--wide">
-          {filtered.map((entry) => (
-            <AdmissionsTestCard key={entry.id} entry={entry} />
-          ))}
-        </div>
+        <div className="hubTestsLayout">
+          <div className="hubTestsMain">
+            <div className="hubListingStack">
+              {filtered.map((entry) => (
+                <AdmissionsTestCard key={entry.id} entry={entry} />
+              ))}
+            </div>
 
-        {filtered.length === 0 ? (
-          <p className="hubEmpty">No tests match your search. Try another filter.</p>
-        ) : null}
+            {filtered.length === 0 ? (
+              <p className="hubEmpty">No tests match your search. Try another filter.</p>
+            ) : null}
+          </div>
+
+          <aside className="hubTestsAside" aria-label="Admissions tests guide">
+            {ADMISSIONS_TESTS_GUIDE.map((section) => (
+              <div key={section.id} className="hubGuidePanel">
+                <h3 className="hubGuidePanelTitle">{section.title}</h3>
+                {section.paragraphs.map((p) => (
+                  <p key={p} className="hubGuidePanelText">
+                    {p}
+                  </p>
+                ))}
+                {section.bullets ? (
+                  <ul className="hubGuidePanelList">
+                    {section.bullets.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
+            ))}
+          </aside>
+        </div>
       </section>
     </HubShell>
   )

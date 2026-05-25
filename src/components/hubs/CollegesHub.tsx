@@ -66,7 +66,7 @@ export function CollegesHub(props: { hub: HubMeta }) {
 
   const hubWithIntakeDisclaimer: HubMeta = {
     ...props.hub,
-    disclaimer: `${props.hub.disclaimer} This is a curated starter list (${COLLEGES_INTAKE_YEAR} intakes where known) — not every college in SA. For all 50 public TVET colleges, use the DHET directory entry under Public TVET below.`,
+    disclaimer: `${props.hub.disclaimer} Expanded curated list (${COLLEGES_INTAKE_YEAR} intakes where known) including Eduvos, Pearson, STADIO, and major TVET colleges — still not every college in SA. For all 50 public TVET colleges, use the DHET directory under Public TVET.`,
   }
 
   return (
@@ -78,8 +78,8 @@ export function CollegesHub(props: { hub: HubMeta }) {
           </p>
           <p className="hubIntakeBannerText hubBodyText">
             Colleges are grouped below by type so you can explore nursing schools, culinary institutes,
-            private colleges, and public TVET separately. We do not list every college in the country yet —
-            the DHET link covers all 50 public TVET colleges.
+            private colleges, and public TVET separately.             Includes popular private colleges like Eduvos (with campuses), Pearson, and Milpark, plus major
+            public TVET colleges — use the DHET directory for the full national list of 50 TVET institutions.
           </p>
         </div>
 

@@ -58,8 +58,9 @@ export function CoursesHub(props: { hub: HubMeta }) {
         <div className="hubIntakeBanner">
           <p className="hubIntakeBannerTitle">{COURSES_BY_POPULARITY.length} courses & skills programmes</p>
           <p className="hubIntakeBannerText hubBodyText">
-            Grouped by skill area — cloud certifications, coding, SA bootcamps, business skills, and free
-            online learning. Filter by cost to find free and funded options first.
+            Grouped by skill area — cloud certifications, coding, SA bootcamps, business & accounting skills,
+            and free online learning. This is a curated list of popular pathways, not every course in SA —
+            filter by cost to find free and funded options first.
           </p>
         </div>
 

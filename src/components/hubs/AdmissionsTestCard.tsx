@@ -13,33 +13,34 @@ function initialsFor(name: string) {
 
 export function AdmissionsTestCard(props: { entry: AdmissionsTestEntry }) {
   const { entry } = props
+  const regionLabel = entry.region === 'south-africa' ? 'South Africa' : 'International'
 
   return (
-    <article className="hubListingCard hubListingCard--wide">
+    <article className="hubListingCard hubListingCardRich hubListingCard--wide hubTestCard">
       <div className="hubListingCardHead">
-        <span className="hubListingLogoFallback" aria-hidden>
+        <span className="hubListingLogoFallback hubListingLogoLg" aria-hidden>
           {initialsFor(entry.shortName)}
         </span>
         <div>
-          <h2 className="hubListingTitle">{entry.name}</h2>
-          <p className="hubListingMeta">
-            {entry.shortName} · {entry.region === 'south-africa' ? 'South Africa' : 'International'}
+          <h2 className="hubListingTitle hubListingTitleLg">{entry.name}</h2>
+          <p className="hubListingMeta hubListingMetaStrong">
+            {entry.shortName} · {regionLabel}
           </p>
         </div>
       </div>
 
-      <p className="hubListingNotes">{entry.whatItIs}</p>
+      <p className="hubBodyText">{entry.whatItIs}</p>
 
       <div className="hubNeededForBlock">
-        <h3 className="hubSubheading">Needed for</h3>
-        <ul className="hubBulletList">
+        <h3 className="hubBlockHeading">Needed for</h3>
+        <ul className="hubBulletList hubBulletListDark">
           {entry.neededFor.map((item) => (
             <li key={item}>{item}</li>
           ))}
         </ul>
       </div>
 
-      <dl className="hubFactGrid">
+      <dl className="hubFactGrid hubFactGridTests">
         <div>
           <dt>Registration opens</dt>
           <dd>{entry.registrationOpens}</dd>
@@ -59,8 +60,8 @@ export function AdmissionsTestCard(props: { entry: AdmissionsTestEntry }) {
       </dl>
 
       <div className="hubCentresBlock">
-        <h3 className="hubSubheading">Test centres by province</h3>
-        <dl className="hubCentresGrid">
+        <h3 className="hubBlockHeading">Test centres by province</h3>
+        <dl className="hubCentresGrid hubCentresGridDark">
           {entry.testCentres.map((row) => (
             <div key={row.province}>
               <dt>{row.province}</dt>
@@ -70,7 +71,7 @@ export function AdmissionsTestCard(props: { entry: AdmissionsTestEntry }) {
         </dl>
         {entry.centresLink ? (
           <a
-            className="hubCentresOfficialLink"
+            className="hubCentresOfficialLink hubCentresOfficialLinkDark"
             href={entry.centresLink.url}
             target="_blank"
             rel="noreferrer"
@@ -82,7 +83,7 @@ export function AdmissionsTestCard(props: { entry: AdmissionsTestEntry }) {
 
       <HubResourceLinks links={entry.prepResources} title="Prep, past papers & official links" />
 
-      <p className="hubListingNotes">{entry.notes}</p>
+      <p className="hubBodyText">{entry.notes}</p>
 
       <div className="hubListingLinks">
         <a className="btn btnBrand btnSmall" href={entry.website} target="_blank" rel="noreferrer">

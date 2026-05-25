@@ -4,11 +4,29 @@ import type { HubMeta, StudyAbroadCategory } from '../../types/hubs'
 import { STUDY_ABROAD_CATEGORY_LABELS } from '../../types/hubs'
 import { HubShell } from './HubShell'
 import { StudyAbroadCard } from './StudyAbroadCard'
+import { HubCategorySection, groupByCategory } from './HubCategorySection'
 
 const CATEGORY_OPTIONS = Object.entries(STUDY_ABROAD_CATEGORY_LABELS) as [
   StudyAbroadCategory,
   string,
 ][]
+
+const CATEGORY_ORDER: StudyAbroadCategory[] = [
+  'government-scholarship',
+  'international-scholarship',
+  'international-university',
+  'country-pathway',
+  'advising-support',
+]
+
+const CATEGORY_DESCRIPTIONS: Partial<Record<StudyAbroadCategory, string>> = {
+  'government-scholarship': 'DHET-nominated scholarships to study in China, Germany, Russia, and more.',
+  'international-scholarship': 'Chevening, Fulbright, Commonwealth, and other competitive awards.',
+  'international-university':
+    'Universities in the USA and Europe that actively welcome international students — what SA learners need to know before applying.',
+  'country-pathway': 'Official country portals for UK, Germany, France, Australia, and the EU.',
+  'advising-support': 'Free advising and qualification recognition when you return to SA.',
+}
 
 export function StudyAbroadHub(props: { hub: HubMeta }) {
   const [query, setQuery] = useState('')
@@ -36,17 +54,29 @@ export function StudyAbroadHub(props: { hub: HubMeta }) {
     })
   }, [query, category, destination])
 
+  const grouped = useMemo(
+    () =>
+      groupByCategory(
+        filtered.map((e) => ({
+          ...e,
+          categoryLabel: STUDY_ABROAD_CATEGORY_LABELS[e.category],
+        })),
+        category === 'all' ? CATEGORY_ORDER : [category],
+      ),
+    [filtered, category],
+  )
+
   return (
     <HubShell hub={props.hub}>
       <section className="hubSection" aria-labelledby="abroad-list-heading">
         <div className="hubIntakeBanner">
           <p className="hubIntakeBannerTitle">
-            {STUDY_ABROAD_BY_POPULARITY.length} scholarships & study pathways
+            {STUDY_ABROAD_BY_POPULARITY.length} scholarships, universities & study pathways
           </p>
-          <p className="hubIntakeBannerText">
-            Government scholarships (DHET), international awards like Chevening and Fulbright, country
-            guides, and SAQA qualification recognition — with deadlines, funding levels, and official
-            links.
+          <p className="hubIntakeBannerText hubBodyText">
+            Government scholarships (DHET), international awards like Chevening and Fulbright, universities
+            in the USA and Europe that welcome SA students, country guides, and SAQA recognition — with
+            deadlines, funding levels, and official links.
           </p>
         </div>
 
@@ -97,9 +127,21 @@ export function StudyAbroadHub(props: { hub: HubMeta }) {
           </div>
         </div>
 
-        <div className="hubListingGrid hubListingGrid--wide">
-          {filtered.map((entry) => (
-            <StudyAbroadCard key={entry.id} entry={entry} />
+        <div className="hubCategoryStack">
+          {grouped.map((group) => (
+            <HubCategorySection
+              key={group.category}
+              categoryId={group.category}
+              title={group.label}
+              description={CATEGORY_DESCRIPTIONS[group.category as StudyAbroadCategory]}
+              count={group.items.length}
+            >
+              <div className="hubListingStack">
+                {group.items.map((entry) => (
+                  <StudyAbroadCard key={entry.id} entry={entry} />
+                ))}
+              </div>
+            </HubCategorySection>
           ))}
         </div>
 

@@ -1,8 +1,9 @@
 import type { StudyAbroadEntry } from '../../types/hubs'
+import { INTERNATIONAL_UNIVERSITIES } from './studyAbroadUniversitiesData'
 
 const DHET_PORTAL = 'https://www.internationalscholarships.dhet.gov.za'
 
-export const STUDY_ABROAD: StudyAbroadEntry[] = [
+const SCHOLARSHIPS_AND_PATHWAYS: StudyAbroadEntry[] = [
   {
     id: 'dhet-portal',
     name: 'DHET International Scholarships Portal',
@@ -423,6 +424,11 @@ export const STUDY_ABROAD: StudyAbroadEntry[] = [
     notes: 'Separate from Chevening — different eligibility (no work experience requirement in same way). Check themes each year.',
     popularityRank: 16,
   },
+]
+
+export const STUDY_ABROAD: StudyAbroadEntry[] = [
+  ...SCHOLARSHIPS_AND_PATHWAYS,
+  ...INTERNATIONAL_UNIVERSITIES,
 ]
 
 export const STUDY_ABROAD_BY_POPULARITY = [...STUDY_ABROAD].sort(

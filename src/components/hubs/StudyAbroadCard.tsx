@@ -39,11 +39,17 @@ export function StudyAbroadCard(props: { entry: StudyAbroadEntry }) {
 
       {enrich ? (
         <div className="hubAbroadPurpose">
-          <h3 className="hubBlockHeading">What this scholarship is for</h3>
+          <h3 className="hubBlockHeading">
+            {entry.category === 'international-university'
+              ? 'Why SA students consider this'
+              : 'What this scholarship is for'}
+          </h3>
           <p className="hubBodyText">{enrich.scholarshipPurpose}</p>
           {enrich.coversWhat.length > 0 ? (
             <div className="hubAbroadCovers">
-              <span className="hubAbroadCoversLabel">Typically covers:</span>
+              <span className="hubAbroadCoversLabel">
+                {entry.category === 'international-university' ? 'Key points:' : 'Typically covers:'}
+              </span>
               <div className="hubTagRow">
                 {enrich.coversWhat.map((item) => (
                   <span key={item} className="hubTag hubTagAbroad">

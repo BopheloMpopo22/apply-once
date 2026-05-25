@@ -87,6 +87,8 @@ export type CollegeEntry = {
   applicationCloses: string
   applicationFee: string
   notes: string
+  /** Major campus cities or learning centres — shown on the card when set. */
+  campuses?: string[]
   popularityRank: number
 }
 
@@ -121,6 +123,7 @@ export const COLLEGE_CATEGORY_LABELS: Record<CollegeCategory, string> = {
 export type StudyAbroadCategory =
   | 'government-scholarship'
   | 'international-scholarship'
+  | 'international-university'
   | 'advising-support'
   | 'country-pathway'
 
@@ -148,6 +151,7 @@ export type StudyAbroadEntry = {
 export const STUDY_ABROAD_CATEGORY_LABELS: Record<StudyAbroadCategory, string> = {
   'government-scholarship': 'SA government scholarships',
   'international-scholarship': 'International scholarships',
+  'international-university': 'Universities welcoming international students',
   'advising-support': 'Advising & application support',
   'country-pathway': 'Country study guides',
 }

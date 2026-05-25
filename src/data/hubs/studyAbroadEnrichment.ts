@@ -10,6 +10,10 @@ export const DESTINATION_FLAGS: Record<string, string> = {
   'Australia': '🇦🇺',
   'France': '🇫🇷',
   'European Union': '🇪🇺',
+  Netherlands: '🇳🇱',
+  Switzerland: '🇨🇭',
+  Belgium: '🇧🇪',
+  Denmark: '🇩🇰',
 }
 
 export const STUDY_ABROAD_ENRICHMENT: Record<
@@ -95,6 +99,66 @@ export const STUDY_ABROAD_ENRICHMENT: Record<
     scholarshipPurpose:
       'UK government master\'s and PhD for Commonwealth citizens — focused on development themes and sustainable growth.',
     coversWhat: ['Full tuition', 'Flights', 'Living stipend', 'Warm clothing allowance where applicable'],
+  },
+  'mit-intl': {
+    scholarshipPurpose:
+      'Direct admission to a top US STEM university — you apply as an international student with NSC, SAT/ACT, and essays (not a packaged scholarship).',
+    coversWhat: ['Need-based financial aid if admitted', 'Merit aid rare for internationals'],
+  },
+  'ucla-intl': {
+    scholarshipPurpose:
+      'Study at a major California public university — strong for sciences, arts, and professional pathways in the US.',
+    coversWhat: ['Limited international aid — budget full cost of attendance'],
+  },
+  'nyu-intl': {
+    scholarshipPurpose:
+      'Private US university in New York — global campuses and competitive programmes in business, arts, and media.',
+    coversWhat: ['Merit/need aid limited — NYU Abu Dhabi separate full-scholarship route'],
+  },
+  'uva-intl': {
+    scholarshipPurpose:
+      'English-taught study in the Netherlands — popular EU destination with international student support services.',
+    coversWhat: ['Tuition (non-EU rate)', 'Holland Scholarship for some', 'Part-time work rules apply'],
+  },
+  'tum-intl': {
+    scholarshipPurpose:
+      'Study engineering and sciences in Germany — low tuition at public universities; DAAD can add living-cost support.',
+    coversWhat: ['Low/no tuition', 'DAAD stipends on funded programmes', 'Blocked account for visa'],
+  },
+  'eth-intl': {
+    scholarshipPurpose:
+      'Elite Swiss STEM university — world-class research environment; strong maths/science background required.',
+    coversWhat: ['Low tuition vs high living costs', 'Competitive ETH scholarships'],
+  },
+  'sciences-po': {
+    scholarshipPurpose:
+      'Leading European social sciences university in Paris — ideal for politics, IR, economics, and law-oriented careers.',
+    coversWhat: ['Scaled tuition', 'Eiffel Excellence scholarship', 'Campus France support'],
+  },
+  'ucl-intl': {
+    scholarshipPurpose:
+      'Russell Group London university — apply via UCAS with NSC equivalent and IELTS; competitive across faculties.',
+    coversWhat: ['International tuition', 'Postgrad Chevening/Commonwealth', 'University bursaries rare at undergrad'],
+  },
+  'kcl-intl': {
+    scholarshipPurpose:
+      'Central London university strong in health sciences, law, and humanities — large international student community.',
+    coversWhat: ['International fees', 'Postgraduate funding more common than undergraduate'],
+  },
+  'leuven-intl': {
+    scholarshipPurpose:
+      'Affordable English-medium study in Belgium — alternative to UK/US with strong research universities.',
+    coversWhat: ['EU-rate tuition', 'University scholarships', 'Lower living costs than London'],
+  },
+  'copenhagen-intl': {
+    scholarshipPurpose:
+      'Nordic research university — excellent for English master\'s in sciences and health; high quality of life.',
+    coversWhat: ['Non-EU tuition', 'Limited government scholarships', 'Student work opportunities'],
+  },
+  'groningen-intl': {
+    scholarshipPurpose:
+      'Dutch university with many English programmes — student-friendly city and Studielink application system.',
+    coversWhat: ['Holland Scholarship', 'Non-EU tuition', 'Student housing support'],
   },
 }
 

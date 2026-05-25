@@ -38,6 +38,19 @@ export function CollegeCard(props: { entry: CollegeEntry }) {
         ))}
       </div>
 
+      {entry.campuses && entry.campuses.length > 0 ? (
+        <div className="hubCampusesBlock">
+          <h3 className="hubBlockHeading">Campuses & centres</h3>
+          <div className="hubTagRow">
+            {entry.campuses.map((campus) => (
+              <span key={campus} className="hubTag">
+                {campus}
+              </span>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       <dl className="hubFactGrid">
         <div>
           <dt>Applications open</dt>
