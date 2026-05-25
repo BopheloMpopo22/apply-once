@@ -3751,7 +3751,7 @@ body {
 
 .homeHeroContent {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   max-width: 620px;
 }
 
@@ -3808,30 +3808,32 @@ body {
 /* Hero right: custom floating artwork only */
 .homeHeroVisual {
   position: relative;
+  z-index: 0;
   min-height: 0;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  overflow: visible;
+  padding-left: var(--space-5);
+  overflow: hidden;
 }
 
 .homeHeroMainImage {
   position: relative;
-  z-index: 1;
-  width: min(720px, 56vw);
-  max-width: none;
+  z-index: 0;
+  width: min(520px, 42vw);
+  max-width: 100%;
   height: auto;
   object-fit: contain;
-  /* Keep block on the right; subject in artwork faces inward (left) */
   object-position: right center;
   display: block;
   margin-left: auto;
-  margin-right: -12px;
+  margin-right: 0;
   border-radius: 28px;
-  filter: drop-shadow(0 28px 56px rgba(15, 23, 42, 0.22));
-  transform: scale(1.14);
-  transform-origin: right center;
+  filter: drop-shadow(0 24px 48px rgba(15, 23, 42, 0.2));
+  /* Tilt toward the headline — position stays on the right */
+  transform: rotate(-5deg) skewX(3deg);
+  transform-origin: 78% 52%;
   animation: homeHeroImageFloat 5.5s ease-in-out infinite;
   pointer-events: none;
   user-select: none;
@@ -3840,10 +3842,10 @@ body {
 @keyframes homeHeroImageFloat {
   0%,
   100% {
-    transform: scale(1.14) translateY(0);
+    transform: rotate(-5deg) skewX(3deg) translateY(0);
   }
   50% {
-    transform: scale(1.14) translateY(-18px);
+    transform: rotate(-5deg) skewX(3deg) translateY(-14px);
   }
 }
 
@@ -4220,11 +4222,11 @@ body {
   }
 
   .homeHeroMainImage {
-    width: min(100%, 480px);
+    width: min(100%, 420px);
     margin-left: auto;
     margin-right: auto;
-    transform: scale(1.08);
-    transform-origin: center center;
+    transform: rotate(-4deg) skewX(2deg);
+    transform-origin: center 52%;
     object-position: center center;
     border-radius: 24px;
   }
@@ -4250,8 +4252,8 @@ body {
   }
 
   .homeHeroMainImage {
-    width: min(100%, 400px);
-    transform: scale(1.05);
+    width: min(100%, 360px);
+    transform: rotate(-3deg) skewX(2deg);
     border-radius: 20px;
   }
 
@@ -4268,19 +4270,19 @@ body {
   }
 
   .homeHeroMainImage {
-    transform: scale(1.14);
+    transform: rotate(-5deg) skewX(3deg);
     animation: none;
   }
 
   @media (max-width: 980px) {
     .homeHeroMainImage {
-      transform: scale(1.08);
+      transform: rotate(-4deg) skewX(2deg);
     }
   }
 
   @media (max-width: 640px) {
     .homeHeroMainImage {
-      transform: scale(1.05);
+      transform: rotate(-3deg) skewX(2deg);
     }
   }
 }
