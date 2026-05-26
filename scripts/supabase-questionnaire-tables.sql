@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS "BursaryOpportunity" (
   "workSectors" TEXT NOT NULL DEFAULT '["any"]',
   "offersJobAfterGrad" BOOLEAN NOT NULL DEFAULT false,
   "applicationCloses" TIMESTAMP(3) NOT NULL,
+  "applyUrl" TEXT,
   "active" BOOLEAN NOT NULL DEFAULT true,
   "notes" TEXT,
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

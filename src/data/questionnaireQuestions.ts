@@ -94,10 +94,18 @@ export const emptyQuestionnaireAnswers = (): QuestionnaireAnswers => ({
   careerPriority: '',
 })
 
+export function labelForStudyChoice(value: string): string {
+  if (!value) return ''
+  return STUDY_FIELD_OPTIONS.find((o) => o.value === value)?.label ?? value
+}
+
 export function labelForAnswer(
   questionId: keyof QuestionnaireAnswers,
   value: string,
 ): string {
+  if (questionId === 'studyChoice1' || questionId === 'studyChoice2' || questionId === 'studyChoice3') {
+    return labelForStudyChoice(value)
+  }
   const q = QUESTIONNAIRE_QUESTIONS.find((x) => x.id === questionId)
   return q?.options.find((o) => o.value === value)?.label ?? value
 }

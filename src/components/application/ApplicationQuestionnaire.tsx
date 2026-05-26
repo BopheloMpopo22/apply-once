@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../api/client'
+import { QUESTIONNAIRE_STEPS } from '../../data/questionnaireSteps'
 import {
   emptyQuestionnaireAnswers,
-  QUESTIONNAIRE_QUESTIONS,
   type QuestionnaireAnswers,
 } from '../../data/questionnaireQuestions'
+import { StudyFieldCombo } from './StudyFieldCombo'
 
 export type QuestionnaireState = {
   answers: Partial<QuestionnaireAnswers> & Record<string, string | undefined>
@@ -24,13 +25,14 @@ type Props = {
 }
 
 export function ApplicationQuestionnaire(props: Props) {
+  const topRef = useRef<HTMLDivElement>(null)
   const [phase, setPhase] = useState<Phase>(() => {
     if (props.initial?.skipped) return 'done'
     if (props.initial?.completedAt && props.initial.bursaryCount != null) return 'results'
     if (props.initial?.completedAt) return 'done'
     return 'questions'
   })
-  const [questionIndex, setQuestionIndex] = useState(0)
+  const [stepIndex, setStepIndex] = useState(0)
   const [answers, setAnswers] = useState<QuestionnaireAnswers>(() => ({
     ...emptyQuestionnaireAnswers(),
     ...(props.initial?.answers ?? {}),
@@ -43,9 +45,12 @@ export function ApplicationQuestionnaire(props: Props) {
   })
   const [searching, setSearching] = useState(false)
 
-  const total = QUESTIONNAIRE_QUESTIONS.length
-  const current = QUESTIONNAIRE_QUESTIONS[questionIndex]
-  const currentValue = current ? answers[current.id] : ''
+  const total = QUESTIONNAIRE_STEPS.length
+  const step = QUESTIONNAIRE_STEPS[stepIndex]
+
+  useEffect(() => {
+    topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [stepIndex, phase])
 
   useEffect(() => {
     if (props.initial?.skipped) {
@@ -60,11 +65,6 @@ export function ApplicationQuestionnaire(props: Props) {
       setPhase('results')
     }
   }, [props.initial])
-
-  function setAnswer(value: string) {
-    if (!current) return
-    setAnswers((prev) => ({ ...prev, [current.id]: value }))
-  }
 
   async function finishQuestionnaire(skipped: boolean) {
     setBusy(true)
@@ -87,7 +87,7 @@ export function ApplicationQuestionnaire(props: Props) {
       window.setTimeout(() => {
         setSearching(false)
         setPhase('results')
-      }, 1400)
+      }, 1200)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not save questionnaire')
     } finally {
@@ -95,14 +95,28 @@ export function ApplicationQuestionnaire(props: Props) {
     }
   }
 
-  function goNext() {
-    if (!currentValue) {
-      setError('Choose an option to continue.')
-      return
+  function validateStep(): boolean {
+    if (!step) return false
+    if (step.kind === 'study-choices') {
+      if (!answers.studyChoice1.trim() || !answers.studyChoice2.trim() || !answers.studyChoice3.trim()) {
+        setError('Fill in all three study choices (pick from the list or type your own).')
+        return false
+      }
+      return true
     }
+    const v = answers[step.question.id]
+    if (!v) {
+      setError('Choose an option to continue.')
+      return false
+    }
+    return true
+  }
+
+  function goNext() {
+    if (!validateStep()) return
     setError(null)
-    if (questionIndex < total - 1) {
-      setQuestionIndex((i) => i + 1)
+    if (stepIndex < total - 1) {
+      setStepIndex((i) => i + 1)
       return
     }
     void finishQuestionnaire(false)
@@ -110,15 +124,15 @@ export function ApplicationQuestionnaire(props: Props) {
 
   function goBack() {
     setError(null)
-    if (questionIndex > 0) setQuestionIndex((i) => i - 1)
+    if (stepIndex > 0) setStepIndex((i) => i - 1)
   }
 
   if (phase === 'done') {
     return (
-      <div className="appQuestionnaire appQuestionnaireDone">
+      <div className="appQuestionnaire appQuestionnaireCompact appQuestionnaireDone">
         <p className="appQuestionnaireDoneText">
-          You can update your career goals anytime from your{' '}
-          <Link to="/profile">profile</Link>.
+          Career goals saved.{' '}
+          <Link to="/profile">Edit them on your profile</Link> anytime to refresh your bursary count.
         </p>
       </div>
     )
@@ -128,23 +142,18 @@ export function ApplicationQuestionnaire(props: Props) {
     const b = counts.bursaryCount ?? 0
     const s = counts.scholarshipCount ?? 0
     return (
-      <div className="appQuestionnaire appQuestionnaireResults">
+      <div className="appQuestionnaire appQuestionnaireCompact appQuestionnaireResults">
         <p className="appQuestionnaireEyebrow">Matches found</p>
         <h2 className="appQuestionnaireResultsTitle">
-          We found <strong>{b}</strong> open bursar{b === 1 ? 'y' : 'ies'} and{' '}
-          <strong>{s}</strong> scholarship{s === 1 ? '' : 's'} for your goals
+          <strong>{b}</strong> open bursar{b === 1 ? 'y' : 'ies'} · <strong>{s}</strong> scholarship
+          {s === 1 ? '' : 's'}
         </h2>
         <p className="appQuestionnaireResultsLead">
-          These are real opportunities in our database that are still open and align with what you
-          told us. Complete your application below and we can apply on your behalf.
+          Only opportunities still open for applications are counted. Closed programmes (e.g. past closing date) are
+          excluded.
         </p>
-        <button
-          type="button"
-          className="btn btnBrand"
-          onClick={() => setPhase('done')}
-          disabled={busy}
-        >
-          Continue to application
+        <button type="button" className="btn btnBrand btnSmall" onClick={() => setPhase('done')} disabled={busy}>
+          Continue to application →
         </button>
       </div>
     )
@@ -152,58 +161,86 @@ export function ApplicationQuestionnaire(props: Props) {
 
   if (searching) {
     return (
-      <div className="appQuestionnaire appQuestionnaireSearching">
+      <div className="appQuestionnaire appQuestionnaireCompact appQuestionnaireSearching">
         <div className="appQuestionnaireSpinner" aria-hidden />
         <p className="appQuestionnaireSearchingText">Searching open bursaries & scholarships…</p>
       </div>
     )
   }
 
+  const stepTitle =
+    step?.kind === 'study-choices' ? step.title : step?.kind === 'choice' ? step.question.title : ''
+
   return (
-    <div className="appQuestionnaire">
+    <div className="appQuestionnaire appQuestionnaireCompact" ref={topRef}>
       <div className="appQuestionnaireHead">
         <p className="appQuestionnaireEyebrow">Quick career match</p>
         <p className="appQuestionnaireProgress">
-          Question {questionIndex + 1} of {total}
+          Step {stepIndex + 1} of {total}
         </p>
       </div>
 
-      <div className="appQuestionnaireCard">
-        <h2 className="appQuestionnaireQuestion">{current?.title}</h2>
-        {current?.subtitle ? <p className="appQuestionnaireSubtitle">{current.subtitle}</p> : null}
+      <div className="appQuestionnaireCard" key={step?.id ?? stepIndex}>
+        <h2 className="appQuestionnaireQuestion">{stepTitle}</h2>
+        {step?.kind === 'study-choices' && step.subtitle ? (
+          <p className="appQuestionnaireSubtitle">{step.subtitle}</p>
+        ) : null}
+        {step?.kind === 'choice' && step.question.subtitle ? (
+          <p className="appQuestionnaireSubtitle">{step.question.subtitle}</p>
+        ) : null}
 
-        <div className="appQuestionnaireOptions" role="listbox" aria-label={current?.title}>
-          {current?.options.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              role="option"
-              aria-selected={currentValue === opt.value}
-              className={
-                currentValue === opt.value
-                  ? 'appQuestionnaireOption appQuestionnaireOptionActive'
-                  : 'appQuestionnaireOption'
-              }
-              onClick={() => setAnswer(opt.value)}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
+        {step?.kind === 'study-choices' ? (
+          <div className="appQuestionnaireStudyGrid">
+            <StudyFieldCombo
+              label="1st choice (dream programme)"
+              value={answers.studyChoice1}
+              onChange={(v) => setAnswers((p) => ({ ...p, studyChoice1: v }))}
+            />
+            <StudyFieldCombo
+              label="2nd choice"
+              value={answers.studyChoice2}
+              onChange={(v) => setAnswers((p) => ({ ...p, studyChoice2: v }))}
+            />
+            <StudyFieldCombo
+              label="3rd choice"
+              value={answers.studyChoice3}
+              onChange={(v) => setAnswers((p) => ({ ...p, studyChoice3: v }))}
+            />
+          </div>
+        ) : step?.kind === 'choice' ? (
+          <div className="appQuestionnaireOptions appQuestionnaireOptionsCompact" role="listbox">
+            {step.question.options.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                role="option"
+                aria-selected={answers[step.question.id] === opt.value}
+                className={
+                  answers[step.question.id] === opt.value
+                    ? 'appQuestionnaireOption appQuestionnaireOptionActive'
+                    : 'appQuestionnaireOption'
+                }
+                onClick={() => setAnswers((p) => ({ ...p, [step.question.id]: opt.value }))}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        ) : null}
 
         {error ? <p className="formError appQuestionnaireError">{error}</p> : null}
 
         <div className="appQuestionnaireNav">
           <button
             type="button"
-            className="btn btnGhost btnSmall appQuestionnaireNavBack"
+            className="btn btnGhost btnSmall"
             onClick={goBack}
-            disabled={questionIndex === 0 || busy}
+            disabled={stepIndex === 0 || busy}
           >
             ← Back
           </button>
           <button type="button" className="btn btnBrand btnSmall" onClick={goNext} disabled={busy}>
-            {questionIndex < total - 1 ? 'Next →' : busy ? 'Saving…' : 'See my matches'}
+            {stepIndex < total - 1 ? 'Next →' : busy ? 'Saving…' : 'See my matches'}
           </button>
         </div>
       </div>
@@ -214,7 +251,7 @@ export function ApplicationQuestionnaire(props: Props) {
         onClick={() => void finishQuestionnaire(true)}
         disabled={busy}
       >
-        Skip questionnaire — I am ready to apply
+        Skip — I am ready to apply
       </button>
     </div>
   )

@@ -22,6 +22,12 @@ You can fix the database **in the browser** (no `npx prisma db push` needed):
 
 After you deploy the latest code, the server **fills the bursary catalogue automatically** the first time someone uses the questionnaire.
 
+If you already created `BursaryOpportunity` before this update, also run:
+
+`scripts/supabase-bursary-apply-url.sql`
+
+In **Admin → Bursaries & scholarships catalogue**, click **Sync catalogue** to load ~90 SA opportunities (with apply links and closing dates). Only rows whose closing date is still in the future count toward student match totals.
+
 You do **not** need to run `npm run seed:bursaries` if the live site can reach the database.
 
 ## Optional — fix `.env` for local `npx` commands

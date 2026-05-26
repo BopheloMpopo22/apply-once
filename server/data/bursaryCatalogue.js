@@ -9,8 +9,10 @@ function closes(isoDate) {
   return new Date(isoDate)
 }
 
+import { BURSARY_CATALOGUE_EXTRA } from './bursaryCatalogueExtra.js'
+
 /** @type {import('../bursaryMatch.js').BursaryRow[]} */
-export const BURSARY_CATALOGUE = [
+const BURSARY_CATALOGUE_BASE = [
   {
     slug: 'nsfas',
     name: 'NSFAS',
@@ -371,5 +373,9 @@ export const BURSARY_CATALOGUE = [
     workSectors: ['corporate'],
     offersJobAfterGrad: true,
     applicationCloses: closes('2026-08-31T23:59:59Z'),
+    applyUrl: 'https://home.kpmg/za/en/home/careers.html',
   },
 ]
+
+/** Full catalogue: core list + researched additions (synced to DB on admin sync / first API use). */
+export const BURSARY_CATALOGUE = [...BURSARY_CATALOGUE_BASE, ...BURSARY_CATALOGUE_EXTRA]

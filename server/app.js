@@ -18,8 +18,11 @@ import { seedVarsityCatalogueFromRepo } from './varsitySeed.js'
 import { sortProgrammesForCatalogue, sortUniversitiesForCatalogue } from './varsityDisplayOrder.js'
 import {
   ensureBursaryCatalogueSeeded,
+  isOpportunityOpen,
+  loadBursaryCatalogue,
   matchOpenOpportunities,
   rowToBursary,
+  syncBursaryCatalogue,
 } from './bursaryMatch.js'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const prisma = new PrismaClient()
@@ -1130,6 +1133,89 @@ app.get('/api/admin/me', authMiddleware, adminMiddleware, async (req, res) => {
   res.json({ ok: true, email: String(req.supabaseEmail || '') })
 })
 
+app.get('/api/admin/bursaries', adminMiddleware, async (req, res) => {
+  const filter = String(req.query.filter || 'all')
+  await ensureBursaryCatalogueSeeded(prisma)
+  const rows = await prisma.bursaryOpportunity.findMany({ orderBy: [{ applicationCloses: 'asc' }, { name: 'asc' }] })
+  const now = new Date()
+  const items = rows.map((row) => {
+    const b = rowToBursary(row)
+    const open = isOpportunityOpen(b, now)
+    return {
+      id: b.id,
+      slug: b.slug,
+      name: b.name,
+      provider: b.provider,
+      type: b.type,
+      studyFields: b.studyFields,
+      workSectors: b.workSectors,
+      offersJobAfterGrad: b.offersJobAfterGrad,
+      applicationCloses: b.applicationCloses,
+      applyUrl: b.applyUrl ?? null,
+      active: b.active,
+      isOpen: open,
+      notes: b.notes ?? null,
+    }
+  })
+  const filtered =
+    filter === 'open' ? items.filter((i) => i.isOpen && i.active) : filter === 'closed' ? items.filter((i) => !i.isOpen || !i.active) : items
+  res.json({
+    total: filtered.length,
+    openCount: items.filter((i) => i.isOpen && i.active).length,
+    closedCount: items.filter((i) => !i.isOpen || !i.active).length,
+    asOf: now.toISOString(),
+    items: filtered,
+  })
+})
+
+app.post('/api/admin/bursaries/sync', adminMiddleware, async (req, res) => {
+  const count = await syncBursaryCatalogue(prisma)
+  res.json({ ok: true, upserted: count })
+})
+
+app.get('/api/admin/students/:id/bursary-matches', adminMiddleware, async (req, res) => {
+  const id = String(req.params.id || '')
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: { id: true, careerQuestionnaire: true },
+  })
+  if (!user) return res.status(404).json({ error: 'Student not found' })
+
+  const q = user.careerQuestionnaire
+  if (!q || q.skipped || !q.completedAt) {
+    return res.json({ hasQuestionnaire: false, answers: {}, bursaryCount: null, scholarshipCount: null, matches: [] })
+  }
+
+  let answers = {}
+  try {
+    answers = JSON.parse(q.answers || '{}')
+  } catch {
+    answers = {}
+  }
+
+  const catalogue = await loadBursaryCatalogue(prisma)
+  const match = matchOpenOpportunities(answers, catalogue)
+
+  res.json({
+    hasQuestionnaire: true,
+    answers,
+    bursaryCount: match.bursaryCount,
+    scholarshipCount: match.scholarshipCount,
+    matchedAt: match.asOf,
+    fieldSlugsUsed: match.fieldSlugsUsed,
+    matches: match.matched.map((m) => ({
+      slug: m.slug,
+      name: m.name,
+      provider: m.provider,
+      type: m.type,
+      applicationCloses: m.applicationCloses,
+      applyUrl: m.applyUrl ?? null,
+      offersJobAfterGrad: m.offersJobAfterGrad,
+      studyFields: m.studyFields,
+    })),
+  })
+})
+
 app.get('/api/admin/students/:id', adminMiddleware, async (req, res) => {
   const id = String(req.params.id || '')
   const user = await prisma.user.findUnique({
@@ -1165,6 +1251,7 @@ app.get('/api/admin/students/:id', adminMiddleware, async (req, res) => {
           createdAt: true,
         },
       },
+      careerQuestionnaire: true,
     },
   })
   if (!user) {
@@ -1183,6 +1270,44 @@ app.get('/api/admin/students/:id', adminMiddleware, async (req, res) => {
         payload,
       }
     : null
+  let questionnaireOut = null
+  let bursaryMatchesOut = null
+  if (user.careerQuestionnaire) {
+    const q = user.careerQuestionnaire
+    let qAnswers = {}
+    try {
+      qAnswers = JSON.parse(q.answers || '{}')
+    } catch {
+      qAnswers = {}
+    }
+    questionnaireOut = {
+      answers: qAnswers,
+      skipped: q.skipped,
+      completedAt: q.completedAt,
+      bursaryCount: q.bursaryCount,
+      scholarshipCount: q.scholarshipCount,
+      matchedAt: q.matchedAt,
+    }
+    if (!q.skipped && q.completedAt && Object.keys(qAnswers).length > 0) {
+      const catalogue = await loadBursaryCatalogue(prisma)
+      const match = matchOpenOpportunities(qAnswers, catalogue)
+      bursaryMatchesOut = {
+        bursaryCount: match.bursaryCount,
+        scholarshipCount: match.scholarshipCount,
+        matchedAt: match.asOf,
+        matches: match.matched.map((m) => ({
+          slug: m.slug,
+          name: m.name,
+          provider: m.provider,
+          type: m.type,
+          applicationCloses: m.applicationCloses,
+          applyUrl: m.applyUrl ?? null,
+          offersJobAfterGrad: m.offersJobAfterGrad,
+        })),
+      }
+    }
+  }
+
   res.json({
     id: user.id,
     email: user.email,
@@ -1192,6 +1317,8 @@ app.get('/api/admin/students/:id', adminMiddleware, async (req, res) => {
     application: applicationOut,
     documents: user.documents,
     inboxItems: user.inboxItems,
+    questionnaire: questionnaireOut,
+    bursaryMatches: bursaryMatchesOut,
   })
 })
 

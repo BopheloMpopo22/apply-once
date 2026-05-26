@@ -93,6 +93,8 @@ model BursaryOpportunity {
   workSectors        String   @default("[\"any\"]")
   offersJobAfterGrad Boolean  @default(false)
   applicationCloses  DateTime
+  /// Official application or careers page URL.
+  applyUrl           String?
   active             Boolean  @default(true)
   notes              String?
   createdAt          DateTime @default(now())

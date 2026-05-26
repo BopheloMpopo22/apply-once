@@ -1,7 +1,10 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { api } from '../../api/client'
+import { StudyFieldCombo } from '../application/StudyFieldCombo'
 import {
   labelForAnswer,
+  labelForStudyChoice,
   QUESTIONNAIRE_QUESTIONS,
   type QuestionnaireAnswers,
 } from '../../data/questionnaireQuestions'
@@ -44,8 +47,8 @@ export function ProfileCareerGoals(props: Props) {
       <section className="profileGoalsCard">
         <h2 className="profileSectionTitle">Career goals</h2>
         <p className="muted">
-          Complete the short questionnaire on your{' '}
-          <a href="/application">application form</a> to see how many bursaries match your plans.
+          Complete the short questionnaire on your <Link to="/application">application form</Link> to see how many open
+          bursaries match your plans.
         </p>
       </section>
     )
@@ -55,10 +58,10 @@ export function ProfileCareerGoals(props: Props) {
     return (
       <section className="profileGoalsCard">
         <h2 className="profileSectionTitle">Career goals</h2>
-        <p className="muted">You skipped the career questionnaire. You can retake it on your application form.</p>
-        <a className="btn btnBrand btnSmall" href="/application">
+        <p className="muted">You skipped the career questionnaire. Retake it on your application to get a match count.</p>
+        <Link className="btn btnBrand btnSmall" to="/application">
           Open application
-        </a>
+        </Link>
       </section>
     )
   }
@@ -66,12 +69,19 @@ export function ProfileCareerGoals(props: Props) {
   return (
     <section className="profileGoalsCard">
       <div className="profileGoalsHead">
-        <h2 className="profileSectionTitle">Career goals</h2>
+        <div>
+          <h2 className="profileSectionTitle">Career goals</h2>
+          <p className="profileGoalsLead muted">
+            Change your study path or work sector anytime — we only count bursaries still open for applications.
+          </p>
+        </div>
         {data?.bursaryCount != null ? (
           <p className="profileGoalsMatch">
-            <strong>{data.bursaryCount}</strong> open bursaries · <strong>{data.scholarshipCount}</strong>{' '}
-            scholarships (last checked{' '}
-            {data.matchedAt ? new Date(data.matchedAt).toLocaleDateString() : 'recently'})
+            <strong>{data.bursaryCount}</strong> open bursaries · <strong>{data.scholarshipCount}</strong> scholarships
+            <span className="profileGoalsMatchMeta">
+              {' '}
+              (checked {data.matchedAt ? new Date(data.matchedAt).toLocaleDateString() : 'recently'})
+            </span>
           </p>
         ) : null}
       </div>
@@ -79,15 +89,25 @@ export function ProfileCareerGoals(props: Props) {
       {!editing ? (
         <>
           <dl className="profileGoalsList">
-            {QUESTIONNAIRE_QUESTIONS.map((q) => (
+            <div>
+              <dt>Study choices</dt>
+              <dd>
+                <ol className="profileGoalsStudyList">
+                  <li>1st: {labelForStudyChoice(data?.answers.studyChoice1 ?? '') || '—'}</li>
+                  <li>2nd: {labelForStudyChoice(data?.answers.studyChoice2 ?? '') || '—'}</li>
+                  <li>3rd: {labelForStudyChoice(data?.answers.studyChoice3 ?? '') || '—'}</li>
+                </ol>
+              </dd>
+            </div>
+            {QUESTIONNAIRE_QUESTIONS.filter((q) => !q.id.startsWith('studyChoice')).map((q) => (
               <div key={q.id}>
                 <dt>{q.title}</dt>
                 <dd>{labelForAnswer(q.id, data?.answers[q.id] ?? '') || '—'}</dd>
               </div>
             ))}
           </dl>
-          <button type="button" className="btn btnGhost btnSmall" onClick={() => setEditing(true)}>
-            Edit answers
+          <button type="button" className="btn btnBrand btnSmall" onClick={() => setEditing(true)}>
+            Edit career goals & refresh matches
           </button>
         </>
       ) : (
@@ -119,6 +139,8 @@ function ProfileGoalsEditForm(props: {
     careerPriority: props.initial.careerPriority ?? '',
   })
 
+  const otherQuestions = QUESTIONNAIRE_QUESTIONS.filter((q) => !q.id.startsWith('studyChoice'))
+
   return (
     <form
       className="profileGoalsForm"
@@ -127,7 +149,24 @@ function ProfileGoalsEditForm(props: {
         props.onSave(answers)
       }}
     >
-      {QUESTIONNAIRE_QUESTIONS.map((q) => (
+      <div className="profileGoalsStudyGrid">
+        <StudyFieldCombo
+          label="1st study choice"
+          value={answers.studyChoice1}
+          onChange={(v) => setAnswers((prev) => ({ ...prev, studyChoice1: v }))}
+        />
+        <StudyFieldCombo
+          label="2nd study choice"
+          value={answers.studyChoice2}
+          onChange={(v) => setAnswers((prev) => ({ ...prev, studyChoice2: v }))}
+        />
+        <StudyFieldCombo
+          label="3rd study choice"
+          value={answers.studyChoice3}
+          onChange={(v) => setAnswers((prev) => ({ ...prev, studyChoice3: v }))}
+        />
+      </div>
+      {otherQuestions.map((q) => (
         <label key={q.id} className="field">
           <span className="fieldLabel">{q.title}</span>
           <select

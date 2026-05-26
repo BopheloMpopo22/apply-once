@@ -30,6 +30,30 @@ type InboxRow = {
   createdAt: string
 }
 
+type BursaryAdminRow = {
+  id: string
+  slug: string
+  name: string
+  provider: string
+  type: string
+  applicationCloses: string
+  applyUrl: string | null
+  isOpen: boolean
+  active: boolean
+  offersJobAfterGrad: boolean
+  studyFields: string[]
+}
+
+type StudentBursaryMatch = {
+  slug: string
+  name: string
+  provider: string
+  type: string
+  applicationCloses: string
+  applyUrl: string | null
+  offersJobAfterGrad: boolean
+}
+
 type StudentDetail = {
   id: string
   email: string
@@ -50,6 +74,20 @@ type StudentDetail = {
     createdAt: string
   }[]
   inboxItems: InboxRow[]
+  questionnaire?: {
+    answers: Record<string, string>
+    skipped: boolean
+    completedAt: string | null
+    bursaryCount: number | null
+    scholarshipCount: number | null
+    matchedAt: string | null
+  } | null
+  bursaryMatches?: {
+    bursaryCount: number
+    scholarshipCount: number
+    matchedAt: string
+    matches: StudentBursaryMatch[]
+  } | null
 }
 
 type VarsityUniversityRow = {
@@ -109,6 +147,13 @@ export function AdminPage() {
   const [varsitySeedToken, setVarsitySeedToken] = useState('')
   const [varsitySeedMessage, setVarsitySeedMessage] = useState<string | null>(null)
 
+  const [bursaryFilter, setBursaryFilter] = useState<'all' | 'open' | 'closed'>('open')
+  const [bursaries, setBursaries] = useState<BursaryAdminRow[]>([])
+  const [bursaryMeta, setBursaryMeta] = useState({ openCount: 0, closedCount: 0, total: 0 })
+  const [bursaryBusy, setBursaryBusy] = useState(false)
+  const [bursarySyncBusy, setBursarySyncBusy] = useState(false)
+  const [bursaryMessage, setBursaryMessage] = useState<string | null>(null)
+
   const refreshList = useCallback(async () => {
     setListBusy(true)
     setError(null)
@@ -154,6 +199,25 @@ export function AdminPage() {
     refreshList().catch(() => {})
   }, [refreshList])
 
+  const refreshBursaries = useCallback(async () => {
+    setBursaryBusy(true)
+    setBursaryMessage(null)
+    try {
+      const res = await adminApi<{
+        items: BursaryAdminRow[]
+        openCount: number
+        closedCount: number
+        total: number
+      }>(`/api/admin/bursaries?filter=${encodeURIComponent(bursaryFilter)}`)
+      setBursaries(res.items)
+      setBursaryMeta({ openCount: res.openCount, closedCount: res.closedCount, total: res.total })
+    } catch (e) {
+      setBursaryMessage(e instanceof Error ? e.message : 'Could not load bursaries')
+    } finally {
+      setBursaryBusy(false)
+    }
+  }, [bursaryFilter])
+
   const refreshVarsity = useCallback(async () => {
     setVarsityBusy(true)
     setVarsityError(null)
@@ -181,6 +245,11 @@ export function AdminPage() {
     if (!unlocked) return
     refreshVarsity().catch(() => {})
   }, [unlocked, refreshVarsity])
+
+  useEffect(() => {
+    if (!unlocked) return
+    refreshBursaries().catch(() => {})
+  }, [unlocked, refreshBursaries])
 
   useEffect(() => {
     const p = varsitySelectedProgrammeId
@@ -341,6 +410,105 @@ export function AdminPage() {
 
             {error ? <div className="formError adminError">{error}</div> : null}
             {varsityError ? <div className="formError adminError">{varsityError}</div> : null}
+
+            <section className="adminCard" style={{ gridColumn: '1 / -1' }}>
+              <div className="adminToolbar" style={{ marginTop: 0 }}>
+                <h2 className="adminCardTitle" style={{ margin: 0 }}>
+                  Bursaries & scholarships catalogue
+                </h2>
+                <label className="field" style={{ maxWidth: 160, marginLeft: 'auto' }}>
+                  <span>Show</span>
+                  <select
+                    value={bursaryFilter}
+                    onChange={(e) => setBursaryFilter(e.target.value as 'all' | 'open' | 'closed')}
+                  >
+                    <option value="open">Open only</option>
+                    <option value="closed">Closed / inactive</option>
+                    <option value="all">All</option>
+                  </select>
+                </label>
+                <button
+                  type="button"
+                  className="btn btnOutline btnSmall"
+                  disabled={bursaryBusy}
+                  onClick={() => void refreshBursaries()}
+                >
+                  {bursaryBusy ? 'Loading…' : 'Refresh'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btnDark btnSmall"
+                  disabled={bursarySyncBusy}
+                  onClick={async () => {
+                    setBursarySyncBusy(true)
+                    setBursaryMessage(null)
+                    try {
+                      const res = await adminApi<{ upserted: number }>('/api/admin/bursaries/sync', {
+                        method: 'POST',
+                        json: {},
+                      })
+                      setBursaryMessage(`Synced ${res.upserted} opportunities from the built-in catalogue.`)
+                      await refreshBursaries()
+                    } catch (e) {
+                      setBursaryMessage(e instanceof Error ? e.message : 'Sync failed')
+                    } finally {
+                      setBursarySyncBusy(false)
+                    }
+                  }}
+                >
+                  {bursarySyncBusy ? 'Syncing…' : 'Sync catalogue'}
+                </button>
+              </div>
+              <p className="adminCardLead">
+                SA bursaries and scholarships used for student match counts. Only <strong>open</strong> rows (closing
+                date in the future) count toward questionnaire totals. Run sync after deploy or when you update closing
+                dates in <code className="adminMono">server/data/bursaryCatalogue*.js</code>.
+              </p>
+              {bursaryMessage ? <p className="adminMuted">{bursaryMessage}</p> : null}
+              <p className="adminMuted">
+                {bursaryMeta.openCount} open · {bursaryMeta.closedCount} closed/inactive · showing {bursaries.length}
+              </p>
+              <div className="adminTableWrap">
+                <table className="adminTable adminBursaryTable">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Provider</th>
+                      <th>Type</th>
+                      <th>Closes</th>
+                      <th>Status</th>
+                      <th>Apply</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bursaries.map((b) => (
+                      <tr key={b.slug}>
+                        <td>{b.name}</td>
+                        <td>{b.provider}</td>
+                        <td>{b.type}</td>
+                        <td>{new Date(b.applicationCloses).toLocaleDateString()}</td>
+                        <td>
+                          {b.isOpen && b.active ? (
+                            <span className="adminBursaryBadgeOpen">Open</span>
+                          ) : (
+                            <span className="adminBursaryBadgeClosed">Closed</span>
+                          )}
+                        </td>
+                        <td>
+                          {b.applyUrl ? (
+                            <a href={b.applyUrl} target="_blank" rel="noreferrer">
+                              Link
+                            </a>
+                          ) : (
+                            <span className="adminMuted">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
 
             <div className="adminGrid">
               <section className="adminCard adminCardStretch">
@@ -585,6 +753,50 @@ export function AdminPage() {
                         Download application PDF
                       </a>
                     </div>
+
+                    <h3 className="adminSubheading">Career questionnaire & bursary matches</h3>
+                    {!detail.questionnaire?.completedAt || detail.questionnaire.skipped ? (
+                      <p className="adminMuted">No completed career questionnaire yet.</p>
+                    ) : (
+                      <>
+                        <p className="adminMuted">
+                          <strong>{detail.bursaryMatches?.bursaryCount ?? detail.questionnaire.bursaryCount ?? 0}</strong>{' '}
+                          open bursaries ·{' '}
+                          <strong>
+                            {detail.bursaryMatches?.scholarshipCount ?? detail.questionnaire.scholarshipCount ?? 0}
+                          </strong>{' '}
+                          scholarships
+                          {detail.bursaryMatches?.matchedAt ? (
+                            <> · matched {new Date(detail.bursaryMatches.matchedAt).toLocaleString()}</>
+                          ) : null}
+                        </p>
+                        {!detail.bursaryMatches?.matches?.length ? (
+                          <p className="adminMuted">No open matches for their current answers.</p>
+                        ) : (
+                          <ul className="adminStudentBursaryList">
+                            {detail.bursaryMatches.matches.map((m) => (
+                              <li key={m.slug} className="adminStudentBursaryItem">
+                                <strong>{m.name}</strong>
+                                <span className="adminMuted"> — {m.provider}</span>
+                                <br />
+                                <span className="adminMuted">
+                                  {m.type} · closes {new Date(m.applicationCloses).toLocaleDateString()}
+                                  {m.offersJobAfterGrad ? ' · work contract after grad' : ''}
+                                </span>
+                                <br />
+                                {m.applyUrl ? (
+                                  <a href={m.applyUrl} target="_blank" rel="noreferrer">
+                                    Apply on provider site →
+                                  </a>
+                                ) : (
+                                  <span className="adminMuted">No apply URL on file — search provider careers page</span>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </>
+                    )}
 
                     <h3 className="adminSubheading">Saved profile</h3>
                     <pre className="adminJson">{JSON.stringify(detail.profile ?? {}, null, 2)}</pre>

@@ -19,6 +19,7 @@ async function main() {
         applicationCloses: b.applicationCloses,
         active: true,
         notes: b.notes ?? null,
+        applyUrl: b.applyUrl ?? null,
       },
       update: {
         name: b.name,
@@ -30,6 +31,7 @@ async function main() {
         applicationCloses: b.applicationCloses,
         active: true,
         notes: b.notes ?? null,
+        applyUrl: b.applyUrl ?? null,
       },
     })
   }

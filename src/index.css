@@ -2386,7 +2386,109 @@ body {
 
 .appQuestionnaireSlot {
   margin: var(--space-6) 0 var(--space-5);
-  min-height: 280px;
+  min-height: 200px;
+}
+
+.appQuestionnaireCompact {
+  padding: var(--space-4) var(--space-5);
+}
+
+.appQuestionnaireCompact .appQuestionnaireHead {
+  margin-bottom: var(--space-3);
+}
+
+.appQuestionnaireCompact .appQuestionnaireCard {
+  gap: var(--space-3);
+  animation: appQuestionnaireFade 0.25s ease;
+}
+
+@keyframes appQuestionnaireFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.appQuestionnaireStudyGrid {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.appQuestionnaireOptionsCompact {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-2);
+}
+
+.appQuestionnaireOptionsCompact .appQuestionnaireOption {
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.studyFieldCombo {
+  display: grid;
+  gap: 6px;
+}
+
+.studyFieldComboLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(15, 23, 42, 0.75);
+}
+
+.studyFieldComboWrap {
+  position: relative;
+}
+
+.studyFieldComboInput {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(15, 23, 42, 0.14);
+  font-size: 14px;
+  background: #fff;
+}
+
+.studyFieldComboInput:focus {
+  outline: none;
+  border-color: var(--hfc-blue);
+  box-shadow: 0 0 0 2px rgba(33, 50, 230, 0.15);
+}
+
+.studyFieldComboList {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  max-height: 180px;
+  overflow-y: auto;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #fff;
+  box-shadow: var(--shadow-md);
+}
+
+.studyFieldComboOption {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.studyFieldComboOption:hover {
+  background: rgba(33, 50, 230, 0.08);
 }
 
 .appQuestionnaire {
@@ -2586,7 +2688,77 @@ body {
 }
 
 .profileGoalsHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
   margin-bottom: var(--space-4);
+}
+
+.profileGoalsLead {
+  margin: var(--space-1) 0 0;
+  font-size: 14px;
+  max-width: 52ch;
+}
+
+.profileGoalsMatchMeta {
+  font-weight: 400;
+  color: rgba(15, 23, 42, 0.5);
+}
+
+.profileGoalsStudyList {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.profileGoalsStudyGrid {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.adminBursaryTable {
+  width: 100%;
+  font-size: 13px;
+}
+
+.adminBursaryTable th,
+.adminBursaryTable td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.adminBursaryBadgeOpen {
+  color: #047857;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.adminBursaryBadgeClosed {
+  color: #b45309;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.adminStudentBursaryList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.adminStudentBursaryItem {
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.adminStudentBursaryItem a {
+  font-weight: 600;
 }
 
 .profileGoalsMatch {
