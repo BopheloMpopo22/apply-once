@@ -937,6 +937,15 @@ async function generateApplicationPdfBuffer(snapshot) {
   })
 }
 
+app.get('/api/application/snapshot', authMiddleware, async (req, res, next) => {
+  try {
+    const snapshot = await buildApplicationSnapshot(req.userId)
+    res.json(snapshot)
+  } catch (e) {
+    next(e)
+  }
+})
+
 app.get('/api/application/pdf', authMiddleware, async (req, res, next) => {
   try {
     const snapshot = await buildApplicationSnapshot(req.userId)
@@ -1332,6 +1341,18 @@ app.get('/api/admin/students/:id/chat', adminMiddleware, async (req, res) => {
     select: { id: true, sender: true, body: true, createdAt: true },
   })
   res.json(rows)
+})
+
+app.get('/api/admin/students/:id/application/snapshot', authMiddleware, adminMiddleware, async (req, res, next) => {
+  try {
+    const id = String(req.params.id || '')
+    const exists = await prisma.user.findUnique({ where: { id }, select: { id: true } })
+    if (!exists) return res.status(404).json({ error: 'Student not found' })
+    const snapshot = await buildApplicationSnapshot(id)
+    res.json(snapshot)
+  } catch (e) {
+    next(e)
+  }
 })
 
 app.get('/api/admin/students/:id/application/pdf', authMiddleware, adminMiddleware, async (req, res, next) => {

@@ -746,12 +746,12 @@ export function AdminPage() {
                       ) : null}
                     </p>
                     <div className="formActions">
-                      <a
+                      <Link
                         className="btn btnOutline btnSmall"
-                        href={`/api/admin/students/${encodeURIComponent(detail.id)}/application/pdf`}
+                        to={`/admin/students/${encodeURIComponent(detail.id)}/application-pdf`}
                       >
-                        Download application PDF
-                      </a>
+                        Preview & download PDF
+                      </Link>
                     </div>
 
                     <h3 className="adminSubheading">Career questionnaire & bursary matches</h3>

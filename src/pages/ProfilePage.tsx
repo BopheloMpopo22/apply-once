@@ -408,9 +408,9 @@ export function ProfilePage() {
                     <Link className="btn btnBrand btnSmall" to="/application">
                       Continue application
                     </Link>
-                    <a className="btn btnOutline btnSmall" href="/api/application/pdf">
-                      Download PDF
-                    </a>
+                    <Link className="btn btnOutline btnSmall" to="/profile/application-pdf">
+                      Preview & download PDF
+                    </Link>
                   </div>
                 </>
               )}

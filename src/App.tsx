@@ -11,6 +11,7 @@ import { VarsityCalculatorPage } from './pages/VarsityCalculatorPage'
 import { VarsityGuidePage } from './pages/VarsityGuidePage'
 import { StudentHubPage } from './pages/StudentHubPage'
 import { VarsityProspectusHubPage } from './pages/VarsityProspectusHubPage'
+import { ApplicationPdfPreviewPage } from './pages/ApplicationPdfPreviewPage'
 
 export default function App() {
   return (
@@ -41,6 +42,18 @@ export default function App() {
             <ApplicationPage />
           </ApplicationGate>
         }
+      />
+      <Route
+        path="/profile/application-pdf"
+        element={
+          <ProfileGate>
+            <ApplicationPdfPreviewPage mode="student" />
+          </ProfileGate>
+        }
+      />
+      <Route
+        path="/admin/students/:studentId/application-pdf"
+        element={<ApplicationPdfPreviewPage mode="admin" />}
       />
     </Routes>
     </>
