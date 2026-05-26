@@ -2384,6 +2384,249 @@ body {
   max-width: 52ch;
 }
 
+.appQuestionnaireSlot {
+  margin: var(--space-6) 0 var(--space-5);
+  min-height: 280px;
+}
+
+.appQuestionnaire {
+  border-radius: var(--radius-md);
+  border: 1.5px solid rgba(33, 50, 230, 0.18);
+  background: linear-gradient(160deg, rgba(33, 50, 230, 0.06), rgba(255, 255, 255, 0.98));
+  padding: var(--space-5) var(--space-6);
+}
+
+.appQuestionnaireHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.appQuestionnaireEyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hfc-blue);
+}
+
+.appQuestionnaireProgress {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(15, 23, 42, 0.55);
+}
+
+.appQuestionnaireCard {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.appQuestionnaireQuestion {
+  margin: 0;
+  font-size: clamp(18px, 2.2vw, 22px);
+  font-weight: 700;
+  line-height: 1.25;
+  color: #0f172a;
+}
+
+.appQuestionnaireSubtitle {
+  margin: calc(var(--space-2) * -1) 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(15, 23, 42, 0.65);
+}
+
+.appQuestionnaireOptions {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.appQuestionnaireOption {
+  text-align: left;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(15, 23, 42, 0.12);
+  background: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  color: #0f172a;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    box-shadow 0.15s;
+}
+
+.appQuestionnaireOption:hover {
+  border-color: rgba(33, 50, 230, 0.35);
+}
+
+.appQuestionnaireOptionActive {
+  border-color: var(--hfc-blue);
+  background: rgba(33, 50, 230, 0.08);
+  box-shadow: 0 0 0 1px rgba(33, 50, 230, 0.2);
+}
+
+.appQuestionnaireNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.appQuestionnaireNavBack:disabled {
+  opacity: 0.35;
+}
+
+.appQuestionnaireSkip {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-4);
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(15, 23, 42, 0.5);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.appQuestionnaireSkip:hover {
+  color: var(--hfc-blue);
+}
+
+.appQuestionnaireError {
+  margin: 0;
+}
+
+.appQuestionnaireSearching {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-4);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+}
+
+.appQuestionnaireSpinner {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 3px solid rgba(33, 50, 230, 0.15);
+  border-top-color: var(--hfc-blue);
+  animation: appQuestionnaireSpin 0.85s linear infinite;
+}
+
+@keyframes appQuestionnaireSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.appQuestionnaireSearchingText {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.appQuestionnaireResults {
+  text-align: center;
+  padding: var(--space-4) var(--space-2);
+}
+
+.appQuestionnaireResultsTitle {
+  margin: var(--space-3) 0;
+  font-size: clamp(20px, 2.5vw, 26px);
+  line-height: 1.3;
+  color: #0f172a;
+}
+
+.appQuestionnaireResultsTitle strong {
+  color: var(--hfc-blue);
+  font-weight: 800;
+}
+
+.appQuestionnaireResultsLead {
+  margin: 0 0 var(--space-5);
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(15, 23, 42, 0.72);
+  max-width: 48ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.appQuestionnaireDone {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.22);
+}
+
+.appQuestionnaireDoneText {
+  margin: 0;
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.profileGoalsCard {
+  grid-column: 1 / -1;
+  padding: var(--space-5) var(--space-6);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--shadow-sm);
+}
+
+.profileGoalsHead {
+  margin-bottom: var(--space-4);
+}
+
+.profileGoalsMatch {
+  margin: var(--space-2) 0 0;
+  font-size: 14px;
+  color: rgba(15, 23, 42, 0.72);
+}
+
+.profileGoalsList {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
+}
+
+.profileGoalsList dt {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(15, 23, 42, 0.5);
+}
+
+.profileGoalsList dd {
+  margin: 4px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.profileGoalsForm {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.profileGoalsFormActions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
 .appBursaryMarquee {
   margin: var(--space-5) 0 var(--space-4);
   padding: var(--space-4) 0;

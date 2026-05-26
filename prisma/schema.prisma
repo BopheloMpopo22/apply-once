@@ -20,6 +20,7 @@ model User {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   profile           Profile?
+  careerQuestionnaire CareerQuestionnaire?
   application       ApplicationDraft?
   documents         Document[]
   inboxItems        ProfileInboxItem[]
@@ -61,6 +62,44 @@ model Profile {
   residentialAddress String?
   postalAddress      String?
   updatedAt          DateTime @updatedAt
+}
+
+/// One-per-user career goals questionnaire (application form + profile).
+model CareerQuestionnaire {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// JSON: studyChoice1–3, workSector, jobLinkedBursary, careerPriority, etc.
+  answers     String    @default("{}")
+  skipped     Boolean   @default(false)
+  completedAt DateTime?
+  /// Cached match totals from last completion (open opportunities only).
+  bursaryCount      Int?
+  scholarshipCount  Int?
+  matchedAt         DateTime?
+  updatedAt   DateTime  @updatedAt
+}
+
+/// Curated SA bursaries & scholarships we may apply to on behalf of students.
+model BursaryOpportunity {
+  id                 String   @id @default(cuid())
+  slug               String   @unique
+  name               String
+  provider           String
+  type               String   // bursary | scholarship
+  /// JSON string array of field slugs, or ["all"]
+  studyFields        String
+  /// JSON string array of work-sector slugs, or ["any"]
+  workSectors        String   @default("[\"any\"]")
+  offersJobAfterGrad Boolean  @default(false)
+  applicationCloses  DateTime
+  active             Boolean  @default(true)
+  notes              String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([active, applicationCloses])
+  @@index([type])
 }
 
 /// Flexible JSON for academics, household, financials, essays — universal application layer.

@@ -11,6 +11,7 @@
     "postinstall": "echo \"postinstall skipped (Prisma runs in build)\"",
     "build": "prisma generate && tsc -b && vite build",
     "seed:varsity": "node scripts/seedVarsityCatalogue.js",
+    "seed:bursaries": "node scripts/seedBursaryCatalogue.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },

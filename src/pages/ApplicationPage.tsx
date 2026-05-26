@@ -4,6 +4,10 @@ import { api, uploadDocument } from '../api/client'
 import { ApplicationNavModePicker, type ApplicationNavMode } from '../components/application/ApplicationNavModePicker'
 import { ApplicationProfileRail } from '../components/application/ApplicationProfileRail'
 import { ApplicationStepActions } from '../components/application/ApplicationStepActions'
+import {
+  ApplicationQuestionnaire,
+  type QuestionnaireState,
+} from '../components/application/ApplicationQuestionnaire'
 import { BursaryLogoMarquee } from '../components/application/BursaryLogoMarquee'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { Navbar } from '../components/Navbar'
@@ -171,6 +175,7 @@ export function ApplicationPage() {
   const [navMode, setNavMode] = useState<ApplicationNavMode>('horizontal')
   const [navModeChosen, setNavModeChosen] = useState(false)
   const [showModePicker, setShowModePicker] = useState(false)
+  const [questionnaire, setQuestionnaire] = useState<QuestionnaireState | null>(null)
 
   const loadDocs = useCallback(async () => {
     const list = await api<
@@ -185,11 +190,12 @@ export function ApplicationPage() {
       setError(null)
       setLoading(true)
       try {
-        const [p, d] = await Promise.all([
+        const [p, d, q] = await Promise.all([
           api<Profile>('/api/profile'),
           api<{ stepIndex: number; payload: ApplicationPayload & { _meta?: ApplicationUiMeta } }>(
             '/api/application',
           ),
+          api<QuestionnaireState>('/api/questionnaire'),
         ])
         if (cancelled) return
         const { _meta, ...payloadRest } = d.payload ?? {}
@@ -200,6 +206,21 @@ export function ApplicationPage() {
         setStep(Math.min(Math.max(d.stepIndex ?? 0, 0), STEP_LABELS.length - 1))
         setNavMode(_meta?.navigationMode ?? 'horizontal')
         setNavModeChosen(Boolean(_meta?.navigationModeChosen))
+        setQuestionnaire({
+          answers: {
+            studyChoice1: q.answers?.studyChoice1 ?? '',
+            studyChoice2: q.answers?.studyChoice2 ?? '',
+            studyChoice3: q.answers?.studyChoice3 ?? '',
+            workSector: q.answers?.workSector ?? '',
+            jobLinkedBursary: q.answers?.jobLinkedBursary ?? '',
+            careerPriority: q.answers?.careerPriority ?? '',
+          },
+          skipped: Boolean(q.skipped),
+          completedAt: q.completedAt ?? null,
+          bursaryCount: q.bursaryCount ?? null,
+          scholarshipCount: q.scholarshipCount ?? null,
+          matchedAt: q.matchedAt ?? null,
+        })
         setPayload({
           ...emptyPayload(),
           ...payloadRest,
@@ -391,6 +412,16 @@ export function ApplicationPage() {
             Apply to multiple bursaries with one form. Complete your details below and we&apos;ll match you to
             bursaries you qualify for.
           </p>
+
+          <div className="appQuestionnaireSlot">
+            {!loading ? (
+              <ApplicationQuestionnaire
+                initial={questionnaire}
+                onComplete={(state) => setQuestionnaire(state)}
+              />
+            ) : null}
+          </div>
+
           <div className="progressRow">
             <div className="progressBar" role="progressbar" aria-valuenow={completion.percent} aria-valuemin={0} aria-valuemax={100}>
               <div className="progressFill" style={{ width: `${completion.percent}%` }} />

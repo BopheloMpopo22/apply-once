@@ -10,7 +10,9 @@ import {
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { api, getBearerToken, uploadAvatar } from '../api/client'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
+import type { QuestionnaireState } from '../components/application/ApplicationQuestionnaire'
 import { ChatThread, type ChatMessage } from '../components/ChatThread'
+import { ProfileCareerGoals } from '../components/profile/ProfileCareerGoals'
 import { Navbar } from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
 import { computeCompletion } from '../utils/applicationCompletion'
@@ -81,6 +83,7 @@ export function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [draftPayload, setDraftPayload] = useState<Record<string, unknown>>({})
+  const [questionnaire, setQuestionnaire] = useState<QuestionnaireState | null>(null)
   const [chat, setChat] = useState<ChatMessage[]>([])
   const [chatDraft, setChatDraft] = useState('')
   const [chatBusy, setChatBusy] = useState(false)
@@ -113,10 +116,11 @@ export function ProfilePage() {
   const load = useCallback(async () => {
     setError(null)
     try {
-      const [inboxList, draft, chatList] = await Promise.all([
+      const [inboxList, draft, chatList, q] = await Promise.all([
         api<InboxItem[]>('/api/inbox'),
         api<{ stepIndex: number; payload?: unknown }>('/api/application'),
         api<ChatMessage[]>('/api/chat'),
+        api<QuestionnaireState>('/api/questionnaire'),
       ])
       setItems(inboxList)
       setDraftStep(typeof draft.stepIndex === 'number' ? draft.stepIndex : 0)
@@ -126,6 +130,21 @@ export function ProfilePage() {
           : {},
       )
       setChat(chatList)
+      setQuestionnaire({
+        answers: {
+          studyChoice1: q.answers?.studyChoice1 ?? '',
+          studyChoice2: q.answers?.studyChoice2 ?? '',
+          studyChoice3: q.answers?.studyChoice3 ?? '',
+          workSector: q.answers?.workSector ?? '',
+          jobLinkedBursary: q.answers?.jobLinkedBursary ?? '',
+          careerPriority: q.answers?.careerPriority ?? '',
+        },
+        skipped: Boolean(q.skipped),
+        completedAt: q.completedAt ?? null,
+        bursaryCount: q.bursaryCount ?? null,
+        scholarshipCount: q.scholarshipCount ?? null,
+        matchedAt: q.matchedAt ?? null,
+      })
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not load profile')
     } finally {
@@ -396,6 +415,8 @@ export function ProfilePage() {
                 </>
               )}
             </section>
+
+            <ProfileCareerGoals initial={questionnaire} onUpdated={setQuestionnaire} />
 
             <section className="profilePanel profilePanelChat" aria-labelledby="profile-chat-heading">
               <div className="profilePanelHead profilePanelHeadChat">

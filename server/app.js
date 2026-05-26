@@ -16,6 +16,11 @@ import { PrismaClient } from '@prisma/client'
 import { remoteDownloadBuffer, remotePut, remoteRemove, useRemoteFiles } from './storage.js'
 import { seedVarsityCatalogueFromRepo } from './varsitySeed.js'
 import { sortProgrammesForCatalogue, sortUniversitiesForCatalogue } from './varsityDisplayOrder.js'
+import {
+  ensureBursaryCatalogueSeeded,
+  matchOpenOpportunities,
+  rowToBursary,
+} from './bursaryMatch.js'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const prisma = new PrismaClient()
 const app = express()
@@ -607,6 +612,132 @@ app.put('/api/profile', authMiddleware, async (req, res) => {
     update: data,
   })
   res.json(profile)
+})
+
+function parseQuestionnaireAnswers(raw) {
+  if (!raw || typeof raw !== 'object') return {}
+  const allowed = [
+    'studyChoice1',
+    'studyChoice2',
+    'studyChoice3',
+    'workSector',
+    'jobLinkedBursary',
+    'careerPriority',
+  ]
+  /** @type {Record<string, string>} */
+  const out = {}
+  for (const key of allowed) {
+    if (typeof raw[key] === 'string' && raw[key].trim()) out[key] = raw[key].trim()
+  }
+  return out
+}
+
+app.get('/api/questionnaire', authMiddleware, async (req, res) => {
+  const row = await prisma.careerQuestionnaire.findUnique({
+    where: { userId: req.userId },
+  })
+  if (!row) {
+    return res.json({
+      answers: {},
+      skipped: false,
+      completedAt: null,
+      bursaryCount: null,
+      scholarshipCount: null,
+      matchedAt: null,
+    })
+  }
+  let answers = {}
+  try {
+    answers = JSON.parse(row.answers || '{}')
+  } catch {
+    answers = {}
+  }
+  res.json({
+    answers,
+    skipped: row.skipped,
+    completedAt: row.completedAt,
+    bursaryCount: row.bursaryCount,
+    scholarshipCount: row.scholarshipCount,
+    matchedAt: row.matchedAt,
+    updatedAt: row.updatedAt,
+  })
+})
+
+app.put('/api/questionnaire', authMiddleware, async (req, res) => {
+  const skipped = Boolean(req.body?.skipped)
+  const answers = parseQuestionnaireAnswers(req.body?.answers)
+
+  if (!skipped) {
+    const required = ['studyChoice1', 'studyChoice2', 'studyChoice3', 'workSector', 'jobLinkedBursary', 'careerPriority']
+    const missing = required.filter((k) => !answers[k])
+    if (missing.length > 0) {
+      return res.status(400).json({ error: 'Please answer all questionnaire questions before continuing.' })
+    }
+  }
+
+  await ensureBursaryCatalogueSeeded(prisma)
+
+  let bursaryCount = null
+  let scholarshipCount = null
+  let matchedAt = null
+  let completedAt = null
+
+  if (!skipped && Object.keys(answers).length > 0) {
+    const rows = await prisma.bursaryOpportunity.findMany({ where: { active: true } })
+    const catalogue = rows.map(rowToBursary)
+    const match = matchOpenOpportunities(answers, catalogue)
+    bursaryCount = match.bursaryCount
+    scholarshipCount = match.scholarshipCount
+    matchedAt = new Date()
+    completedAt = matchedAt
+  }
+
+  const row = await prisma.careerQuestionnaire.upsert({
+    where: { userId: req.userId },
+    create: {
+      userId: req.userId,
+      answers: JSON.stringify(answers),
+      skipped,
+      completedAt,
+      bursaryCount,
+      scholarshipCount,
+      matchedAt,
+    },
+    update: {
+      answers: JSON.stringify(answers),
+      skipped,
+      completedAt: skipped ? null : completedAt,
+      bursaryCount: skipped ? null : bursaryCount,
+      scholarshipCount: skipped ? null : scholarshipCount,
+      matchedAt: skipped ? null : matchedAt,
+    },
+  })
+
+  let parsedAnswers = {}
+  try {
+    parsedAnswers = JSON.parse(row.answers || '{}')
+  } catch {
+    parsedAnswers = {}
+  }
+
+  res.json({
+    answers: parsedAnswers,
+    skipped: row.skipped,
+    completedAt: row.completedAt,
+    bursaryCount: row.bursaryCount,
+    scholarshipCount: row.scholarshipCount,
+    matchedAt: row.matchedAt,
+    updatedAt: row.updatedAt,
+  })
+})
+
+app.post('/api/questionnaire/match', authMiddleware, async (req, res) => {
+  const answers = parseQuestionnaireAnswers(req.body?.answers ?? req.body)
+  await ensureBursaryCatalogueSeeded(prisma)
+  const rows = await prisma.bursaryOpportunity.findMany({ where: { active: true } })
+  const catalogue = rows.map(rowToBursary)
+  const match = matchOpenOpportunities(answers, catalogue)
+  res.json(match)
 })
 
 app.get('/api/application', authMiddleware, async (req, res) => {
