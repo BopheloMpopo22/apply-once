@@ -13,6 +13,7 @@ import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { Navbar } from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
 import { computeCompletion } from '../utils/applicationCompletion'
+import { getYocoPublicKey, loadYocoSdk } from '../lib/yoco'
 
 type ApplicationUiMeta = {
   navigationMode?: ApplicationNavMode
@@ -376,6 +377,64 @@ export function ApplicationPage() {
   }
 
   const completion = useMemo(() => computeCompletion({ profile, payload }), [profile, payload])
+  const [payBusy, setPayBusy] = useState(false)
+  const [payError, setPayError] = useState<string | null>(null)
+  const [paidCents, setPaidCents] = useState<number>(0)
+
+  async function refreshPayment() {
+    try {
+      const s = await api<{ totalPaidCents: number }>('/api/payments/status')
+      setPaidCents(Number(s.totalPaidCents) || 0)
+    } catch {
+      // ignore
+    }
+  }
+
+  useEffect(() => {
+    if (!loading) void refreshPayment()
+  }, [loading])
+
+  async function startYocoPayment(plan: 'once_off_95' | 'split_50_first' | 'split_50_second') {
+    const publicKey = getYocoPublicKey()
+    if (!publicKey) {
+      setPayError('Payments are not configured yet. Please try again later.')
+      return
+    }
+    setPayBusy(true)
+    setPayError(null)
+    try {
+      await loadYocoSdk()
+      const YocoSDK = window.YocoSDK
+      if (!YocoSDK) throw new Error('Could not load payment form')
+      const yoco = new YocoSDK({ publicKey })
+      const amountInCents = plan === 'once_off_95' ? 9500 : 5000
+
+      await new Promise<void>((resolve, reject) => {
+        yoco.showPopup({
+          amountInCents,
+          currency: 'ZAR',
+          name: plan === 'once_off_95' ? 'Apply Once application fee' : 'Apply Once application installment',
+          description: plan === 'once_off_95' ? 'Once-off fee (R95)' : 'Installment (R50)',
+          callback: async (result) => {
+            if (result?.error) return reject(new Error(result.error.message || 'Payment cancelled'))
+            const token = String(result?.id || '').trim()
+            if (!token) return reject(new Error('Payment failed (no token)'))
+            try {
+              await api('/api/payments/yoco/charge', { method: 'POST', json: { token, plan } })
+              await refreshPayment()
+              resolve()
+            } catch (e) {
+              reject(e instanceof Error ? e : new Error('Payment failed'))
+            }
+          },
+        })
+      })
+    } catch (e) {
+      setPayError(e instanceof Error ? e.message : 'Payment failed')
+    } finally {
+      setPayBusy(false)
+    }
+  }
 
   function appendTemplate(path: 'academics.intendedFieldsNotes' | 'academics.achievementsNotes') {
     const next =
@@ -1249,6 +1308,31 @@ export function ApplicationPage() {
           )}
         </div>
       </main>
+
+      {completion.percent === 100 && paidCents < 9500 ? (
+        <div className="payBanner">
+          <div className="payBannerInner">
+            <div className="payBannerText">
+              <strong>Submit your application</strong>
+              <span className="muted">
+                Pay R95 to activate your application. Or pay R50 now and R50 next month.
+              </span>
+              {payError ? <span className="payBannerError">{payError}</span> : null}
+            </div>
+            <div className="payBannerActions">
+              <button className="btn btnBrand btnSmall" disabled={payBusy} onClick={() => void startYocoPayment('once_off_95')}>
+                {payBusy ? 'Opening…' : 'Pay R95'}
+              </button>
+              <button className="btn btnOutline btnSmall" disabled={payBusy || paidCents >= 5000} onClick={() => void startYocoPayment('split_50_first')}>
+                Pay R50 now
+              </button>
+              <button className="btn btnOutline btnSmall" disabled={payBusy || paidCents < 5000} onClick={() => void startYocoPayment('split_50_second')}>
+                Pay remaining R50
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

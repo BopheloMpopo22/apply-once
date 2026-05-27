@@ -4136,6 +4136,44 @@ body {
   font-size: 14px;
 }
 
+/* Payment banner (application completion) */
+.payBanner {
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
+  border-top: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+}
+
+.payBannerInner {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.payBannerText {
+  display: grid;
+  gap: 2px;
+  min-width: 260px;
+}
+
+.payBannerActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.payBannerError {
+  color: #b91c1c;
+  font-weight: 650;
+}
+
 .authShell {
   background: radial-gradient(800px 480px at 15% 0%, rgba(33, 50, 230, 0.12), transparent 55%),
     radial-gradient(640px 420px at 90% 10%, rgba(0, 157, 254, 0.08), transparent 52%),

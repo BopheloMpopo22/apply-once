@@ -21,10 +21,33 @@ model User {
   updatedAt         DateTime @updatedAt
   profile           Profile?
   careerQuestionnaire CareerQuestionnaire?
+  payments          Payment[]
   application       ApplicationDraft?
   documents         Document[]
   inboxItems        ProfileInboxItem[]
   chatMessages      ChatMessage[]
+}
+
+/// Payment records for application processing fee.
+model Payment {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// once_off_95 | split_50_first | split_50_second
+  plan            String
+  currency        String   @default("ZAR")
+  amountDueCents  Int
+  amountPaidCents Int      @default(0)
+  status          String   @default("pending") // pending | paid | failed
+  provider        String   @default("yoco")
+  providerChargeId String?
+  providerTokenId  String?
+  failureReason   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([status])
 }
 
 /// Updates on application progress + optional requests for extra info (essay, docs, etc.).

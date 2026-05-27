@@ -17,6 +17,7 @@ type StudentRow = {
   applicationUpdatedAt: string | null
   inboxCount: number
   documentCount: number
+  paidCents?: number
 }
 
 type InboxRow = {
@@ -519,6 +520,7 @@ export function AdminPage() {
                       <tr>
                         <th>Name</th>
                         <th>Email</th>
+                        <th>Payment</th>
                         <th>App step</th>
                         <th>Inbox</th>
                         <th>Docs</th>
@@ -540,6 +542,15 @@ export function AdminPage() {
                             </button>
                           </td>
                           <td className="adminTableEmail">{row.email}</td>
+                          <td>
+                            {Number(row.paidCents || 0) >= 9500 ? (
+                              <span className="adminBursaryBadgeOpen">PAID</span>
+                            ) : Number(row.paidCents || 0) >= 5000 ? (
+                              <span className="adminBursaryBadgeClosed">PART</span>
+                            ) : (
+                              <span className="adminMuted">UNPAID</span>
+                            )}
+                          </td>
                           <td>{row.stepIndex + 1}</td>
                           <td>{row.inboxCount}</td>
                           <td>{row.documentCount}</td>

@@ -24,6 +24,7 @@ import {
   rowToBursary,
   syncBursaryCatalogue,
 } from './bursaryMatch.js'
+const YOCO_SECRET_KEY = String(process.env.YOCO_SECRET_KEY || '').trim()
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const prisma = new PrismaClient()
 const app = express()
@@ -506,6 +507,99 @@ app.get('/api/me', authMiddleware, async (req, res) => {
     lastName: user.profile?.lastName ?? null,
     hasAvatar: Boolean(user.avatarStoragePath),
   })
+})
+
+function sumPaidCents(rows) {
+  return rows.reduce((acc, r) => acc + (Number(r.amountPaidCents) || 0), 0)
+}
+
+app.get('/api/payments/status', authMiddleware, async (req, res) => {
+  const rows = await prisma.payment.findMany({
+    where: { userId: req.userId, provider: 'yoco' },
+    orderBy: { createdAt: 'desc' },
+    select: { id: true, plan: true, amountDueCents: true, amountPaidCents: true, status: true, createdAt: true },
+  })
+  const totalPaidCents = sumPaidCents(rows.filter((r) => r.status === 'paid'))
+  res.json({
+    rows,
+    totalPaidCents,
+    paidR95: totalPaidCents >= 9500,
+    paidSplitTotal: totalPaidCents >= 10000,
+    paidSplitFirst: totalPaidCents >= 5000,
+    needsPayment: totalPaidCents < 9500,
+  })
+})
+
+app.post('/api/payments/yoco/charge', authMiddleware, async (req, res) => {
+  if (!YOCO_SECRET_KEY) {
+    return res.status(503).json({ error: 'Payments not configured on server. Set YOCO_SECRET_KEY on Vercel.' })
+  }
+  const token = String(req.body?.token || '').trim()
+  const plan = String(req.body?.plan || '').trim()
+  if (!token) return res.status(400).json({ error: 'Missing payment token' })
+  if (!['once_off_95', 'split_50_first', 'split_50_second'].includes(plan)) {
+    return res.status(400).json({ error: 'Invalid payment plan' })
+  }
+  const amountInCents = plan === 'once_off_95' ? 9500 : 5000
+
+  const payment = await prisma.payment.create({
+    data: {
+      userId: req.userId,
+      plan,
+      amountDueCents: amountInCents,
+      status: 'pending',
+      provider: 'yoco',
+      providerTokenId: token,
+    },
+    select: { id: true },
+  })
+
+  try {
+    const yRes = await fetch('https://online.yoco.com/v1/charges/', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${YOCO_SECRET_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token,
+        amountInCents,
+        currency: 'ZAR',
+        metadata: { paymentId: payment.id, userId: req.userId, plan },
+      }),
+    })
+
+    const text = await yRes.text()
+    let data = {}
+    try {
+      data = JSON.parse(text || '{}')
+    } catch {
+      data = { raw: text }
+    }
+
+    if (!yRes.ok) {
+      const reason =
+        typeof data === 'object' && data !== null && 'message' in data ? String(data.message) : 'Charge failed'
+      await prisma.payment.update({
+        where: { id: payment.id },
+        data: { status: 'failed', failureReason: reason },
+      })
+      return res.status(400).json({ error: reason })
+    }
+
+    const chargeId = typeof data === 'object' && data !== null && 'id' in data ? String(data.id) : null
+    await prisma.payment.update({
+      where: { id: payment.id },
+      data: { status: 'paid', amountPaidCents: amountInCents, providerChargeId: chargeId },
+    })
+    return res.json({ ok: true, paymentId: payment.id, chargeId, amountInCents })
+  } catch (e) {
+    await prisma.payment.update({
+      where: { id: payment.id },
+      data: { status: 'failed', failureReason: e instanceof Error ? e.message : 'Charge failed' },
+    })
+    return res.status(502).json({ error: 'Payment gateway error. Please try again.' })
+  }
 })
 
 app.get('/api/profile/avatar', authMiddleware, async (req, res) => {
@@ -1116,6 +1210,11 @@ app.get('/api/admin/students', adminMiddleware, async (_req, res) => {
       application: {
         select: { stepIndex: true, updatedAt: true },
       },
+      payments: {
+        where: { provider: 'yoco', status: 'paid' },
+        orderBy: { createdAt: 'desc' },
+        select: { amountPaidCents: true, plan: true },
+      },
       _count: {
         select: { inboxItems: true, documents: true },
       },
@@ -1123,6 +1222,7 @@ app.get('/api/admin/students', adminMiddleware, async (_req, res) => {
   })
   res.json(
     users.map((u) => ({
+      paidCents: u.payments.reduce((acc, p) => acc + (Number(p.amountPaidCents) || 0), 0),
       id: u.id,
       email: u.email,
       createdAt: u.createdAt,
