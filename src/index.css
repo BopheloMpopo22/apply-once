@@ -5011,6 +5011,8 @@ body {
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  text-decoration: none;
+  color: inherit;
 }
 
 .homeSelectCard:hover {
@@ -5018,40 +5020,9 @@ body {
   box-shadow: var(--shadow-md);
 }
 
-.homeSelectCardSelected {
-  border-color: var(--blue);
-  box-shadow: 0 20px 50px rgba(37, 99, 235, 0.22);
-}
-
-.homeSelectCardSelected.homeCardAccentGreen {
-  border-color: var(--green);
-  box-shadow: 0 20px 50px rgba(16, 185, 129, 0.22);
-}
-
-.homeSelectCardSelected .homeSelectCardBody {
-  background: linear-gradient(180deg, var(--blue) 0%, var(--blueDeep) 100%);
-}
-
-.homeSelectCardSelected.homeCardAccentGreen .homeSelectCardBody {
-  background: linear-gradient(180deg, var(--green) 0%, var(--greenDeep) 100%);
-}
-
-.homeSelectCardSelected .homeSelectCardTitle,
-.homeSelectCardSelected .homeSelectCardText {
-  color: rgba(255, 255, 255, 0.96);
-}
-
-.homeSelectCardHit {
-  appearance: none;
-  border: 0;
-  padding: 0;
-  margin: 0;
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-  width: 100%;
-  font: inherit;
-  color: inherit;
+.homeSelectCard:focus-visible {
+  outline: 3px solid rgba(33, 50, 230, 0.35);
+  outline-offset: 3px;
 }
 
 .homeSelectCardMedia {
@@ -5126,7 +5097,6 @@ body {
 }
 
 .homeSelectCardOpen {
-  display: none;
   align-items: center;
   justify-content: center;
   padding: 10px 18px;
@@ -5140,12 +5110,12 @@ body {
   transition: transform var(--transition), filter var(--transition);
 }
 
-.homeSelectCardSelected.homeCardAccentGreen .homeSelectCardOpen {
+.homeCardAccentGreen .homeSelectCardOpen {
   background: linear-gradient(135deg, var(--green), var(--greenDeep));
   box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
 }
 
-.homeSelectCardFooterVisible .homeSelectCardOpen {
+.homeSelectCardOpen {
   display: inline-flex;
 }
 
@@ -5154,15 +5124,108 @@ body {
   filter: brightness(1.05);
 }
 
-.homeSelectCardHint {
-  font-size: 12px;
-  font-weight: 700;
-  color: rgba(15, 23, 42, 0.45);
-  letter-spacing: 0.02em;
+.homeSelectCardHint { display: none; }
+
+/* Homepage resource guide content */
+.homeResourceGuides {
+  margin-top: var(--space-7);
+  display: grid;
+  gap: var(--space-5);
 }
 
-.homeSelectCardSelected .homeSelectCardHint {
-  display: none;
+.homeGuideCard {
+  padding: var(--space-6);
+  border-radius: 22px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--shadow-sm);
+}
+
+.homeGuideTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+}
+
+.homeGuideLead {
+  margin: var(--space-3) 0 0;
+  max-width: 78ch;
+}
+
+.homeGuideGrid {
+  margin-top: var(--space-4);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+.homeGuideSub {
+  margin: 0 0 var(--space-2);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.6);
+}
+
+.homeGuideList {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 10px;
+  color: rgba(15, 23, 42, 0.75);
+  line-height: 1.45;
+}
+
+.cvExample {
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #fff;
+  padding: 14px 14px 12px;
+}
+
+.cvExampleHeader {
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  margin-bottom: 10px;
+}
+
+.cvExampleName {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+}
+
+.cvExampleMeta {
+  margin-top: 4px;
+  font-size: 12px;
+  color: rgba(15, 23, 42, 0.6);
+}
+
+.cvExampleSection {
+  margin-top: 10px;
+}
+
+.cvExampleH {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.55);
+}
+
+.cvExampleP {
+  margin-top: 5px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(15, 23, 42, 0.82);
+}
+
+@media (max-width: 900px) {
+  .homeGuideGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 900px) {

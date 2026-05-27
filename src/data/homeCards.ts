@@ -44,7 +44,7 @@ export const HOME_RESOURCE_CARDS = [
     description: 'A structure that reads clearly and confidently.',
     image: u('photo-1456513080510-7bf3a84b82f8', 600),
     imageAlt: 'Open notebook for writing',
-    href: '/resources/motivation-letter',
+    href: '/#resource-motivation',
     accent: 'blue' as const,
   },
   {
@@ -53,7 +53,7 @@ export const HOME_RESOURCE_CARDS = [
     description: 'Quick practice steps and common questions.',
     image: u('photo-1521737711867-e3b97375f902', 600),
     imageAlt: 'People in a professional discussion',
-    href: '/resources',
+    href: '/#resource-interview',
     accent: 'green' as const,
   },
   {
@@ -62,7 +62,16 @@ export const HOME_RESOURCE_CARDS = [
     description: 'A simple CV format that works for bursaries.',
     image: u('photo-1586281380349-632531db7ed4', 600),
     imageAlt: 'Resume documents on a desk',
-    href: '/resources/cv-builder',
+    href: '/#resource-cv',
+    accent: 'blue' as const,
+  },
+  {
+    id: 'scanner',
+    title: 'CamScanner-style PDF tool',
+    description: 'Turn photos into a single PDF and merge documents for uploads.',
+    image: u('photo-1520962922320-2038eebab146', 600),
+    imageAlt: 'Phone scanning a document',
+    href: '/resources/scanner',
     accent: 'blue' as const,
   },
 ]

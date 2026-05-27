@@ -3,7 +3,18 @@ import { Link } from 'react-router-dom'
 import { PDFDocument } from 'pdf-lib'
 import { ApplyOnceLogo } from '../../components/ApplyOnceLogo'
 import { Navbar } from '../../components/Navbar'
-import { downloadBlob } from './pdfHelpers'
+
+function downloadBlob(bytes: Uint8Array, filename: string, mime = 'application/pdf') {
+  const blob = new Blob([bytes], { type: mime })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
 
 type PickedFile = {
   id: string
@@ -107,13 +118,13 @@ export function ResourceScannerPage() {
         logo={<ApplyOnceLogo />}
         links={[
           { label: 'Features', to: '/#features' },
-          { label: 'Resources', to: '/resources' },
+          { label: 'Resources', to: '/#resources' },
         ]}
       />
       <main className="resourcesToolMain">
         <div className="container resourcesContainer">
           <nav className="resourcesCrumb">
-            <Link to="/resources">Resources</Link>
+            <Link to="/#resources">Resources</Link>
             <span aria-hidden>/</span>
             <span>Scanner & PDF tools</span>
           </nav>

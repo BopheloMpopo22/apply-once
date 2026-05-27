@@ -49,7 +49,7 @@ export function RegisterPage() {
         logo={<ApplyOnceLogo />}
         links={[
           { label: 'Features', to: '/#features' },
-          { label: 'Resources', to: '/resources' },
+          { label: 'Resources', to: '/#resources' },
         ]}
       />
       <main className="formMain">
