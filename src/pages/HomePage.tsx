@@ -113,8 +113,6 @@ export function HomePage() {
                 size="secondary"
                 expanded={openResourceId === card.id}
                 onToggle={() => setOpenResourceId((prev) => (prev === card.id ? null : card.id))}
-                ctaHref={card.id === 'scanner' ? '/resources/scanner' : undefined}
-                ctaLabel={card.id === 'scanner' ? 'Open scanner tool →' : undefined}
               >
                 {card.id === 'cv' ? (
                   <div className="homeResourceContent">
@@ -183,15 +181,6 @@ export function HomePage() {
                       <li>Arrive early (or join online 5 minutes early).</li>
                       <li>Greet confidently, eye contact, phone away, sit upright.</li>
                       <li>Keep most answers 60–120 seconds.</li>
-                    </ul>
-                  </div>
-                ) : card.id === 'scanner' ? (
-                  <div className="homeResourceContent">
-                    <h4>What this tool does</h4>
-                    <ul>
-                      <li>Turn document photos into a single A4 PDF.</li>
-                      <li>Merge PDFs + images into one upload-ready file.</li>
-                      <li>Reorder pages before you download.</li>
                     </ul>
                   </div>
                 ) : null}

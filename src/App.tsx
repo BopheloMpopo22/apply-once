@@ -12,7 +12,6 @@ import { VarsityGuidePage } from './pages/VarsityGuidePage'
 import { StudentHubPage } from './pages/StudentHubPage'
 import { VarsityProspectusHubPage } from './pages/VarsityProspectusHubPage'
 import { ApplicationPdfPreviewPage } from './pages/ApplicationPdfPreviewPage'
-import { ResourceScannerPage } from './pages/resources/ResourceScannerPage'
 
 export default function App() {
   return (
@@ -28,7 +27,6 @@ export default function App() {
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/resources/scanner" element={<ResourceScannerPage />} />
       <Route
         path="/profile"
         element={

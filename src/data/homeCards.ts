@@ -62,13 +62,4 @@ export const HOME_RESOURCE_CARDS = [
     imageAlt: 'Resume documents on a desk',
     accent: 'blue' as const,
   },
-  {
-    id: 'scanner',
-    title: 'CamScanner-style PDF tool',
-    description: 'Turn photos into a single PDF and merge documents for uploads.',
-    image: u('photo-1520962922320-2038eebab146', 600),
-    imageAlt: 'Phone scanning a document',
-    href: '/resources/scanner',
-    accent: 'blue' as const,
-  },
 ]
