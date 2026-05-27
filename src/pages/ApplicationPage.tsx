@@ -344,6 +344,9 @@ export function ApplicationPage() {
     const isLast = sectionIndex >= STEP_LABELS.length - 1
     const next = advance && !isLast ? sectionIndex + 1 : sectionIndex
     await persist(next)
+    if (advance && isLast) {
+      setShowPayPrompt(true)
+    }
     if (advance && navMode === 'vertical' && !isLast) {
       requestAnimationFrame(() => scrollToStep(next))
     }
@@ -380,6 +383,7 @@ export function ApplicationPage() {
   const [payBusy, setPayBusy] = useState(false)
   const [payError, setPayError] = useState<string | null>(null)
   const [paidCents, setPaidCents] = useState<number>(0)
+  const [showPayPrompt, setShowPayPrompt] = useState(false)
 
   async function refreshPayment() {
     try {
@@ -1309,7 +1313,7 @@ export function ApplicationPage() {
         </div>
       </main>
 
-      {completion.percent === 100 && paidCents < 9500 ? (
+      {showPayPrompt && paidCents < 9500 ? (
         <div className="payBanner">
           <div className="payBannerInner">
             <div className="payBannerText">

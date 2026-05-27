@@ -16,6 +16,7 @@ import { ProfileCareerGoals } from '../components/profile/ProfileCareerGoals'
 import { Navbar } from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
 import { computeCompletion } from '../utils/applicationCompletion'
+import { getYocoPublicKey, loadYocoSdk } from '../lib/yoco'
 
 const STEP_LABELS = [
   'Profile',
@@ -78,6 +79,9 @@ function formatWhen(iso: string) {
 export function ProfilePage() {
   const { user, refreshSession } = useAuth()
   const [items, setItems] = useState<InboxItem[]>([])
+  const [payBusy, setPayBusy] = useState(false)
+  const [payError, setPayError] = useState<string | null>(null)
+  const [paidCents, setPaidCents] = useState<number>(0)
   const [draftStep, setDraftStep] = useState<number>(0)
   const [blobUrl, setBlobUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -152,9 +156,64 @@ export function ProfilePage() {
     }
   }, [])
 
+  const refreshPayment = useCallback(async () => {
+    try {
+      const s = await api<{ totalPaidCents: number }>('/api/payments/status')
+      setPaidCents(Number(s.totalPaidCents) || 0)
+    } catch {
+      // ignore
+    }
+  }, [])
+
+  async function startYocoPayment(plan: 'once_off_95' | 'split_50_first' | 'split_50_second') {
+    const publicKey = getYocoPublicKey()
+    if (!publicKey) {
+      setPayError('Payments are not configured yet. Please try again later.')
+      return
+    }
+    setPayBusy(true)
+    setPayError(null)
+    try {
+      await loadYocoSdk()
+      const YocoSDK = window.YocoSDK
+      if (!YocoSDK) throw new Error('Could not load payment form')
+      const yoco = new YocoSDK({ publicKey })
+      const amountInCents = plan === 'once_off_95' ? 9500 : 5000
+
+      await new Promise<void>((resolve, reject) => {
+        yoco.showPopup({
+          amountInCents,
+          currency: 'ZAR',
+          name: plan === 'once_off_95' ? 'Apply Once application fee' : 'Apply Once application installment',
+          description: plan === 'once_off_95' ? 'Once-off fee (R95)' : 'Installment (R50)',
+          callback: async (result) => {
+            if (result?.error) return reject(new Error(result.error.message || 'Payment cancelled'))
+            const token = String(result?.id || '').trim()
+            if (!token) return reject(new Error('Payment failed (no token)'))
+            try {
+              await api('/api/payments/yoco/charge', { method: 'POST', json: { token, plan } })
+              await refreshPayment()
+              resolve()
+            } catch (e) {
+              reject(e instanceof Error ? e : new Error('Payment failed'))
+            }
+          },
+        })
+      })
+    } catch (e) {
+      setPayError(e instanceof Error ? e.message : 'Payment failed')
+    } finally {
+      setPayBusy(false)
+    }
+  }
+
   useEffect(() => {
     load()
   }, [load])
+
+  useEffect(() => {
+    void refreshPayment()
+  }, [refreshPayment])
 
   useEffect(() => {
     let cancelled = false
@@ -326,6 +385,32 @@ export function ProfilePage() {
           </header>
 
           {error ? <div className="formError">{error}</div> : null}
+
+          {paidCents < 9500 ? (
+            <div className="payBanner" style={{ marginBottom: 16 }}>
+              <div className="payBannerInner">
+                <div className="payBannerText">
+                  <strong>Activate your application</strong>
+                  <span className="muted">
+                    Pay anytime: R95 once-off, or R50 now and R50 later.
+                  </span>
+                  <span className="muted">Paid so far: R{(paidCents / 100).toFixed(2)}</span>
+                  {payError ? <span className="payBannerError">{payError}</span> : null}
+                </div>
+                <div className="payBannerActions">
+                  <button className="btn btnBrand btnSmall" disabled={payBusy} onClick={() => void startYocoPayment('once_off_95')}>
+                    {payBusy ? 'Opening…' : 'Pay R95'}
+                  </button>
+                  <button className="btn btnOutline btnSmall" disabled={payBusy || paidCents >= 5000} onClick={() => void startYocoPayment('split_50_first')}>
+                    Pay R50 now
+                  </button>
+                  <button className="btn btnOutline btnSmall" disabled={payBusy || paidCents < 5000} onClick={() => void startYocoPayment('split_50_second')}>
+                    Pay remaining R50
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           <div className="profileHubGrid">
             <section
