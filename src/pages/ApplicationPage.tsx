@@ -303,8 +303,10 @@ export function ApplicationPage() {
 
   async function onNext(e: FormEvent) {
     e.preventDefault()
+    const isLast = step >= STEP_LABELS.length - 1
     const next = Math.min(step + 1, STEP_LABELS.length - 1)
     await persist(next)
+    if (isLast) setShowPayPrompt(true)
   }
 
   async function onBack() {
@@ -424,14 +426,19 @@ export function ApplicationPage() {
             const token = String(result?.id || '').trim()
             if (!token) return reject(new Error('Payment failed (no token)'))
             try {
+              setPayBusy(true)
               await api('/api/payments/yoco/charge', { method: 'POST', json: { token, plan } })
               await refreshPayment()
               resolve()
             } catch (e) {
               reject(e instanceof Error ? e : new Error('Payment failed'))
+            } finally {
+              setPayBusy(false)
             }
           },
         })
+        // Popup is now visible; do not keep button stuck on "Opening…"
+        setPayBusy(false)
       })
     } catch (e) {
       setPayError(e instanceof Error ? e.message : 'Payment failed')

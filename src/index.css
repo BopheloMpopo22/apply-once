@@ -4146,6 +4146,12 @@ body {
   backdrop-filter: blur(10px);
 }
 
+.payBannerStatic {
+  position: relative;
+  bottom: auto;
+  z-index: 1;
+}
+
 .payBannerInner {
   width: min(1100px, 100%);
   margin: 0 auto;

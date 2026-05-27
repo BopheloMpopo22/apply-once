@@ -191,14 +191,18 @@ export function ProfilePage() {
             const token = String(result?.id || '').trim()
             if (!token) return reject(new Error('Payment failed (no token)'))
             try {
+              setPayBusy(true)
               await api('/api/payments/yoco/charge', { method: 'POST', json: { token, plan } })
               await refreshPayment()
               resolve()
             } catch (e) {
               reject(e instanceof Error ? e : new Error('Payment failed'))
+            } finally {
+              setPayBusy(false)
             }
           },
         })
+        setPayBusy(false)
       })
     } catch (e) {
       setPayError(e instanceof Error ? e.message : 'Payment failed')
@@ -387,7 +391,7 @@ export function ProfilePage() {
           {error ? <div className="formError">{error}</div> : null}
 
           {paidCents < 9500 ? (
-            <div className="payBanner" style={{ marginBottom: 16 }}>
+            <div className="payBanner payBannerStatic" style={{ marginBottom: 16 }}>
               <div className="payBannerInner">
                 <div className="payBannerText">
                   <strong>Activate your application</strong>
