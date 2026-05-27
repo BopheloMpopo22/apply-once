@@ -1,0 +1,372 @@
+import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { ApplyOnceLogo } from '../../components/ApplyOnceLogo'
+import { Navbar } from '../../components/Navbar'
+import { downloadBlob, makeSimpleTextPdf } from './pdfHelpers'
+
+type CvType =
+  | 'hs_bursary'
+  | 'hs_vac_work'
+  | 'uni_internship'
+  | 'uni_bursary'
+  | 'graduate'
+
+type CvAnswers = {
+  cvType: CvType
+  fullName: string
+  phone: string
+  email: string
+  city: string
+  profileSummary: string
+  education: string
+  subjectsOrModules: string
+  achievements: string
+  leadership: string
+  experience: string
+  projects: string
+  skills: string
+  certificates: string
+  references: string
+}
+
+const defaultCv = (cvType: CvType): CvAnswers => ({
+  cvType,
+  fullName: '',
+  phone: '',
+  email: '',
+  city: '',
+  profileSummary: '',
+  education: '',
+  subjectsOrModules: '',
+  achievements: '',
+  leadership: '',
+  experience: '',
+  projects: '',
+  skills: '',
+  certificates: '',
+  references: '',
+})
+
+const CV_TYPE_META: Record<CvType, { title: string; subtitle: string; tips: string[] }> = {
+  hs_bursary: {
+    title: 'CV for bursary (high school)',
+    subtitle: 'Short, clean, and achievement-focused. Show leadership, responsibility, and strong subjects.',
+    tips: [
+      'Keep it one page.',
+      'Put top subjects + marks and achievements near the top.',
+      'Show leadership and community involvement clearly.',
+    ],
+  },
+  hs_vac_work: {
+    title: 'CV for vacation work (high school)',
+    subtitle: 'Show reliability, willingness to learn, and availability. Simple and practical.',
+    tips: ['Keep it one page.', 'Highlight responsibilities and teamwork.', 'Add availability dates if you can.'],
+  },
+  uni_internship: {
+    title: 'CV for internship / vacation work (university)',
+    subtitle: 'Skills + projects + modules matter. Make it easy to scan in 20 seconds.',
+    tips: ['Put skills and projects above hobbies.', 'Add tools (Excel, Python, etc.).', 'Quantify projects/results.'],
+  },
+  uni_bursary: {
+    title: 'CV for bursary (university)',
+    subtitle: 'Balance academics and impact. Emphasise results, leadership, and goals.',
+    tips: ['Add academic achievements + averages if strong.', 'Include leadership/community involvement.', 'Keep it clear.'],
+  },
+  graduate: {
+    title: 'CV (graduate / finished school)',
+    subtitle: 'Show outcomes: experience, projects, leadership, and professional skills.',
+    tips: ['Lead with experience + achievements.', 'Use action verbs.', 'Keep to 1–2 pages depending on experience.'],
+  },
+}
+
+function cvTypeTitle(t: CvType): string {
+  return CV_TYPE_META[t].title
+}
+
+function buildCvText(a: CvAnswers): string {
+  const block = (label: string, value: string) => {
+    const v = value.trim()
+    return v ? `${label}\n${v}\n` : ''
+  }
+
+  const header = [
+    a.fullName || '___',
+    [a.city, a.phone, a.email].filter((x) => x.trim()).join(' · ') || '—',
+  ].join('\n')
+
+  return [
+    header,
+    '',
+    block('PROFILE', a.profileSummary),
+    block('EDUCATION', a.education),
+    block(a.cvType.startsWith('hs_') ? 'SUBJECTS' : 'MODULES', a.subjectsOrModules),
+    block('ACHIEVEMENTS', a.achievements),
+    block('LEADERSHIP & COMMUNITY', a.leadership),
+    block('EXPERIENCE', a.experience),
+    block('PROJECTS', a.projects),
+    block('SKILLS', a.skills),
+    block('CERTIFICATES', a.certificates),
+    block('REFERENCES', a.references),
+  ]
+    .filter(Boolean)
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
+export function ResourceCvBuilderPage() {
+  const [cvType, setCvType] = useState<CvType>('hs_bursary')
+  const [answers, setAnswers] = useState<CvAnswers>(() => {
+    try {
+      const raw = localStorage.getItem('apply_once_cv_builder')
+      if (!raw) return defaultCv('hs_bursary')
+      const parsed = JSON.parse(raw) as Partial<CvAnswers>
+      const t = (parsed.cvType as CvType) || 'hs_bursary'
+      return { ...defaultCv(t), ...parsed, cvType: t }
+    } catch {
+      return defaultCv('hs_bursary')
+    }
+  })
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const meta = CV_TYPE_META[cvType]
+
+  function update<K extends keyof CvAnswers>(key: K, value: string) {
+    setAnswers((prev) => {
+      const next = { ...prev, cvType, [key]: value }
+      localStorage.setItem('apply_once_cv_builder', JSON.stringify(next))
+      return next
+    })
+  }
+
+  function onChangeType(t: CvType) {
+    setCvType(t)
+    setAnswers((prev) => {
+      const next = { ...prev, cvType: t }
+      localStorage.setItem('apply_once_cv_builder', JSON.stringify(next))
+      return next
+    })
+  }
+
+  const cvText = useMemo(() => buildCvText({ ...answers, cvType }), [answers, cvType])
+
+  async function onDownload() {
+    setBusy(true)
+    setError(null)
+    try {
+      const bytes = await makeSimpleTextPdf({
+        title: cvTypeTitle(cvType),
+        subtitle: 'Generated by Apply Once resources. Review, refine wording, and keep formatting consistent.',
+        blocks: [{ text: cvText }],
+      })
+      downloadBlob(bytes, 'apply-once-cv.pdf')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not generate PDF')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="formShell resourcesShell" id="top">
+      <Navbar
+        variant="light"
+        logo={<ApplyOnceLogo />}
+        links={[
+          { label: 'Features', to: '/#features' },
+          { label: 'Resources', to: '/resources' },
+        ]}
+      />
+      <main className="resourcesToolMain">
+        <div className="container resourcesContainer">
+          <nav className="resourcesCrumb">
+            <Link to="/resources">Resources</Link>
+            <span aria-hidden>/</span>
+            <span>CV builder</span>
+          </nav>
+
+          <header className="resourcesToolHero">
+            <h1 className="resourcesToolTitle">CV builder</h1>
+            <p className="resourcesToolLead">
+              Choose a CV type, answer the prompts, and download a clean PDF. Built for high school, varsity, and
+              graduates.
+            </p>
+          </header>
+
+          <div className="resourcesSplit">
+            <section className="resourcesToolCard">
+              <div className="resourcesToolRow">
+                <h2 className="resourcesToolCardTitle">Your CV details</h2>
+                <button type="button" className="btn btnOutline btnSmall" onClick={() => setAnswers(defaultCv(cvType))}>
+                  Clear
+                </button>
+              </div>
+
+              <label className="field">
+                <span>CV type</span>
+                <select value={cvType} onChange={(e) => onChangeType(e.target.value as CvType)}>
+                  <option value="hs_bursary">CV for bursary — High school</option>
+                  <option value="hs_vac_work">CV for vacation work — High school</option>
+                  <option value="uni_internship">CV for internship / vacation work — University</option>
+                  <option value="uni_bursary">CV for bursary — University</option>
+                  <option value="graduate">CV — Graduate / finished school</option>
+                </select>
+              </label>
+
+              <div className="tipBox" style={{ marginTop: 12 }}>
+                <strong>{meta.title}</strong>
+                <p className="muted" style={{ marginTop: 6 }}>
+                  {meta.subtitle}
+                </p>
+                <ul style={{ margin: '8px 0 0', paddingLeft: '1.1rem' }}>
+                  {meta.tips.map((t) => (
+                    <li key={t}>{t}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="resourcesForm" style={{ marginTop: 14 }}>
+                <div className="fieldRow">
+                  <label className="field">
+                    <span>Full name</span>
+                    <input value={answers.fullName} onChange={(e) => update('fullName', e.target.value)} />
+                  </label>
+                  <label className="field">
+                    <span>City</span>
+                    <input value={answers.city} onChange={(e) => update('city', e.target.value)} placeholder="e.g. Soweto, Johannesburg" />
+                  </label>
+                </div>
+                <div className="fieldRow">
+                  <label className="field">
+                    <span>Phone</span>
+                    <input value={answers.phone} onChange={(e) => update('phone', e.target.value)} />
+                  </label>
+                  <label className="field">
+                    <span>Email</span>
+                    <input value={answers.email} onChange={(e) => update('email', e.target.value)} />
+                  </label>
+                </div>
+
+                <label className="field">
+                  <span>Profile summary (2–4 lines)</span>
+                  <textarea
+                    rows={3}
+                    value={answers.profileSummary}
+                    onChange={(e) => update('profileSummary', e.target.value)}
+                    placeholder="Who you are, what you’re studying, and what you’re aiming for."
+                  />
+                </label>
+
+                <label className="field">
+                  <span>Education</span>
+                  <textarea
+                    rows={4}
+                    value={answers.education}
+                    onChange={(e) => update('education', e.target.value)}
+                    placeholder="School/university, years, qualification, expected completion, average if strong."
+                  />
+                </label>
+
+                <label className="field">
+                  <span>{cvType.startsWith('hs_') ? 'Top subjects & marks' : 'Key modules / coursework'}</span>
+                  <textarea
+                    rows={4}
+                    value={answers.subjectsOrModules}
+                    onChange={(e) => update('subjectsOrModules', e.target.value)}
+                    placeholder={cvType.startsWith('hs_') ? 'List your best subjects and marks.' : 'List relevant modules, tools, labs, or focus areas.'}
+                  />
+                </label>
+
+                <label className="field">
+                  <span>Achievements</span>
+                  <textarea
+                    rows={4}
+                    value={answers.achievements}
+                    onChange={(e) => update('achievements', e.target.value)}
+                    placeholder="Awards, top grades, competitions, responsibilities at home, recognition."
+                  />
+                </label>
+
+                <label className="field">
+                  <span>Leadership & community</span>
+                  <textarea
+                    rows={4}
+                    value={answers.leadership}
+                    onChange={(e) => update('leadership', e.target.value)}
+                    placeholder="Prefect, captain, volunteer work, mentoring, tutoring, clubs, church/youth group."
+                  />
+                </label>
+
+                <label className="field">
+                  <span>Experience</span>
+                  <textarea
+                    rows={4}
+                    value={answers.experience}
+                    onChange={(e) => update('experience', e.target.value)}
+                    placeholder="Part-time jobs, family business help, tutoring, informal work, internships."
+                  />
+                </label>
+
+                <label className="field">
+                  <span>Projects (recommended for university/internship)</span>
+                  <textarea
+                    rows={4}
+                    value={answers.projects}
+                    onChange={(e) => update('projects', e.target.value)}
+                    placeholder="School/university projects. Include tools used and the result."
+                  />
+                </label>
+
+                <label className="field">
+                  <span>Skills</span>
+                  <textarea
+                    rows={3}
+                    value={answers.skills}
+                    onChange={(e) => update('skills', e.target.value)}
+                    placeholder="Hard skills (Excel, Word, Python) + soft skills (communication, teamwork)."
+                  />
+                </label>
+
+                <label className="field">
+                  <span>Certificates (optional)</span>
+                  <textarea
+                    rows={3}
+                    value={answers.certificates}
+                    onChange={(e) => update('certificates', e.target.value)}
+                    placeholder="First aid, computer course, short courses, online certificates."
+                  />
+                </label>
+
+                <label className="field">
+                  <span>References (optional)</span>
+                  <textarea
+                    rows={3}
+                    value={answers.references}
+                    onChange={(e) => update('references', e.target.value)}
+                    placeholder="Teacher/coach/manager name + role + phone/email (with permission)."
+                  />
+                </label>
+              </div>
+            </section>
+
+            <section className="resourcesToolCard">
+              <div className="resourcesToolRow">
+                <h2 className="resourcesToolCardTitle">Preview</h2>
+                <button type="button" className="btn btnBrand btnSmall" disabled={busy} onClick={() => void onDownload()}>
+                  {busy ? 'Creating PDF…' : 'Download PDF'}
+                </button>
+              </div>
+              {error ? <div className="formError">{error}</div> : null}
+              <pre className="resourcesPreview">{cvText}</pre>
+              <p className="muted">
+                Tip: keep consistent dates and bullet style. Avoid long paragraphs—bursary reviewers skim.
+              </p>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+}
+

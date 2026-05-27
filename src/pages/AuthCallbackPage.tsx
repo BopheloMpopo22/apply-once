@@ -69,7 +69,7 @@ export function AuthCallbackPage() {
           logo={<ApplyOnceLogo />}
           links={[
             { label: 'Features', to: '/#features' },
-            { label: 'Resources', to: '/#resources' },
+            { label: 'Resources', to: '/resources' },
           ]}
         />
         <main className="formMain">
@@ -93,7 +93,7 @@ export function AuthCallbackPage() {
         logo={<ApplyOnceLogo />}
         links={[
           { label: 'Features', to: '/#features' },
-          { label: 'Resources', to: '/#resources' },
+          { label: 'Resources', to: '/resources' },
         ]}
       />
       <main className="formMain">

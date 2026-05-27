@@ -49,7 +49,7 @@ export function ProfileGate(props: { children: ReactNode }) {
           logo={<ApplyOnceLogo />}
           links={[
             { label: 'Features', to: '/#features' },
-            { label: 'Resources', to: '/#resources' },
+            { label: 'Resources', to: '/resources' },
           ]}
         />
         <main className="formMain">
@@ -286,7 +286,7 @@ export function ProfilePage() {
         logo={<ApplyOnceLogo />}
         links={[
           { label: 'Features', to: '/#features' },
-          { label: 'Resources', to: '/#resources' },
+          { label: 'Resources', to: '/resources' },
         ]}
       />
       <main className="formMain profileMain">

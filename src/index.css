@@ -3784,6 +3784,236 @@ body {
   background: var(--bg);
 }
 
+/* Resources */
+.resourcesShell {
+  background: var(--bg);
+}
+
+.resourcesMain {
+  padding: var(--space-7) 0 var(--space-11);
+}
+
+.resourcesToolMain {
+  padding: var(--space-6) 0 var(--space-11);
+}
+
+.resourcesContainer {
+  width: min(1060px, 100%);
+}
+
+.resourcesHero {
+  padding: var(--space-6) 0 var(--space-5);
+}
+
+.resourcesEyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hfc-blue);
+}
+
+.resourcesTitle {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  color: #0f172a;
+  max-width: 22ch;
+}
+
+.resourcesLead {
+  margin: var(--space-4) 0 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: rgba(15, 23, 42, 0.7);
+  max-width: 60ch;
+}
+
+.resourcesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+.resourcesCard {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(33, 50, 230, 0.14);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.resourcesCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(33, 50, 230, 0.25);
+}
+
+.resourcesCardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.resourcesCardTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 750;
+  color: #0f172a;
+}
+
+.resourcesCardText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(15, 23, 42, 0.68);
+}
+
+.resourcesCardCta {
+  font-weight: 700;
+  color: var(--hfc-blue);
+}
+
+.resourcesBadge {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(33, 50, 230, 0.1);
+  color: var(--hfc-blue);
+}
+
+.resourcesCrumb {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.6);
+  margin-bottom: var(--space-4);
+}
+
+.resourcesCrumb a {
+  color: var(--hfc-blue);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.resourcesToolHero {
+  margin-bottom: var(--space-5);
+}
+
+.resourcesToolTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3vw, 30px);
+  color: #0f172a;
+}
+
+.resourcesToolLead {
+  margin: var(--space-3) 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(15, 23, 42, 0.68);
+  max-width: 70ch;
+}
+
+.resourcesToolCard {
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--shadow-sm);
+}
+
+.resourcesToolCardTitle {
+  margin: 0;
+  font-size: 16px;
+}
+
+.resourcesToolRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+
+.resourcesSplit {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: var(--space-4);
+}
+
+.resourcesForm {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.resourcesPreview {
+  margin: 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(15, 23, 42, 0.02);
+  max-height: min(60vh, 560px);
+  overflow: auto;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.resourcesFileList {
+  margin: var(--space-4) 0 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.resourcesFileRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--space-3);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+
+.resourcesFileMeta {
+  display: grid;
+  gap: 4px;
+}
+
+.resourcesFileActions {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+@media (max-width: 980px) {
+  .resourcesGrid {
+    grid-template-columns: 1fr;
+  }
+  .resourcesSplit {
+    grid-template-columns: 1fr;
+  }
+}
+
 .pdfPreviewMain {
   flex: 1;
   padding: var(--space-6) var(--space-4) var(--space-10);

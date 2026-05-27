@@ -20,7 +20,7 @@ export function HomePage() {
         logo={<ApplyOnceLogo />}
         links={[
           { label: 'Features', to: '/#features' },
-          { label: 'Resources', to: '/#resources' },
+          { label: 'Resources', to: '/resources' },
         ]}
       />
 

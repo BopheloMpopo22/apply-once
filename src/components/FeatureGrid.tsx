@@ -26,7 +26,7 @@ export function FeatureGrid(props: { features: Feature[]; columns?: 3 | 4 }) {
           <div className="featureTitle">{f.title}</div>
           <div className="featureText">{f.description}</div>
           <div className="featureActions">
-            <a className="featureLearnMore" href={f.learnMoreHref ?? '#resources'} onClick={(e) => e.stopPropagation()}>
+            <a className="featureLearnMore" href={f.learnMoreHref ?? '/resources'} onClick={(e) => e.stopPropagation()}>
               Learn more
             </a>
           </div>

@@ -12,6 +12,10 @@ import { VarsityGuidePage } from './pages/VarsityGuidePage'
 import { StudentHubPage } from './pages/StudentHubPage'
 import { VarsityProspectusHubPage } from './pages/VarsityProspectusHubPage'
 import { ApplicationPdfPreviewPage } from './pages/ApplicationPdfPreviewPage'
+import { ResourcesPage } from './pages/ResourcesPage'
+import { ResourceScannerPage } from './pages/resources/ResourceScannerPage'
+import { ResourceMotivationLetterPage } from './pages/resources/ResourceMotivationLetterPage'
+import { ResourceCvBuilderPage } from './pages/resources/ResourceCvBuilderPage'
 
 export default function App() {
   return (
@@ -27,6 +31,10 @@ export default function App() {
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/resources" element={<ResourcesPage />} />
+      <Route path="/resources/scanner" element={<ResourceScannerPage />} />
+      <Route path="/resources/motivation-letter" element={<ResourceMotivationLetterPage />} />
+      <Route path="/resources/cv-builder" element={<ResourceCvBuilderPage />} />
       <Route
         path="/profile"
         element={
