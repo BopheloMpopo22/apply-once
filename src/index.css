@@ -4140,16 +4140,20 @@ body {
 .payBanner {
   position: sticky;
   bottom: 0;
-  z-index: 50;
+  z-index: 40;
   border-top: 1px solid rgba(15, 23, 42, 0.12);
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(10px);
 }
 
-.payBannerStatic {
+/* Profile payment card — not sticky, stays out of Yoco popup stacking */
+.payPanel {
   position: relative;
-  bottom: auto;
-  z-index: 1;
+  z-index: auto;
+  border: 1px solid rgba(33, 50, 230, 0.16);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
 }
 
 .payBannerInner {
@@ -4178,6 +4182,73 @@ body {
 .payBannerError {
   color: #b91c1c;
   font-weight: 650;
+}
+
+.paymentSuccessShell {
+  background: radial-gradient(900px 520px at 15% 0%, rgba(33, 50, 230, 0.12), transparent 55%),
+    radial-gradient(700px 480px at 95% 10%, rgba(0, 157, 254, 0.1), transparent 52%),
+    var(--bg);
+}
+
+.paymentSuccessMain {
+  justify-content: center;
+  padding-bottom: var(--space-8);
+}
+
+.paymentSuccessCard {
+  width: min(560px, 100%);
+  margin: 0 auto;
+  padding: var(--space-8);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(33, 50, 230, 0.14);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.paymentSuccessIcon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--space-4);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, var(--hfc-blue), #009dfe);
+}
+
+.paymentSuccessKicker {
+  margin: 0 0 var(--space-2);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hfc-blue);
+}
+
+.paymentSuccessTitle {
+  margin-bottom: var(--space-3);
+}
+
+.paymentSuccessLead {
+  margin-bottom: var(--space-5);
+}
+
+.paymentSuccessList {
+  text-align: left;
+  margin: 0 0 var(--space-6);
+  padding-left: 1.25rem;
+  color: rgba(15, 23, 42, 0.82);
+  line-height: 1.55;
+}
+
+.paymentSuccessActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: center;
 }
 
 .authShell {
@@ -4306,6 +4377,17 @@ body {
 
 .adminError {
   margin-bottom: var(--space-4);
+}
+
+.adminOk {
+  margin: 0 0 var(--space-3);
+  color: #15803d;
+  font-weight: 650;
+}
+
+.adminEmailHint {
+  margin: 0 0 var(--space-3);
+  font-size: 13px;
 }
 
 .adminCard {

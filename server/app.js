@@ -25,6 +25,8 @@ import {
   syncBursaryCatalogue,
 } from './bursaryMatch.js'
 const YOCO_SECRET_KEY = String(process.env.YOCO_SECRET_KEY || '').trim()
+const RESEND_API_KEY = String(process.env.RESEND_API_KEY || '').trim()
+const EMAIL_FROM = String(process.env.EMAIL_FROM || 'Apply Once <onboarding@resend.dev>').trim()
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const prisma = new PrismaClient()
 const app = express()
@@ -1482,6 +1484,62 @@ app.post('/api/admin/students/:id/chat', adminMiddleware, async (req, res) => {
     select: { id: true, sender: true, body: true, createdAt: true },
   })
   res.status(201).json(row)
+})
+
+app.post('/api/admin/students/:id/email', adminMiddleware, async (req, res) => {
+  if (!RESEND_API_KEY) {
+    return res.status(503).json({
+      error: 'Email not configured. Set RESEND_API_KEY and EMAIL_FROM on the server. See docs/SETUP-EMAIL.md.',
+    })
+  }
+  const id = String(req.params.id || '')
+  const subject = String(req.body?.subject ?? '').trim()
+  const body = String(req.body?.body ?? '').trim()
+  if (!subject || !body) {
+    return res.status(400).json({ error: 'Subject and message are required' })
+  }
+  const user = await prisma.user.findUnique({ where: { id }, select: { email: true } })
+  if (!user) return res.status(404).json({ error: 'Student not found' })
+
+  const htmlBody = body
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\n/g, '<br>')
+
+  try {
+    const mailRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: EMAIL_FROM,
+        to: [user.email],
+        subject,
+        text: body,
+        html: `<div style="font-family:system-ui,sans-serif;line-height:1.55;color:#0f172a">${htmlBody}</div>`,
+      }),
+    })
+    const mailText = await mailRes.text()
+    let mailData = {}
+    try {
+      mailData = JSON.parse(mailText || '{}')
+    } catch {
+      mailData = { raw: mailText }
+    }
+    if (!mailRes.ok) {
+      const reason =
+        typeof mailData === 'object' && mailData !== null && 'message' in mailData
+          ? String(mailData.message)
+          : 'Could not send email'
+      return res.status(400).json({ error: reason })
+    }
+    return res.status(201).json({ ok: true, id: mailData.id ?? null })
+  } catch (e) {
+    return res.status(502).json({ error: e instanceof Error ? e.message : 'Email delivery failed' })
+  }
 })
 
 app.post('/api/admin/inbox', adminMiddleware, async (req, res) => {

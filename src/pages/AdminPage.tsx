@@ -135,6 +135,10 @@ export function AdminPage() {
   const [chat, setChat] = useState<ChatMessage[]>([])
   const [chatDraft, setChatDraft] = useState('')
   const [chatBusy, setChatBusy] = useState(false)
+  const [emailSubject, setEmailSubject] = useState('')
+  const [emailBody, setEmailBody] = useState('')
+  const [emailBusy, setEmailBusy] = useState(false)
+  const [emailMessage, setEmailMessage] = useState<string | null>(null)
 
   const [varsityYear, setVarsityYear] = useState(2026)
   const [varsityBusy, setVarsityBusy] = useState(false)
@@ -180,6 +184,9 @@ export function AdminPage() {
   const loadDetail = useCallback(async (id: string) => {
     setDetailBusy(true)
     setError(null)
+    setEmailSubject('')
+    setEmailBody('')
+    setEmailMessage(null)
     try {
       const d = await adminApi<StudentDetail>(`/api/admin/students/${encodeURIComponent(id)}`)
       setDetail(d)
@@ -340,6 +347,30 @@ export function AdminPage() {
       setError(err instanceof Error ? err.message : 'Could not send message')
     } finally {
       setChatBusy(false)
+    }
+  }
+
+  async function onEmailSend(e: FormEvent) {
+    e.preventDefault()
+    if (!selectedId) return
+    const subject = emailSubject.trim()
+    const body = emailBody.trim()
+    if (!subject || !body) return
+    setEmailBusy(true)
+    setError(null)
+    setEmailMessage(null)
+    try {
+      await adminApi(`/api/admin/students/${encodeURIComponent(selectedId)}/email`, {
+        method: 'POST',
+        json: { subject, body },
+      })
+      setEmailSubject('')
+      setEmailBody('')
+      setEmailMessage('Email sent to the student.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not send email')
+    } finally {
+      setEmailBusy(false)
     }
   }
 
@@ -900,6 +931,38 @@ export function AdminPage() {
                       <div className="formActions">
                         <button type="submit" className="btn btnDark btnSmall" disabled={sendBusy}>
                           {sendBusy ? 'Sending…' : 'Send to inbox'}
+                        </button>
+                      </div>
+                    </form>
+
+                    <h3 className="adminSubheading">Email student</h3>
+                    <p className="adminMuted adminEmailHint">
+                      Sends directly to {detail.email}. Requires Resend on the server — see docs/SETUP-EMAIL.md.
+                    </p>
+                    {emailMessage ? <p className="adminOk">{emailMessage}</p> : null}
+                    <form className="adminCompose" onSubmit={(ev) => void onEmailSend(ev)}>
+                      <label className="field">
+                        <span>Subject</span>
+                        <input
+                          required
+                          value={emailSubject}
+                          onChange={(ev) => setEmailSubject(ev.target.value)}
+                          placeholder="e.g. Welcome to Apply Once"
+                        />
+                      </label>
+                      <label className="field">
+                        <span>Email message</span>
+                        <textarea
+                          required
+                          rows={5}
+                          value={emailBody}
+                          onChange={(ev) => setEmailBody(ev.target.value)}
+                          placeholder="Write your email to the student…"
+                        />
+                      </label>
+                      <div className="formActions">
+                        <button type="submit" className="btn btnDark btnSmall" disabled={emailBusy}>
+                          {emailBusy ? 'Sending…' : 'Send email'}
                         </button>
                       </div>
                     </form>

@@ -12,6 +12,7 @@ import { VarsityGuidePage } from './pages/VarsityGuidePage'
 import { StudentHubPage } from './pages/StudentHubPage'
 import { VarsityProspectusHubPage } from './pages/VarsityProspectusHubPage'
 import { ApplicationPdfPreviewPage } from './pages/ApplicationPdfPreviewPage'
+import { PaymentSuccessPage } from './pages/PaymentSuccessPage'
 
 export default function App() {
   return (
@@ -42,6 +43,10 @@ export default function App() {
             <ApplicationPage />
           </ApplicationGate>
         }
+      />
+      <Route
+        path="/payment/success"
+        element={<PaymentSuccessPage />}
       />
       <Route
         path="/profile/application-pdf"
