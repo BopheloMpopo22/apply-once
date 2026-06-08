@@ -139,6 +139,11 @@ export function AdminPage() {
   const [emailBody, setEmailBody] = useState('')
   const [emailBusy, setEmailBusy] = useState(false)
   const [emailMessage, setEmailMessage] = useState<string | null>(null)
+  const [selectedStudentIds, setSelectedStudentIds] = useState<Set<string>>(new Set())
+  const [bulkEmailSubject, setBulkEmailSubject] = useState('')
+  const [bulkEmailBody, setBulkEmailBody] = useState('')
+  const [bulkEmailBusy, setBulkEmailBusy] = useState(false)
+  const [bulkEmailMessage, setBulkEmailMessage] = useState<string | null>(null)
 
   const [varsityYear, setVarsityYear] = useState(2026)
   const [varsityBusy, setVarsityBusy] = useState(false)
@@ -350,6 +355,55 @@ export function AdminPage() {
     }
   }
 
+  const allStudentsSelected =
+    students.length > 0 && students.every((row) => selectedStudentIds.has(row.id))
+
+  function toggleStudentSelection(id: string) {
+    setSelectedStudentIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function toggleSelectAllStudents() {
+    if (allStudentsSelected) {
+      setSelectedStudentIds(new Set())
+      return
+    }
+    setSelectedStudentIds(new Set(students.map((row) => row.id)))
+  }
+
+  async function onBulkEmailSend(e: FormEvent) {
+    e.preventDefault()
+    const ids = [...selectedStudentIds]
+    const subject = bulkEmailSubject.trim()
+    const body = bulkEmailBody.trim()
+    if (!ids.length || !subject || !body) return
+    setBulkEmailBusy(true)
+    setError(null)
+    setBulkEmailMessage(null)
+    try {
+      const res = await adminApi<{ sent: number; failed: number }>('/api/admin/students/email-bulk', {
+        method: 'POST',
+        json: { userIds: ids, subject, body },
+      })
+      setBulkEmailSubject('')
+      setBulkEmailBody('')
+      setSelectedStudentIds(new Set())
+      setBulkEmailMessage(
+        res.failed > 0
+          ? `Sent to ${res.sent} student${res.sent === 1 ? '' : 's'}. ${res.failed} failed.`
+          : `Email sent to ${res.sent} student${res.sent === 1 ? '' : 's'}.`,
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not send bulk email')
+    } finally {
+      setBulkEmailBusy(false)
+    }
+  }
+
   async function onEmailSend(e: FormEvent) {
     e.preventDefault()
     if (!selectedId) return
@@ -545,10 +599,69 @@ export function AdminPage() {
             <div className="adminGrid">
               <section className="adminCard adminCardStretch">
                 <h2 className="adminCardTitle">Students</h2>
+                <p className="adminMuted adminEmailHint">
+                  Select students below to email a group, or open one student for a single email.
+                </p>
+                {bulkEmailMessage ? <p className="adminOk">{bulkEmailMessage}</p> : null}
+                <form className="adminBulkEmailForm" onSubmit={(ev) => void onBulkEmailSend(ev)}>
+                  <div className="adminBulkEmailHead">
+                    <strong>
+                      Email selected ({selectedStudentIds.size}
+                      {students.length ? ` of ${students.length}` : ''})
+                    </strong>
+                    <button
+                      type="button"
+                      className="btn btnOutline btnSmall"
+                      disabled={!students.length}
+                      onClick={toggleSelectAllStudents}
+                    >
+                      {allStudentsSelected ? 'Clear selection' : 'Select all'}
+                    </button>
+                  </div>
+                  <label className="field">
+                    <span>Subject</span>
+                    <input
+                      value={bulkEmailSubject}
+                      onChange={(ev) => setBulkEmailSubject(ev.target.value)}
+                      placeholder="Message subject for selected students"
+                      disabled={selectedStudentIds.size === 0}
+                    />
+                  </label>
+                  <label className="field">
+                    <span>Message</span>
+                    <textarea
+                      rows={4}
+                      value={bulkEmailBody}
+                      onChange={(ev) => setBulkEmailBody(ev.target.value)}
+                      placeholder="Write your email to the selected students…"
+                      disabled={selectedStudentIds.size === 0}
+                    />
+                  </label>
+                  <div className="formActions">
+                    <button
+                      type="submit"
+                      className="btn btnDark btnSmall"
+                      disabled={bulkEmailBusy || selectedStudentIds.size === 0}
+                    >
+                      {bulkEmailBusy
+                        ? 'Sending…'
+                        : `Send to ${selectedStudentIds.size} student${selectedStudentIds.size === 1 ? '' : 's'}`}
+                    </button>
+                  </div>
+                </form>
                 <div className="adminTableWrap">
                   <table className="adminTable">
                     <thead>
                       <tr>
+                        <th className="adminTableCheckCol">
+                          <input
+                            type="checkbox"
+                            aria-label="Select all students"
+                            checked={allStudentsSelected}
+                            onChange={toggleSelectAllStudents}
+                            disabled={!students.length}
+                          />
+                        </th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Payment</th>
@@ -563,6 +676,14 @@ export function AdminPage() {
                           key={row.id}
                           className={selectedId === row.id ? 'adminTableRowSelected' : undefined}
                         >
+                          <td className="adminTableCheckCol">
+                            <input
+                              type="checkbox"
+                              aria-label={`Select ${displayName(row)}`}
+                              checked={selectedStudentIds.has(row.id)}
+                              onChange={() => toggleStudentSelection(row.id)}
+                            />
+                          </td>
                           <td>
                             <button
                               type="button"

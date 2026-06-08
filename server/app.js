@@ -916,115 +916,215 @@ async function buildApplicationSnapshot(userId) {
   }
 }
 
-function writeSection(doc, title, lines) {
-  doc.moveDown(0.6)
-  doc.fontSize(13).fillColor('#0f172a').text(title, { underline: true })
-  doc.moveDown(0.25)
-  doc.fontSize(10).fillColor('#0f172a')
-  for (const line of lines) {
-    if (!line) continue
-    doc.text(`• ${line}`)
-  }
-}
-
 function safeText(v) {
   if (v === null || v === undefined) return ''
   if (typeof v === 'string') return v.trim()
   return String(v)
 }
 
+const PDF_BRAND = '#2132e6'
+const PDF_TEXT = '#0f172a'
+const PDF_MUTED = '#64748b'
+const PDF_MARGIN = 48
+
+function pdfEnsureSpace(doc, needed = 56) {
+  const bottom = doc.page.height - PDF_MARGIN
+  if (doc.y + needed > bottom) doc.addPage()
+}
+
+function pdfSectionHeading(doc, title) {
+  pdfEnsureSpace(doc, 52)
+  const y = doc.y
+  doc.save()
+  doc.rect(PDF_MARGIN, y, 5, 16).fill(PDF_BRAND)
+  doc.restore()
+  doc
+    .font('Helvetica-Bold')
+    .fontSize(11)
+    .fillColor(PDF_BRAND)
+    .text(title.toUpperCase(), PDF_MARGIN + 12, y + 1, { width: doc.page.width - PDF_MARGIN * 2 - 12 })
+  doc.y = y + 22
+  doc
+    .moveTo(PDF_MARGIN, doc.y)
+    .lineTo(doc.page.width - PDF_MARGIN, doc.y)
+    .strokeColor('#e2e8f0')
+    .lineWidth(0.75)
+    .stroke()
+  doc.moveDown(0.45)
+}
+
+function pdfFieldRow(doc, label, value) {
+  const v = safeText(value)
+  if (!v) return
+  pdfEnsureSpace(doc, 32)
+  doc.font('Helvetica-Bold').fontSize(9).fillColor(PDF_MUTED).text(`${label}`, { continued: true })
+  doc.font('Helvetica').fontSize(10).fillColor(PDF_TEXT).text(`  ${v}`, { lineGap: 2 })
+  doc.moveDown(0.2)
+}
+
+function pdfParagraphBlock(doc, label, text) {
+  const v = safeText(text)
+  if (!v) return
+  pdfEnsureSpace(doc, 48)
+  doc.font('Helvetica-Bold').fontSize(9).fillColor(PDF_MUTED).text(label)
+  doc.moveDown(0.15)
+  doc.font('Helvetica').fontSize(10).fillColor(PDF_TEXT).text(v, { lineGap: 4, align: 'left' })
+  doc.moveDown(0.4)
+}
+
+async function sendResendEmail(to, subject, body) {
+  const htmlBody = body
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\n/g, '<br>')
+  const mailRes = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: EMAIL_FROM,
+      to: [to],
+      subject,
+      text: body,
+      html: `<div style="font-family:system-ui,sans-serif;line-height:1.55;color:#0f172a">${htmlBody}</div>`,
+    }),
+  })
+  const mailText = await mailRes.text()
+  let mailData = {}
+  try {
+    mailData = JSON.parse(mailText || '{}')
+  } catch {
+    mailData = { raw: mailText }
+  }
+  if (!mailRes.ok) {
+    const reason =
+      typeof mailData === 'object' && mailData !== null && 'message' in mailData
+        ? String(mailData.message)
+        : 'Could not send email'
+    throw new Error(reason)
+  }
+  return mailData
+}
+
 async function generateApplicationPdfBuffer(snapshot) {
-  const doc = new PDFDocument({ size: 'A4', margin: 48 })
+  const doc = new PDFDocument({ size: 'A4', margin: PDF_MARGIN })
   const chunks = []
   doc.on('data', (c) => chunks.push(c))
 
-  doc.fontSize(18).fillColor('#0f172a').text('Apply Once — Student Application Snapshot')
-  doc.moveDown(0.25)
-  doc.fontSize(10).fillColor('#334155').text(`Generated: ${new Date().toLocaleString()}`)
-  doc.fontSize(10).fillColor('#334155').text(`Student email: ${snapshot.email || '—'}`)
-  doc.fontSize(10).fillColor('#334155').text(
-    `Progress step index: ${snapshot.stepIndex} (saved draft)`,
-  )
-
   const p = snapshot.profile || {}
-  writeSection(doc, 'Profile', [
-    `Name: ${[safeText(p.firstName), safeText(p.lastName)].filter(Boolean).join(' ') || '—'}`,
-    `Phone: ${safeText(p.phone) || '—'}`,
-    `Date of birth: ${safeText(p.dateOfBirth) || '—'}`,
-    `ID number: ${safeText(p.idNumber) || '—'}`,
-    `Citizenship: ${safeText(p.citizenship) || '—'}`,
-    `Gender: ${safeText(p.gender) || '—'}`,
-    `Home language: ${safeText(p.homeLanguage) || '—'}`,
-    `Residential address: ${safeText(p.residentialAddress) || '—'}`,
-    `Postal address: ${safeText(p.postalAddress) || '—'}`,
-    `Disability: ${p.disability ? 'Yes' : 'No'}`,
-    p.disability ? `Disability notes: ${safeText(p.disabilityNotes) || '—'}` : '',
-  ])
+  const fullName =
+    [safeText(p.firstName), safeText(p.lastName)].filter(Boolean).join(' ') ||
+    snapshot.email ||
+    'Student application'
+  const contactParts = [
+    snapshot.email ? snapshot.email : '',
+    safeText(p.phone) ? safeText(p.phone) : '',
+    safeText(p.residentialAddress) ? safeText(p.residentialAddress) : '',
+  ].filter(Boolean)
+
+  const headerY = PDF_MARGIN
+  doc.save()
+  doc.rect(PDF_MARGIN, headerY, doc.page.width - PDF_MARGIN * 2, 68).fill(PDF_BRAND)
+  doc.restore()
+  doc.font('Helvetica-Bold').fontSize(9).fillColor('#ffffff').text('APPLY ONCE', PDF_MARGIN + 14, headerY + 14, {
+    characterSpacing: 1.2,
+  })
+  doc.font('Helvetica-Bold').fontSize(20).fillColor('#ffffff').text(fullName, PDF_MARGIN + 14, headerY + 30, {
+    width: doc.page.width - PDF_MARGIN * 2 - 28,
+  })
+  if (contactParts.length) {
+    doc
+      .font('Helvetica')
+      .fontSize(9)
+      .fillColor('#dbeafe')
+      .text(contactParts.join('  ·  '), PDF_MARGIN + 14, headerY + 54, {
+        width: doc.page.width - PDF_MARGIN * 2 - 28,
+      })
+  }
+  doc.y = headerY + 82
+
+  doc
+    .font('Helvetica')
+    .fontSize(9)
+    .fillColor(PDF_MUTED)
+    .text(`Generated ${new Date().toLocaleString()}  ·  Application step ${(snapshot.stepIndex ?? 0) + 1} of 8 saved`)
+  doc.moveDown(0.6)
+
+  pdfSectionHeading(doc, 'Personal profile')
+  pdfFieldRow(doc, 'Full name', fullName)
+  pdfFieldRow(doc, 'Phone', p.phone)
+  pdfFieldRow(doc, 'Date of birth', p.dateOfBirth)
+  pdfFieldRow(doc, 'ID number', p.idNumber)
+  pdfFieldRow(doc, 'Citizenship', p.citizenship)
+  pdfFieldRow(doc, 'Gender', p.gender)
+  pdfFieldRow(doc, 'Home language', p.homeLanguage)
+  pdfFieldRow(doc, 'Residential address', p.residentialAddress)
+  pdfFieldRow(doc, 'Postal address', p.postalAddress)
+  pdfFieldRow(doc, 'Disability', p.disability ? 'Yes' : 'No')
+  if (p.disability) pdfParagraphBlock(doc, 'Disability notes', p.disabilityNotes)
 
   const a = snapshot.payload?.academics || {}
-  writeSection(doc, 'Academics', [
-    `School: ${safeText(a.schoolName) || '—'}`,
-    `Grade/year: ${safeText(a.grade) || '—'}`,
-    `Curriculum: ${safeText(a.curriculum) || '—'}`,
-    `Institution: ${safeText(a.institutionName) || '—'}`,
-    `Qualification: ${safeText(a.qualificationName) || '—'}`,
-    `Year of study: ${safeText(a.yearOfStudy) || '—'}`,
-    `Intended fields: ${safeText(a.intendedFieldsNotes) || '—'}`,
-    `Subjects & marks: ${safeText(a.subjectsNotes) || '—'}`,
-    `NBT/APS: ${safeText(a.nbtApsNotes) || '—'}`,
-    `Achievements: ${safeText(a.achievementsNotes) || '—'}`,
-  ])
+  pdfSectionHeading(doc, 'Academics')
+  pdfFieldRow(doc, 'School', a.schoolName)
+  pdfFieldRow(doc, 'Grade / year', a.grade)
+  pdfFieldRow(doc, 'Curriculum', a.curriculum)
+  pdfFieldRow(doc, 'Institution', a.institutionName)
+  pdfFieldRow(doc, 'Qualification', a.qualificationName)
+  pdfFieldRow(doc, 'Year of study', a.yearOfStudy)
+  pdfParagraphBlock(doc, 'Intended fields of study', a.intendedFieldsNotes)
+  pdfParagraphBlock(doc, 'Subjects and marks', a.subjectsNotes)
+  pdfParagraphBlock(doc, 'NBT / APS', a.nbtApsNotes)
+  pdfParagraphBlock(doc, 'Achievements', a.achievementsNotes)
 
   const sp = snapshot.payload?.studyPlan || {}
-  writeSection(doc, 'Study plan', [
-    `Motivation: ${safeText(sp.motivation) || '—'}`,
-    `Career goals: ${safeText(sp.careerGoals) || '—'}`,
-    `Location preferences: ${safeText(sp.locationPreferences) || '—'}`,
-    `Bursary preferences: ${safeText(sp.bursaryPreferences) || '—'}`,
-  ])
+  pdfSectionHeading(doc, 'Study plan')
+  pdfParagraphBlock(doc, 'Motivation', sp.motivation)
+  pdfParagraphBlock(doc, 'Career goals', sp.careerGoals)
+  pdfFieldRow(doc, 'Location preferences', sp.locationPreferences)
+  pdfParagraphBlock(doc, 'Bursary preferences', sp.bursaryPreferences)
 
   const h = snapshot.payload?.household || {}
-  writeSection(doc, 'Household', [
-    `Guardian name: ${safeText(h.guardianName) || '—'}`,
-    `Relationship: ${safeText(h.relationship) || '—'}`,
-    `Guardian phone: ${safeText(h.guardianPhone) || '—'}`,
-    `Guardian email: ${safeText(h.guardianEmail) || '—'}`,
-    `Household members: ${safeText(h.householdMembersNotes) || '—'}`,
-    `Employment notes: ${safeText(h.employmentNotes) || '—'}`,
-  ])
+  pdfSectionHeading(doc, 'Household')
+  pdfFieldRow(doc, 'Guardian name', h.guardianName)
+  pdfFieldRow(doc, 'Relationship', h.relationship)
+  pdfFieldRow(doc, 'Guardian phone', h.guardianPhone)
+  pdfFieldRow(doc, 'Guardian email', h.guardianEmail)
+  pdfParagraphBlock(doc, 'Household members', h.householdMembersNotes)
+  pdfParagraphBlock(doc, 'Employment', h.employmentNotes)
 
   const f = snapshot.payload?.financial || {}
-  writeSection(doc, 'Financial need', [
-    `Income band: ${safeText(f.incomeBand) || '—'}`,
-    `Income sources: ${safeText(f.incomeSourcesNotes) || '—'}`,
-    `Expenses: ${safeText(f.expenseNotes) || '—'}`,
-    `Other funding: ${safeText(f.otherFundingNotes) || '—'}`,
-    `NSFAS status: ${safeText(f.nsfasStatus) || '—'}`,
-  ])
+  pdfSectionHeading(doc, 'Financial need')
+  pdfFieldRow(doc, 'Household income band', f.incomeBand)
+  pdfParagraphBlock(doc, 'Income sources', f.incomeSourcesNotes)
+  pdfParagraphBlock(doc, 'Monthly expenses', f.expenseNotes)
+  pdfParagraphBlock(doc, 'Other funding', f.otherFundingNotes)
+  pdfFieldRow(doc, 'NSFAS status', f.nsfasStatus)
 
   const fit = snapshot.payload?.fit || {}
-  writeSection(doc, 'Leadership & impact', [
-    `Leadership: ${safeText(fit.leadershipNotes) || '—'}`,
-    `Community: ${safeText(fit.communityNotes) || '—'}`,
-    `Work experience: ${safeText(fit.workExperienceNotes) || '—'}`,
-  ])
+  pdfSectionHeading(doc, 'Leadership and impact')
+  pdfParagraphBlock(doc, 'Leadership roles', fit.leadershipNotes)
+  pdfParagraphBlock(doc, 'Community involvement', fit.communityNotes)
+  pdfParagraphBlock(doc, 'Work experience', fit.workExperienceNotes)
 
   const c = snapshot.payload?.compliance || {}
-  writeSection(doc, 'Consent', [
-    `POPIA consent: ${c.consentPopia ? 'Yes' : 'No'}`,
-    `Truthful declaration: ${c.declarationTruthful ? 'Yes' : 'No'}`,
-  ])
+  pdfSectionHeading(doc, 'Consent and declaration')
+  pdfFieldRow(doc, 'POPIA consent', c.consentPopia ? 'Yes — agreed' : 'Not yet')
+  pdfFieldRow(doc, 'Truthful declaration', c.declarationTruthful ? 'Yes — agreed' : 'Not yet')
 
-  writeSection(
-    doc,
-    'Uploaded documents (metadata)',
-    (snapshot.documents || []).map(
-      (d) =>
-        `${d.category}: ${d.filename} (${Math.round((d.size || 0) / 1024)} KB) — ${new Date(
-          d.createdAt,
-        ).toLocaleDateString()}`,
-    ),
-  )
+  const docs = snapshot.documents || []
+  if (docs.length) {
+    pdfSectionHeading(doc, 'Supporting documents')
+    for (const d of docs) {
+      pdfFieldRow(
+        doc,
+        d.category.replace(/_/g, ' '),
+        `${d.filename} (${Math.round((d.size || 0) / 1024)} KB, uploaded ${new Date(d.createdAt).toLocaleDateString()})`,
+      )
+    }
+  }
 
   doc.end()
   return await new Promise((resolve, reject) => {
@@ -1501,45 +1601,57 @@ app.post('/api/admin/students/:id/email', adminMiddleware, async (req, res) => {
   const user = await prisma.user.findUnique({ where: { id }, select: { email: true } })
   if (!user) return res.status(404).json({ error: 'Student not found' })
 
-  const htmlBody = body
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/\n/g, '<br>')
-
   try {
-    const mailRes = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: EMAIL_FROM,
-        to: [user.email],
-        subject,
-        text: body,
-        html: `<div style="font-family:system-ui,sans-serif;line-height:1.55;color:#0f172a">${htmlBody}</div>`,
-      }),
-    })
-    const mailText = await mailRes.text()
-    let mailData = {}
-    try {
-      mailData = JSON.parse(mailText || '{}')
-    } catch {
-      mailData = { raw: mailText }
-    }
-    if (!mailRes.ok) {
-      const reason =
-        typeof mailData === 'object' && mailData !== null && 'message' in mailData
-          ? String(mailData.message)
-          : 'Could not send email'
-      return res.status(400).json({ error: reason })
-    }
+    const mailData = await sendResendEmail(user.email, subject, body)
     return res.status(201).json({ ok: true, id: mailData.id ?? null })
   } catch (e) {
-    return res.status(502).json({ error: e instanceof Error ? e.message : 'Email delivery failed' })
+    const msg = e instanceof Error ? e.message : 'Email delivery failed'
+    const code = /not configured/i.test(msg) ? 503 : 400
+    return res.status(code).json({ error: msg })
   }
+})
+
+app.post('/api/admin/students/email-bulk', adminMiddleware, async (req, res) => {
+  if (!RESEND_API_KEY) {
+    return res.status(503).json({
+      error: 'Email not configured. Set RESEND_API_KEY and EMAIL_FROM on the server. See docs/SETUP-EMAIL.md.',
+    })
+  }
+  const userIds = Array.isArray(req.body?.userIds)
+    ? [...new Set(req.body.userIds.map((id) => String(id || '').trim()).filter(Boolean))]
+    : []
+  const subject = String(req.body?.subject ?? '').trim()
+  const body = String(req.body?.body ?? '').trim()
+  if (!userIds.length) return res.status(400).json({ error: 'Select at least one student' })
+  if (!subject || !body) return res.status(400).json({ error: 'Subject and message are required' })
+
+  const users = await prisma.user.findMany({
+    where: { id: { in: userIds } },
+    select: { id: true, email: true },
+  })
+  if (!users.length) return res.status(404).json({ error: 'No matching students found' })
+
+  let sent = 0
+  const failed = []
+  for (const user of users) {
+    try {
+      await sendResendEmail(user.email, subject, body)
+      sent += 1
+    } catch (e) {
+      failed.push({
+        id: user.id,
+        email: user.email,
+        error: e instanceof Error ? e.message : 'Send failed',
+      })
+    }
+  }
+
+  return res.status(sent ? 201 : 400).json({
+    ok: sent > 0,
+    sent,
+    failed: failed.length,
+    errors: failed,
+  })
 })
 
 app.post('/api/admin/inbox', adminMiddleware, async (req, res) => {

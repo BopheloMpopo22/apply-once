@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { api, getBearerToken, setToken } from '../api/client'
-import { HAS_ACCOUNT_STORAGE_KEY } from '../constants'
+import { markHasAccount } from '../constants'
 import { supabase } from '../lib/supabaseClient'
 
 const ME_CACHE_KEY = 'apply_once_me_cache_v1'
@@ -84,6 +84,7 @@ export function AuthProvider(props: { children: ReactNode }) {
   }, [])
 
   const logout = useCallback(async () => {
+    markHasAccount()
     setToken(null)
     setUser(null)
     writeCachedMe(null)
@@ -102,6 +103,7 @@ export function AuthProvider(props: { children: ReactNode }) {
       const me = await fetchMe()
       setUser(me)
       writeCachedMe(me)
+      markHasAccount()
       await refreshAdmin()
     } catch (e) {
       const msg = e instanceof Error ? e.message : ''
@@ -127,6 +129,7 @@ export function AuthProvider(props: { children: ReactNode }) {
         const me = await fetchMe()
         if (!cancelled) setUser(me)
         if (!cancelled) writeCachedMe(me)
+        if (!cancelled) markHasAccount()
         if (!cancelled) await refreshAdmin()
       } catch (e) {
         if (!cancelled) {
@@ -196,7 +199,7 @@ export function AuthProvider(props: { children: ReactNode }) {
     if (error) throw error
     if (data.session?.access_token) {
       setToken(data.session.access_token)
-      localStorage.setItem(HAS_ACCOUNT_STORAGE_KEY, '1')
+      markHasAccount()
       await refreshSession()
     }
     },
@@ -226,7 +229,7 @@ export function AuthProvider(props: { children: ReactNode }) {
       },
     })
     if (error) throw error
-    localStorage.setItem(HAS_ACCOUNT_STORAGE_KEY, '1')
+    markHasAccount()
     // If email confirmation is OFF, we'll have a session and can refresh immediately.
     if (data.session?.access_token) {
       setToken(data.session.access_token)

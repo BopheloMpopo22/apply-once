@@ -4156,6 +4156,17 @@ body {
   box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
 }
 
+.payPanelHidden {
+  visibility: hidden;
+  pointer-events: none;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  margin: 0 !important;
+  padding: 0;
+  border: none;
+}
+
 .payBannerInner {
   width: min(1100px, 100%);
   margin: 0 auto;
@@ -4388,6 +4399,29 @@ body {
 .adminEmailHint {
   margin: 0 0 var(--space-3);
   font-size: 13px;
+}
+
+.adminBulkEmailForm {
+  margin: 0 0 var(--space-5);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(33, 50, 230, 0.14);
+  background: rgba(33, 50, 230, 0.04);
+  display: grid;
+  gap: var(--space-3);
+}
+
+.adminBulkEmailHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.adminTableCheckCol {
+  width: 36px;
+  text-align: center;
 }
 
 .adminCard {

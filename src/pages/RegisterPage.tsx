@@ -1,9 +1,23 @@
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
-import { Navbar } from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
 import { isOAuthConfigured } from '../lib/supabaseClient'
+
+const REGISTER_PERKS = [
+  {
+    title: 'Build once, apply everywhere',
+    text: 'Save your story, marks, and documents in one profile — we reuse them for bursary applications.',
+  },
+  {
+    title: 'Matched opportunities',
+    text: 'Answer a short career questionnaire and see how many open bursaries fit your path.',
+  },
+  {
+    title: 'Support when you need it',
+    text: 'Message our team from your profile and get help completing strong applications.',
+  },
+]
 
 export function RegisterPage() {
   const { loginWithGoogle, registerWithEmail, user } = useAuth()
@@ -44,23 +58,41 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="formShell authShell">
-      <Navbar
-        logo={<ApplyOnceLogo />}
-        links={[
-          { label: 'Features', to: '/#features' },
-          { label: 'Resources', to: '/#resources' },
-        ]}
-      />
-      <main className="formMain">
-        <div className="formCard authCard">
-          <p className="authKicker">Start your journey</p>
-          <h1 className="formTitle authTitle">Create your Apply Once account</h1>
-          <p className="formLead authLead">
-            One profile, many bursaries. Sign up in minutes and we will guide you every step of the way.
+    <div className="loginShell">
+      <div className="loginGradient" aria-hidden />
+      <div className="loginLayout">
+        <aside className="loginHero">
+          <Link to="/" className="loginLogoLink">
+            <ApplyOnceLogo />
+          </Link>
+          <p className="loginWelcome">Join Apply Once</p>
+          <h1 className="loginHeadline">One profile. Many bursaries.</h1>
+          <p className="loginSubhead">
+            Create your free student profile in minutes — then discover bursaries, track your application, and get
+            support from our team.
           </p>
-          {error ? <div className="formError">{error}</div> : null}
-          <div className="formFields">
+          <ul className="loginPerks">
+            {REGISTER_PERKS.map((p) => (
+              <li key={p.title}>
+                <strong>{p.title}</strong>
+                <span>{p.text}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="loginStat">
+            <span className="loginStatNum">Free</span>
+            <span className="loginStatLabel">to sign up — pay only when you activate your application</span>
+          </p>
+        </aside>
+
+        <main className="loginMain">
+          <div className="loginCard">
+            <p className="authKicker">Start your journey</p>
+            <h2 className="formTitle authTitle">Create your Apply Once account</h2>
+            <p className="formLead authLead">
+              One profile, many bursaries. Sign up in minutes and we will guide you every step of the way.
+            </p>
+            {error ? <div className="formError">{error}</div> : null}
             <form className="formFields" onSubmit={onEmailPassword}>
               <div className="fieldRow">
                 <div className="field">
@@ -108,12 +140,9 @@ export function RegisterPage() {
                 />
               </div>
               <div className="formActions">
-                <button type="submit" className="btn btnBrand" disabled={busy || !email.trim()}>
+                <button type="submit" className="btn btnBrand btnBlock" disabled={busy || !email.trim()}>
                   {busy ? 'Creating…' : 'Create account'}
                 </button>
-                <Link className="btnOutline" to="/login">
-                  Back to sign in
-                </Link>
               </div>
             </form>
 
@@ -121,7 +150,12 @@ export function RegisterPage() {
               <>
                 <p className="formOAuthDivider">or</p>
                 <div className="formActions">
-                  <button type="button" className="btn btnOutline btnProvider" disabled={busy} onClick={() => void onGoogle()}>
+                  <button
+                    type="button"
+                    className="btn btnOutline btnProvider btnBlock"
+                    disabled={busy}
+                    onClick={() => void onGoogle()}
+                  >
                     <span className="providerIcon" aria-hidden="true">
                       G
                     </span>
@@ -130,9 +164,16 @@ export function RegisterPage() {
                 </div>
               </>
             ) : null}
+
+            <p className="loginRegister">
+              Already have an account?{' '}
+              <Link to="/login" className="loginRegisterLink">
+                Sign in
+              </Link>
+            </p>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   )
 }

@@ -1,11 +1,7 @@
 import { Link } from 'react-router-dom'
-import { HAS_ACCOUNT_STORAGE_KEY } from '../constants'
+import { readHasAccountFlag } from '../constants'
 import { useAuth } from '../context/AuthContext'
 import { ProfileNavAvatar } from './ProfileNavAvatar'
-
-function readHasAccountFlag() {
-  return localStorage.getItem(HAS_ACCOUNT_STORAGE_KEY) === '1'
-}
 
 export function NavAuth() {
   const { user, loading, isAdmin, logout } = useAuth()

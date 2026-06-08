@@ -30,7 +30,6 @@ export function PaymentPanel(props: PaymentPanelProps) {
   const [popupOpen, setPopupOpen] = useState(false)
 
   if (paidCents >= 9500) return null
-  if (popupOpen) return null
 
   const hasFirstInstallment = paidCents >= 5000
   const showOnceOff = !hasFirstInstallment
@@ -46,6 +45,33 @@ export function PaymentPanel(props: PaymentPanelProps) {
     setPayBusy(true)
     setPayError(null)
     setPopupOpen(true)
+
+    let callbackFired = false
+    let focusListener: (() => void) | null = null
+    let focusTimer = 0
+
+    const showPanelAgain = () => setPopupOpen(false)
+
+    const armFocusFallback = () => {
+      focusTimer = window.setTimeout(() => {
+        const onFocus = () => {
+          window.setTimeout(() => {
+            if (!callbackFired) showPanelAgain()
+          }, 300)
+        }
+        window.addEventListener('focus', onFocus, { once: true })
+        focusListener = () => window.removeEventListener('focus', onFocus)
+      }, 700)
+    }
+
+    const disarmFocusFallback = () => {
+      window.clearTimeout(focusTimer)
+      focusListener?.()
+      focusListener = null
+    }
+
+    armFocusFallback()
+
     try {
       await loadYocoSdk()
       const YocoSDK = window.YocoSDK
@@ -59,37 +85,54 @@ export function PaymentPanel(props: PaymentPanelProps) {
           currency: 'ZAR',
           name: plan === 'once_off_95' ? 'Apply Once application fee' : 'Apply Once application installment',
           description: plan === 'once_off_95' ? 'Once-off fee (R95)' : 'Installment (R50)',
-          callback: async (result) => {
-            if (result?.error) return reject(new Error(result.error.message || 'Payment cancelled'))
-            const token = String(result?.id || '').trim()
-            if (!token) return reject(new Error('Payment failed (no token)'))
-            try {
-              setPayBusy(true)
-              await api('/api/payments/yoco/charge', { method: 'POST', json: { token, plan } })
-              const status = await api<{ totalPaidCents: number }>('/api/payments/status')
-              await onRefreshPayment()
-              if (Number(status.totalPaidCents) >= 9500) {
-                navigate('/payment/success', { replace: true, state: { from: successFrom } })
-              }
-              resolve()
-            } catch (e) {
-              reject(e instanceof Error ? e : new Error('Payment failed'))
-            } finally {
-              setPayBusy(false)
+          callback: (result) => {
+            callbackFired = true
+            disarmFocusFallback()
+            showPanelAgain()
+
+            if (result?.error) {
+              reject(new Error(result.error.message || 'Payment cancelled'))
+              return
             }
+            const token = String(result?.id || '').trim()
+            if (!token) {
+              reject(new Error('Payment cancelled'))
+              return
+            }
+
+            setPayBusy(true)
+            void (async () => {
+              try {
+                await api('/api/payments/yoco/charge', { method: 'POST', json: { token, plan } })
+                const status = await api<{ totalPaidCents: number }>('/api/payments/status')
+                await onRefreshPayment()
+                if (Number(status.totalPaidCents) >= 9500) {
+                  navigate('/payment/success', { replace: true, state: { from: successFrom } })
+                }
+                resolve()
+              } catch (e) {
+                reject(e instanceof Error ? e : new Error('Payment failed'))
+              } finally {
+                setPayBusy(false)
+              }
+            })()
           },
         })
         setPayBusy(false)
       })
     } catch (e) {
-      setPayError(e instanceof Error ? e.message : 'Payment failed')
+      const msg = e instanceof Error ? e.message : 'Payment failed'
+      if (msg !== 'Payment cancelled') setPayError(msg)
     } finally {
-      setPopupOpen(false)
+      callbackFired = true
+      disarmFocusFallback()
+      showPanelAgain()
       setPayBusy(false)
     }
   }
 
-  const shellClass = variant === 'sticky' ? 'payBanner' : 'payPanel'
+  const shellClass =
+    variant === 'sticky' ? 'payBanner' : popupOpen ? 'payPanel payPanelHidden' : 'payPanel'
 
   return (
     <div className={shellClass} style={variant === 'inline' ? { marginBottom: 16 } : undefined}>
@@ -109,7 +152,7 @@ export function PaymentPanel(props: PaymentPanelProps) {
             <button
               type="button"
               className="btn btnBrand btnSmall"
-              disabled={payBusy}
+              disabled={payBusy || popupOpen}
               onClick={() => void startYocoPayment('once_off_95')}
             >
               {payBusy ? 'Opening…' : 'Pay R95'}
@@ -119,7 +162,7 @@ export function PaymentPanel(props: PaymentPanelProps) {
             <button
               type="button"
               className="btn btnOutline btnSmall"
-              disabled={payBusy}
+              disabled={payBusy || popupOpen}
               onClick={() => void startYocoPayment('split_50_first')}
             >
               Pay R50 now
@@ -129,7 +172,7 @@ export function PaymentPanel(props: PaymentPanelProps) {
             <button
               type="button"
               className="btn btnOutline btnSmall"
-              disabled={payBusy}
+              disabled={payBusy || popupOpen}
               onClick={() => void startYocoPayment('split_50_second')}
             >
               {payBusy ? 'Opening…' : 'Pay remaining R50'}

@@ -1,19 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getBearerToken } from '../api/client'
-import { HAS_ACCOUNT_STORAGE_KEY } from '../constants'
+import { readHasAccountFlag } from '../constants'
 import { useAuth } from '../context/AuthContext'
-
-function readHasAccountFlag() {
-  return localStorage.getItem(HAS_ACCOUNT_STORAGE_KEY) === '1'
-}
 
 export function ProfileNavAvatar() {
   const { user } = useAuth()
   const [blobUrl, setBlobUrl] = useState<string | null>(null)
 
-  const loggedOutHref = readHasAccountFlag() ? '/login' : '/register'
-  const loggedOutLabel = readHasAccountFlag()
+  const hasAccountFlag = readHasAccountFlag()
+  const loggedOutHref = hasAccountFlag ? '/login' : '/register'
+  const loggedOutLabel = hasAccountFlag
     ? 'Login — open your saved profile'
     : 'Register — create your profile'
 
