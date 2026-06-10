@@ -39,6 +39,14 @@ export const HOME_FEATURE_CARDS = HUB_REGISTRY.map((hub) => ({
 
 export const HOME_RESOURCE_CARDS = [
   {
+    id: 'past-papers',
+    title: 'Matric past papers',
+    description: 'Grade 12 NSC papers and memos (2020–2025) from official DBE sources.',
+    image: u('photo-1434030216411-0b793f4b4173', 600),
+    imageAlt: 'Student studying with books',
+    accent: 'green' as const,
+  },
+  {
     id: 'motivation',
     title: 'Motivation letter template',
     description: 'A structure that reads clearly and confidently.',

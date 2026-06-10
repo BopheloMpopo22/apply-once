@@ -9,9 +9,11 @@ import { Navbar } from '../components/Navbar'
 import { Section } from '../components/Section'
 import { SiteFooter } from '../components/SiteFooter'
 import { HOME_FEATURE_CARDS, HOME_PRIMARY_CARDS, HOME_RESOURCE_CARDS } from '../data/homeCards'
+import { getPaperOfTheDay } from '../data/pastPapers/paperOfTheDay'
 
 export function HomePage() {
   const [openResourceId, setOpenResourceId] = useState<string | null>(null)
+  const paperOfTheDay = getPaperOfTheDay()
 
   return (
     <div className="appShell homeShell" id="top">
@@ -100,6 +102,18 @@ export function HomePage() {
           title="Guides that help you stand out"
           subtitle="Short, practical resources that you can actually use."
         >
+          <div className="homePaperOfDayBanner">
+            <div className="homePaperOfDayText">
+              <p className="homePaperOfDayKicker">Paper of the day</p>
+              <p className="homePaperOfDayTitle">
+                {paperOfTheDay.subject} · {paperOfTheDay.title} ({paperOfTheDay.session}{' '}
+                {paperOfTheDay.year})
+              </p>
+            </div>
+            <Link className="btn btnBrand btnSmall" to="/past-papers">
+              Open past papers
+            </Link>
+          </div>
           <div className="homeSecondaryGrid homeSecondaryGrid3">
             {HOME_RESOURCE_CARDS.map((card) => (
               <HomeSelectCard
@@ -113,8 +127,33 @@ export function HomePage() {
                 size="secondary"
                 expanded={openResourceId === card.id}
                 onToggle={() => setOpenResourceId((prev) => (prev === card.id ? null : card.id))}
+                ctaHref={card.id === 'past-papers' ? '/past-papers' : undefined}
+                ctaLabel={card.id === 'past-papers' ? 'Browse all matric papers →' : undefined}
               >
-                {card.id === 'cv' ? (
+                {card.id === 'past-papers' ? (
+                  <div className="homeResourceContent">
+                    <h4>Grade 12 NSC — official papers</h4>
+                    <ul>
+                      <li>
+                        <strong>15 core subjects</strong> — Maths, Sciences, Accounting, English, and
+                        more.
+                      </li>
+                      <li>
+                        <strong>2020–2025</strong> — November and May/June sessions.
+                      </li>
+                      <li>
+                        <strong>Question papers + memos</strong> — linked from DBE and WCED (official
+                        government sources).
+                      </li>
+                      <li>
+                        <strong>Paper of the day</strong> — a new paper to practise every day.
+                      </li>
+                    </ul>
+                    <p className="muted" style={{ marginTop: 10 }}>
+                      NSC matric finals are national — the same papers apply in every province.
+                    </p>
+                  </div>
+                ) : card.id === 'cv' ? (
                   <div className="homeResourceContent">
                     <h4>What your CV must include</h4>
                     <ul>

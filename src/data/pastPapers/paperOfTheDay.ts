@@ -1,0 +1,148 @@
+import type { PaperOfTheDayEntry } from './types'
+import { DBE_ORIGIN, novemberUrl } from './nscSessions'
+
+/** Direct downloads + year pages — rotates daily on homepage. */
+export const PAPER_OF_THE_DAY_POOL: PaperOfTheDayEntry[] = [
+  {
+    subject: 'Mathematics',
+    year: 2024,
+    session: 'November',
+    title: 'Mathematics Paper 1',
+    kind: 'question-paper',
+    url: 'https://wcedeportal.co.za/eresource/263496',
+    source: 'WCED',
+  },
+  {
+    subject: 'Mathematics',
+    year: 2024,
+    session: 'November',
+    title: 'Mathematics (all papers & memos)',
+    kind: 'question-paper',
+    url: novemberUrl(2024),
+    source: 'DBE',
+  },
+  {
+    subject: 'Physical Sciences',
+    year: 2024,
+    session: 'November',
+    title: 'Physical Sciences (papers & memos)',
+    kind: 'question-paper',
+    url: novemberUrl(2024),
+    source: 'DBE',
+  },
+  {
+    subject: 'Life Sciences',
+    year: 2024,
+    session: 'November',
+    title: 'Life Sciences (papers & memos)',
+    kind: 'question-paper',
+    url: novemberUrl(2024),
+    source: 'DBE',
+  },
+  {
+    subject: 'Business Studies',
+    year: 2023,
+    session: 'November',
+    title: 'Business Studies Paper 1',
+    kind: 'question-paper',
+    url: `${DBE_ORIGIN}/LinkClick.aspx?fileticket=j-o_oRFFS7A%3D&mid=12664&portalid=0&tabid=4682`,
+    source: 'DBE',
+  },
+  {
+    subject: 'Accounting',
+    year: 2023,
+    session: 'November',
+    title: 'Accounting Paper 1 — marking guidelines',
+    kind: 'memo',
+    url: `${DBE_ORIGIN}/LinkClick.aspx?fileticket=Wd8NzJViSj0%3D&mid=12660&portalid=0&tabid=4682`,
+    source: 'DBE',
+  },
+  {
+    subject: 'Mathematical Literacy',
+    year: 2024,
+    session: 'November',
+    title: 'Mathematical Literacy (papers & memos)',
+    kind: 'question-paper',
+    url: novemberUrl(2024),
+    source: 'DBE',
+  },
+  {
+    subject: 'English Home Language',
+    year: 2024,
+    session: 'November',
+    title: 'English (papers & memos)',
+    kind: 'question-paper',
+    url: novemberUrl(2024),
+    source: 'DBE',
+  },
+  {
+    subject: 'Geography',
+    year: 2023,
+    session: 'November',
+    title: 'Geography (papers & memos)',
+    kind: 'question-paper',
+    url: novemberUrl(2023),
+    source: 'DBE',
+  },
+  {
+    subject: 'Economics',
+    year: 2023,
+    session: 'November',
+    title: 'Economics (papers & memos)',
+    kind: 'question-paper',
+    url: novemberUrl(2023),
+    source: 'DBE',
+  },
+  {
+    subject: 'History',
+    year: 2023,
+    session: 'November',
+    title: 'History (papers & memos)',
+    kind: 'question-paper',
+    url: novemberUrl(2023),
+    source: 'DBE',
+  },
+  {
+    subject: 'Computer Applications Technology',
+    year: 2024,
+    session: 'November',
+    title: 'CAT (papers & memos)',
+    kind: 'question-paper',
+    url: novemberUrl(2024),
+    source: 'DBE',
+  },
+  {
+    subject: 'Information Technology',
+    year: 2024,
+    session: 'November',
+    title: 'Information Technology (papers & memos)',
+    kind: 'question-paper',
+    url: novemberUrl(2024),
+    source: 'DBE',
+  },
+  {
+    subject: 'Engineering Graphics & Design',
+    year: 2024,
+    session: 'November',
+    title: 'EGD (papers & memos)',
+    kind: 'question-paper',
+    url: novemberUrl(2024),
+    source: 'DBE',
+  },
+  {
+    subject: 'Life Orientation',
+    year: 2024,
+    session: 'November',
+    title: 'Life Orientation (papers & memos)',
+    kind: 'question-paper',
+    url: novemberUrl(2024),
+    source: 'DBE',
+  },
+]
+
+export function getPaperOfTheDay(date = new Date()): PaperOfTheDayEntry {
+  const start = new Date(date.getFullYear(), 0, 0)
+  const dayOfYear = Math.floor((date.getTime() - start.getTime()) / 86400000)
+  const index = dayOfYear % PAPER_OF_THE_DAY_POOL.length
+  return PAPER_OF_THE_DAY_POOL[index]!
+}

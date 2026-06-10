@@ -6620,3 +6620,171 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* Past papers — Phase 1 matric hub */
+.pastPapersHero {
+  margin-bottom: var(--space-5);
+}
+
+.pastPaperOfDay,
+.homePaperOfDayBanner {
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(33, 50, 230, 0.16);
+  background: linear-gradient(135deg, rgba(33, 50, 230, 0.08), rgba(0, 157, 254, 0.06));
+}
+
+.pastPaperOfDay {
+  margin-bottom: var(--space-6);
+  padding: var(--space-5);
+}
+
+.pastPaperOfDayInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.pastPaperOfDayKicker,
+.homePaperOfDayKicker {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hfc-blue);
+}
+
+.pastPaperOfDayTitle {
+  margin: 0;
+  font-size: clamp(18px, 2.5vw, 22px);
+  font-weight: 800;
+}
+
+.pastPaperOfDayMeta {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.62);
+}
+
+.homePaperOfDayBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.homePaperOfDayTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.88);
+}
+
+.pastPapersToolbar {
+  margin-bottom: var(--space-4);
+}
+
+.pastPapersOpenBar,
+.pastPapersSubjectDetail {
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(33, 50, 230, 0.12);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.pastPapersOpenBar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-5);
+}
+
+.pastPapersOpenHint {
+  margin: 6px 0 0;
+  font-size: 14px;
+  max-width: 52ch;
+}
+
+.pastPapersOpenActions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.pastPapersSubjectGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.pastPapersSubjectCard {
+  appearance: none;
+  text-align: left;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  background: rgba(255, 255, 255, 0.95);
+  cursor: pointer;
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition),
+    transform var(--transition);
+}
+
+.pastPapersSubjectCard:hover {
+  border-color: rgba(33, 50, 230, 0.28);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  transform: translateY(-1px);
+}
+
+.pastPapersSubjectCardActive {
+  border-color: rgba(33, 50, 230, 0.45);
+  background: rgba(33, 50, 230, 0.06);
+  box-shadow: 0 0 0 2px rgba(33, 50, 230, 0.12);
+}
+
+.pastPapersSubjectGroup {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.pastPapersSubjectName {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  color: rgba(15, 23, 42, 0.9);
+}
+
+.pastPapersSubjectDetailTitle {
+  margin: 0 0 var(--space-3);
+  font-size: 18px;
+}
+
+.pastPapersTips {
+  margin: var(--space-3) 0 var(--space-4);
+  padding-left: 1.2rem;
+  line-height: 1.55;
+  color: rgba(15, 23, 42, 0.82);
+}
+
+.pastPapersFootnote {
+  margin-top: var(--space-4);
+  font-size: 13px;
+}
+
+.pastPapersYearTable a {
+  font-weight: 650;
+}
