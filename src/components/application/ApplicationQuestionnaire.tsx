@@ -21,6 +21,7 @@ type Phase = 'questions' | 'results' | 'done'
 
 type Props = {
   onComplete: (state: QuestionnaireState) => void
+  onReadyForApplication?: () => void
   initial?: QuestionnaireState | null
 }
 
@@ -152,7 +153,15 @@ export function ApplicationQuestionnaire(props: Props) {
           Only opportunities still open for applications are counted. Closed programmes (e.g. past closing date) are
           excluded.
         </p>
-        <button type="button" className="btn btnBrand btnSmall" onClick={() => setPhase('done')} disabled={busy}>
+        <button
+          type="button"
+          className="btn btnBrand btnSmall"
+          onClick={() => {
+            setPhase('done')
+            props.onReadyForApplication?.()
+          }}
+          disabled={busy}
+        >
           Continue to application →
         </button>
       </div>

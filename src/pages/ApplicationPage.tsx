@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { api, uploadDocument } from '../api/client'
 import { ApplicationNavModePicker, type ApplicationNavMode } from '../components/application/ApplicationNavModePicker'
@@ -91,6 +91,10 @@ const STEP_LABELS = [
   'Documents',
 ]
 
+function isMobileViewport() {
+  return typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
+}
+
 const emptyPayload = (): ApplicationPayload => ({
   academics: {
     schoolName: '',
@@ -173,12 +177,15 @@ export function ApplicationPage() {
   const [saveBusy, setSaveBusy] = useState(false)
   const [docCategory, setDocCategory] = useState('id_proof')
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null)
-  const [navMode, setNavMode] = useState<ApplicationNavMode>('horizontal')
+  const [navMode, setNavMode] = useState<ApplicationNavMode>(() =>
+    isMobileViewport() ? 'vertical' : 'horizontal',
+  )
   const [navModeChosen, setNavModeChosen] = useState(false)
   const [showModePicker, setShowModePicker] = useState(false)
   const [questionnaire, setQuestionnaire] = useState<QuestionnaireState | null>(null)
   const [paidCents, setPaidCents] = useState<number>(0)
   const [showPayPrompt, setShowPayPrompt] = useState(false)
+  const navModeSectionRef = useRef<HTMLDivElement>(null)
 
   const refreshPayment = useCallback(async () => {
     try {
@@ -222,8 +229,10 @@ export function ApplicationPage() {
           disability: Boolean(p.disability),
         })
         setStep(Math.min(Math.max(d.stepIndex ?? 0, 0), STEP_LABELS.length - 1))
-        setNavMode(_meta?.navigationMode ?? 'horizontal')
-        setNavModeChosen(Boolean(_meta?.navigationModeChosen))
+        const savedMode = _meta?.navigationMode
+        const savedChosen = Boolean(_meta?.navigationModeChosen)
+        setNavMode(savedChosen && savedMode ? savedMode : isMobileViewport() ? 'vertical' : 'horizontal')
+        setNavModeChosen(savedChosen)
         setQuestionnaire({
           answers: {
             studyChoice1: q.answers?.studyChoice1 ?? '',
@@ -454,6 +463,11 @@ export function ApplicationPage() {
               <ApplicationQuestionnaire
                 initial={questionnaire}
                 onComplete={(state) => setQuestionnaire(state)}
+                onReadyForApplication={() => {
+                  window.setTimeout(() => {
+                    navModeSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  }, 80)
+                }}
               />
             ) : null}
           </div>
@@ -471,7 +485,9 @@ export function ApplicationPage() {
           {loading ? (
             <p className="formLead">Loading…</p>
           ) : !navModeChosen || showModePicker ? (
-            <ApplicationNavModePicker onChoose={(mode) => void chooseNavigationMode(mode)} disabled={saveBusy} />
+            <div ref={navModeSectionRef} id="app-nav-mode-section" className="appNavModeSection">
+              <ApplicationNavModePicker onChoose={(mode) => void chooseNavigationMode(mode)} disabled={saveBusy} />
+            </div>
           ) : (
             <>
               <div className="appNavModeToolbar">

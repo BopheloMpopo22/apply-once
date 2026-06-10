@@ -2932,6 +2932,33 @@ body {
   border-radius: var(--radius-md);
   border: 1px solid rgba(33, 50, 230, 0.18);
   background: linear-gradient(180deg, rgba(33, 50, 230, 0.06), rgba(0, 157, 254, 0.04));
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.appNavModePickerMobile {
+  text-align: center;
+}
+
+.appNavModeMobileStart {
+  width: 100%;
+  max-width: 100%;
+  min-height: 48px;
+}
+
+.appNavModeSection {
+  scroll-margin-top: 80px;
+}
+
+.appFormContent,
+.appFormLayout,
+.formFields {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.appBursaryMarqueeViewport {
+  max-width: 100%;
 }
 
 .appNavModeLead {
@@ -5439,37 +5466,96 @@ body {
 
   .homeHeroGrid {
     grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+
+  .homeHeroContent {
+    display: contents;
+  }
+
+  .homeHeroBrand {
+    order: 1;
+  }
+
+  .homeHeroTitle {
+    order: 2;
+    max-width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .homeHeroVisual {
+    order: 3;
     min-height: 0;
-    margin-top: var(--space-4);
+    margin-top: 0;
     justify-content: center;
+  }
+
+  .homeHeroCtas {
+    order: 4;
+    margin-top: 0;
+  }
+
+  .homeHeroMarquee {
+    order: 5;
+    margin-top: var(--space-2);
   }
 
   .homeHeroMainImage {
     width: 100%;
     max-width: min(100%, 480px);
-    max-height: min(440px, 50vh);
+    max-height: min(220px, 34vh);
     margin: 0 auto;
     object-position: center center;
-    border-radius: 24px;
+    border-radius: 20px;
   }
 
   .homeHeroPanel {
     min-height: auto;
-    padding: 40px 24px 36px;
+    padding: 28px 20px 24px;
+    align-items: flex-start;
+    overflow: visible;
+  }
+
+  .homeHeroCtas {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .homeHeroCtas .btn {
+    width: auto;
+    flex: 0 1 auto;
+    padding: 10px 18px;
+    font-size: 14px;
+    white-space: nowrap;
   }
 }
 
 @media (max-width: 640px) {
   .homeHeroWrap {
-    padding-left: var(--space-4);
-    padding-right: var(--space-4);
+    padding-left: var(--space-3);
+    padding-right: var(--space-3);
   }
 
   .homeHeroPanel {
-    border-radius: 22px;
+    border-radius: 18px;
+    padding: 22px 16px 20px;
+  }
+
+  .homeHeroTitle {
+    font-size: clamp(20px, 5.8vw, 26px);
+    line-height: 1.28;
+    letter-spacing: -0.02em;
+  }
+
+  .homeHeroBrand {
+    font-size: 14px;
   }
 
   .homeHeroVisual {
@@ -5478,9 +5564,38 @@ body {
 
   .homeHeroMainImage {
     width: 100%;
-    max-width: min(100%, 400px);
-    max-height: min(380px, 48vh);
-    border-radius: 20px;
+    max-width: 100%;
+    max-height: min(200px, 32vh);
+    border-radius: 16px;
+    filter: drop-shadow(0 12px 24px rgba(15, 23, 42, 0.16));
+  }
+
+  .homeHeroCtas {
+    margin-top: var(--space-2);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .heroCtas,
+  .homeHeroCtas {
+    align-items: center;
+  }
+
+  .heroCtas .btn,
+  .homeHeroCtas .btn {
+    width: auto;
+    max-width: 100%;
+    flex: 0 1 auto;
+    justify-content: center;
+    white-space: nowrap;
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .homeHeroMarquee {
+    margin-top: var(--space-2);
   }
 
   .homeSecondaryGrid {
@@ -7011,62 +7126,130 @@ body {
   top: 0;
   right: 0;
   z-index: 60;
-  width: min(88%, 320px);
+  width: min(88%, 300px);
   height: 100dvh;
-  padding: calc(66px + var(--space-4)) var(--space-5) var(--space-6);
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
-  background: rgba(255, 255, 255, 0.98);
-  border-left: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: -20px 0 60px rgba(15, 23, 42, 0.12);
+  gap: 0;
+  background: linear-gradient(180deg, rgba(33, 50, 230, 0.04) 0%, #fff 28%);
+  border-left: 1px solid rgba(33, 50, 230, 0.12);
+  box-shadow: -20px 0 60px rgba(15, 23, 42, 0.14);
   overflow-y: auto;
   transform: translateX(100%);
   transition: transform 220ms ease;
+  pointer-events: none;
 }
 
 .navMobileMenuOpen {
   transform: translateX(0);
+  pointer-events: auto;
+}
+
+.navMobileMenuHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid rgba(33, 50, 230, 0.1);
+  background: rgba(255, 255, 255, 0.92);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.navMobileHome {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--hfc-blue);
+}
+
+.navMobileHome span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navMobileClose {
+  appearance: none;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  color: rgba(15, 23, 42, 0.72);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.navMobileClose:hover {
+  background: rgba(33, 50, 230, 0.06);
+  border-color: rgba(33, 50, 230, 0.2);
+  color: var(--hfc-blue);
 }
 
 .navMobileLinks {
   display: grid;
-  gap: var(--space-2);
+  gap: 2px;
+  padding: var(--space-3) var(--space-3) var(--space-2);
 }
 
 .navMobileLink {
   display: block;
   width: 100%;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: rgba(255, 255, 255, 0.96);
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
   color: rgba(15, 23, 42, 0.88);
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 650;
   font-size: 15px;
   text-align: left;
+  line-height: 1.3;
+}
+
+.navMobileLink:hover,
+.navMobileLink:focus-visible {
+  background: rgba(33, 50, 230, 0.07);
+  color: var(--hfc-blue);
 }
 
 .navMobileLinkStrong {
-  background: rgba(33, 50, 230, 0.06);
-  border-color: rgba(33, 50, 230, 0.18);
+  font-weight: 750;
   color: var(--hfc-blue);
+}
+
+.navMobileDivider {
+  height: 1px;
+  margin: var(--space-1) var(--space-4);
+  background: rgba(15, 23, 42, 0.08);
 }
 
 .navMobileSignOut {
   appearance: none;
   cursor: pointer;
   font: inherit;
+  color: rgba(15, 23, 42, 0.62);
 }
 
 .navAuthMenu {
   flex-direction: column;
   align-items: stretch;
-  gap: var(--space-2);
-  margin-top: auto;
-  padding-top: var(--space-4);
-  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  gap: 2px;
+  margin-top: 0;
+  padding: var(--space-2) var(--space-3) var(--space-5);
+  border-top: none;
 }
 
 .wizardMobileSelectLabel {
@@ -7266,6 +7449,61 @@ body.navMenuOpen {
     min-height: 0;
   }
 
+  .appQuestionnaireCompact {
+    padding: var(--space-3);
+  }
+
+  .appQuestionnaireOptionsCompact {
+    grid-template-columns: 1fr;
+  }
+
+  .appQuestionnaire {
+    padding: var(--space-4);
+    max-width: 100%;
+  }
+
+  .appNavModePicker {
+    padding: var(--space-4);
+    margin: var(--space-4) 0;
+  }
+
+  .appNavModeCard {
+    padding: var(--space-4);
+  }
+
+  .appFormContent,
+  .appFormLayout,
+  .formFields,
+  .appFormCard,
+  .appFormMain {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .appStepSection {
+    padding: var(--space-4) 0;
+    scroll-margin-top: 72px;
+  }
+
+  .appSidebarStep {
+    flex: 0 1 auto;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .formActions {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .formActions .btn,
+  .formActionsRight .btn {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: normal;
+  }
+
   .appNavModeToolbar {
     flex-direction: column;
     align-items: flex-start;
@@ -7343,47 +7581,53 @@ body.navMenuOpen {
   }
 
   .homeHeroPanel {
-    padding: 24px 18px 22px;
+    padding: 22px 16px 20px;
     border-radius: 18px;
     min-height: 0;
+    overflow: visible;
+    align-items: flex-start;
   }
 
   .homeHeroTitle {
-    font-size: clamp(21px, 6.4vw, 28px);
-    line-height: 1.22;
+    font-size: clamp(20px, 5.8vw, 26px);
+    line-height: 1.28;
   }
 
   .homeHeroCtas {
-    margin-top: var(--space-4);
-    display: grid;
+    margin-top: var(--space-2);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
     gap: var(--space-2);
   }
 
   .heroCtas,
   .homeHeroCtas {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
   }
 
   .heroCtas .btn,
   .homeHeroCtas .btn {
-    width: 100%;
+    width: auto;
     max-width: 100%;
+    flex: 0 1 auto;
     justify-content: center;
-    white-space: normal;
-    padding: 12px 16px;
-    font-size: 14px;
+    white-space: nowrap;
+    padding: 10px 16px;
+    font-size: 13px;
   }
 
   .homeHeroMainImage {
     max-width: 100%;
-    max-height: min(280px, 42vh);
+    max-height: min(200px, 32vh);
     border-radius: 16px;
-    filter: drop-shadow(0 16px 32px rgba(15, 23, 42, 0.18));
+    filter: drop-shadow(0 12px 24px rgba(15, 23, 42, 0.16));
   }
 
   .homeHeroMarquee {
-    margin-top: var(--space-3);
+    margin-top: var(--space-2);
   }
 
   .homeSecondaryGrid,

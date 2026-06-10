@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+
 export type ApplicationNavMode = 'horizontal' | 'vertical'
 
 type Props = {
@@ -5,16 +7,47 @@ type Props = {
   disabled?: boolean
 }
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches,
+  )
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)')
+    const onChange = () => setIsMobile(mq.matches)
+    onChange()
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+
+  return isMobile
+}
+
 export function ApplicationNavModePicker({ onChoose, disabled }: Props) {
-  const isMobile =
-    typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
+  const isMobile = useIsMobile()
+
+  if (isMobile) {
+    return (
+      <div className="appNavModePicker appNavModePickerMobile" role="group" aria-label="Choose how to complete your application">
+        <p className="appNavModeLead">Ready to fill in your application?</p>
+        <p className="appNavModeMobileHint">
+          On a phone, scroll mode works best — every section stays on screen and you can move down at your own pace.
+        </p>
+        <button
+          type="button"
+          className="btn btnBrand appNavModeMobileStart"
+          disabled={disabled}
+          onClick={() => onChoose('vertical')}
+        >
+          Start application ↓
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div className="appNavModePicker" role="group" aria-label="Choose how to complete your application">
       <p className="appNavModeLead">How would you like to work through your application?</p>
-      {isMobile ? (
-        <p className="appNavModeMobileHint">On a phone, scroll mode is usually easiest — you can see every section.</p>
-      ) : null}
       <div className="appNavModeOptions">
         <button
           type="button"
@@ -37,10 +70,7 @@ export function ApplicationNavModePicker({ onChoose, disabled }: Props) {
           <span className="appNavModeIcon" aria-hidden>
             ↓
           </span>
-          <strong>
-            Scroll down
-            {isMobile ? <span className="appNavModeBadge">Recommended on phone</span> : null}
-          </strong>
+          <strong>Scroll down</strong>
           <span>See your previous answers while you complete the rest.</span>
         </button>
       </div>

@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from 'react'
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { NavAuth } from './NavAuth'
 
@@ -8,6 +8,7 @@ export function Navbar(props: { logo: ReactNode; links: NavLink[]; variant?: 'br
   const variant = props.variant ?? 'brand'
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const menuHistoryPushed = useRef(false)
   const location = useLocation()
 
   useEffect(() => {
@@ -24,6 +25,29 @@ export function Navbar(props: { logo: ReactNode; links: NavLink[]; variant?: 'br
   useEffect(() => {
     document.body.classList.toggle('navMenuOpen', menuOpen)
     return () => document.body.classList.remove('navMenuOpen')
+  }, [menuOpen])
+
+  const closeMenu = useCallback(() => {
+    setMenuOpen(false)
+    if (menuHistoryPushed.current) {
+      menuHistoryPushed.current = false
+      history.back()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!menuOpen) return
+
+    history.pushState({ navMenu: true }, '')
+    menuHistoryPushed.current = true
+
+    const onPopState = () => {
+      menuHistoryPushed.current = false
+      setMenuOpen(false)
+    }
+
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
   }, [menuOpen])
 
   const shellClass = [
@@ -63,7 +87,7 @@ export function Navbar(props: { logo: ReactNode; links: NavLink[]; variant?: 'br
             aria-expanded={menuOpen}
             aria-controls="nav-mobile-menu"
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            onClick={() => setMenuOpen((open) => !open)}
+            onClick={() => (menuOpen ? closeMenu() : setMenuOpen(true))}
           >
             <span className="navMenuIcon" aria-hidden="true" />
           </button>
@@ -75,23 +99,39 @@ export function Navbar(props: { logo: ReactNode; links: NavLink[]; variant?: 'br
           type="button"
           className="navMobileBackdrop"
           aria-label="Close menu"
-          onClick={() => setMenuOpen(false)}
+          onClick={closeMenu}
         />
       ) : null}
 
       <div
         id="nav-mobile-menu"
         className={`navMobileMenu ${menuOpen ? 'navMobileMenuOpen' : ''}`}
-        hidden={!menuOpen}
+        aria-hidden={!menuOpen}
       >
+        <div className="navMobileMenuHeader">
+          <Link className="navMobileHome" to="/" onClick={closeMenu}>
+            {props.logo}
+            <span>Apply Once</span>
+          </Link>
+          <button type="button" className="navMobileClose" aria-label="Close menu" onClick={closeMenu}>
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+
         <nav className="navMobileLinks" aria-label="Mobile navigation">
+          <Link className="navMobileLink" to="/" onClick={closeMenu}>
+            Home
+          </Link>
           {props.links.map((l) => (
-            <Link key={l.to} className="navMobileLink" to={l.to} onClick={() => setMenuOpen(false)}>
+            <Link key={l.to} className="navMobileLink" to={l.to} onClick={closeMenu}>
               {l.label}
             </Link>
           ))}
         </nav>
-        <NavAuth layout="menu" onNavigate={() => setMenuOpen(false)} />
+
+        <div className="navMobileDivider" aria-hidden="true" />
+
+        <NavAuth layout="menu" onNavigate={closeMenu} />
       </div>
     </div>
   )
