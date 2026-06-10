@@ -347,6 +347,9 @@ export function ApplicationPage() {
         },
       })
       setLastSavedAt(new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }))
+      requestAnimationFrame(() => {
+        document.querySelector('.appFormContent')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not save preference')
     } finally {
@@ -356,7 +359,17 @@ export function ApplicationPage() {
 
   function scrollToStep(index: number) {
     setStep(index)
-    document.getElementById(`app-step-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    requestAnimationFrame(() => {
+      document.getElementById(`app-step-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
+
+  function goToStep(index: number) {
+    if (saveBusy) return
+    setStep(index)
+    requestAnimationFrame(() => {
+      document.getElementById(`app-step-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
   }
 
   async function onSaveSection(sectionIndex: number, advance: boolean) {
@@ -492,20 +505,38 @@ export function ApplicationPage() {
 
                 <div className="appFormContent">
                   {navMode === 'horizontal' ? (
-                    <div className="wizardBar" role="tablist" aria-label="Application steps">
-                      {STEP_LABELS.map((label, i) => (
-                        <button
-                          key={label}
-                          type="button"
-                          role="tab"
-                          aria-selected={i === step}
-                          className={i === step ? 'wizardStep wizardStepActive' : 'wizardStep'}
-                          onClick={() => !saveBusy && setStep(i)}
-                        >
-                          {i + 1}. {label}
-                        </button>
-                      ))}
-                    </div>
+                    <>
+                      <label className="wizardMobileSelectLabel" htmlFor="app-step-select">
+                        Current section
+                      </label>
+                      <select
+                        id="app-step-select"
+                        className="wizardMobileSelect"
+                        value={step}
+                        disabled={saveBusy}
+                        onChange={(e) => goToStep(Number(e.target.value))}
+                      >
+                        {STEP_LABELS.map((label, i) => (
+                          <option key={label} value={i}>
+                            {i + 1}. {label}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="wizardBar" role="tablist" aria-label="Application steps">
+                        {STEP_LABELS.map((label, i) => (
+                          <button
+                            key={label}
+                            type="button"
+                            role="tab"
+                            aria-selected={i === step}
+                            className={i === step ? 'wizardStep wizardStepActive' : 'wizardStep'}
+                            onClick={() => goToStep(i)}
+                          >
+                            {i + 1}. {label}
+                          </button>
+                        ))}
+                      </div>
+                    </>
                   ) : null}
 
                   <form className="formFields" onSubmit={navMode === 'horizontal' ? onNext : (e) => e.preventDefault()}>

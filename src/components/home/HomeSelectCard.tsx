@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 export type HomeSelectCardProps = {
   id: string
   title: string
@@ -63,9 +65,9 @@ export function HomeSelectCard({
         <div className="homeSelectCardContent">
           {children}
           {ctaHref ? (
-            <a className="homeSelectCardCta" href={ctaHref}>
+            <Link className="homeSelectCardCta" to={ctaHref} onClick={(e) => e.stopPropagation()}>
               {ctaLabel ?? 'Open tool →'}
-            </a>
+            </Link>
           ) : null}
         </div>
       ) : null}
