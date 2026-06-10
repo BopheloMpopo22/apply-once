@@ -873,12 +873,158 @@ h4 {
   .vcHeader {
     flex-direction: column;
     align-items: flex-start;
+    padding: var(--space-6) 0 var(--space-4);
   }
+
   .pageTitle {
-    font-size: 34px;
+    font-size: clamp(26px, 7vw, 34px);
   }
-  .vcRow {
-    grid-template-columns: 1fr 100px 76px 100px;
+
+  .pageSubtitle {
+    font-size: 15px;
+  }
+
+  .vcHeaderRight {
+    width: 100%;
+  }
+
+  .vcHeaderRight .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .vcCard {
+    padding: var(--space-4);
+  }
+
+  .vcMarksHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .vcMarksHeaderActions {
+    justify-content: stretch;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .vcMarksHeaderActions .vcCalcBtn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .vcRowHead {
+    display: none;
+  }
+
+  .vcRowPill {
+    grid-template-columns: minmax(0, 1fr) 68px 48px;
+    grid-template-areas:
+      'subject subject subject'
+      'percent level actions';
+    gap: 8px;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(37, 99, 235, 0.16);
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .vcRowPill .vcCellSubject {
+    grid-area: subject;
+    min-width: 0;
+  }
+
+  .vcRowPill .vcCellPercent {
+    grid-area: percent;
+    min-width: 0;
+  }
+
+  .vcRowPill .vcCellLevel {
+    grid-area: level;
+    min-width: 0;
+  }
+
+  .vcRowPill .vcCellActions {
+    grid-area: actions;
+    justify-content: flex-end;
+    min-width: 0;
+  }
+
+  .vcCellPercent .vcCalcInput {
+    text-align: center;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  .vcCellActions .vcCalcBtn {
+    padding: 8px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .levelPill.vcLevelPill {
+    min-width: 0;
+    width: 100%;
+    height: 36px;
+    font-size: 13px;
+  }
+
+  .vcResultsHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .vcUniTop {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+
+  .vcAps {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border-radius: 12px;
+    background: rgba(37, 99, 235, 0.06);
+    border: 1px solid rgba(37, 99, 235, 0.12);
+  }
+
+  .vcApsValue {
+    font-size: 26px;
+  }
+
+  .vcUniCard {
+    padding: var(--space-4);
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .vcProgItem {
+    padding: var(--space-3);
+  }
+
+  .vcProgName,
+  .vcProgSummaryLine,
+  .vcProgExtraNotes,
+  .vcFacultyHeading,
+  .vcApsNotes {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .vcProspectusBtn {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  .vcIneligibleHelp {
+    margin-left: 0;
   }
 }
 
@@ -4834,6 +4980,101 @@ body {
 
 .vcPageModern .vcHeaderRight .btn:hover {
   filter: brightness(1.05);
+}
+
+/* Varsity calculator — mobile containment */
+@media (max-width: 768px) {
+  .vcPageModern .main .container {
+    max-width: 100%;
+    padding-left: var(--space-3);
+    padding-right: var(--space-3);
+    box-sizing: border-box;
+  }
+
+  .vcPageModern .vcCard,
+  .vcPageModern .vcUniCard,
+  .vcPageModern .vcTable,
+  .vcPageModern .vcResults,
+  .vcPageModern .vcMarks,
+  .vcPageModern .vcUniGrid {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+  }
+
+  .vcPageModern .vcSeg {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 100%;
+    border-radius: 14px;
+    padding: 3px;
+    box-sizing: border-box;
+  }
+
+  .vcPageModern .vcSegBtn {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 8px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+    border-radius: 11px;
+  }
+
+  .vcPageModern .vcCalcInput {
+    min-height: 38px;
+    padding: 8px 10px !important;
+    font-size: 14px;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .vcPageModern .vcRowPill .vcCellSubject .vcCalcInput {
+    width: 100%;
+  }
+
+  .vcPageModern .vcRowPill .vcCellPercent .vcCalcInput {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .vcPageModern .tag {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .vcPageModern .vcUniBrand {
+    min-width: 0;
+  }
+
+  .vcPageModern .vcUniName {
+    word-break: break-word;
+  }
+}
+
+@media (max-width: 480px) {
+  .vcPageModern .vcSeg {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .vcPageModern .vcSegBtn {
+    width: 100%;
+    text-align: center;
+    white-space: normal;
+    line-height: 1.25;
+    padding: 9px 10px;
+  }
+
+  .vcRowPill {
+    grid-template-columns: minmax(0, 1fr) 60px 44px;
+  }
+
+  .vcCellActions .vcCalcBtn {
+    padding: 8px;
+    font-size: 11px;
+  }
 }
 
 /* —— Home (HFC-inspired) —— */
