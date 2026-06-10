@@ -63,7 +63,7 @@ export function RegisterPage() {
       <div className="loginLayout">
         <aside className="loginHero">
           <Link to="/" className="loginLogoLink">
-            <ApplyOnceLogo />
+            <ApplyOnceLogo size="hero" />
           </Link>
           <p className="loginWelcome">Join Apply Once</p>
           <h1 className="loginHeadline">One profile. Many bursaries.</h1>

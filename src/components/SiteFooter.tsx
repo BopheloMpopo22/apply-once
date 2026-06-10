@@ -1,27 +1,25 @@
-type FooterColumn = { title: string; links: string[] }
+import { Link } from 'react-router-dom'
 
-export function SiteFooter(props: { brand: { name: string; description: string }; columns: FooterColumn[] }) {
+type FooterLegalLink =
+  | { label: string; to: string }
+  | { label: string; href: string; external?: boolean }
+
+export function SiteFooter(props: {
+  brand: { name: string; description: string }
+  legalLinks?: FooterLegalLink[]
+}) {
+  const legalLinks = props.legalLinks ?? [
+    { label: 'About', to: '/about' },
+    { label: 'Terms & conditions', to: '/terms' },
+    { label: 'Contact', to: '/contact' },
+  ]
+
   return (
     <footer className="footer">
       <div className="container footerInner">
         <div className="footerBrandBlock">
           <div className="footerBrand">{props.brand.name}</div>
           <div className="footerDesc">{props.brand.description}</div>
-        </div>
-
-        <div className="footerCols" aria-label="Footer links">
-          {props.columns.map((c) => (
-            <div key={c.title} className="footerCol">
-              <div className="footerColTitle">{c.title}</div>
-              <div className="footerColLinks">
-                {c.links.map((l) => (
-                  <a key={l} className="footerLink" href="#top">
-                    {l}
-                  </a>
-                ))}
-              </div>
-            </div>
-          ))}
         </div>
       </div>
 
@@ -30,9 +28,33 @@ export function SiteFooter(props: { brand: { name: string; description: string }
           <span>© {new Date().getFullYear()} Apply Once</span>
           <span className="footerDot">•</span>
           <span>Built for learners in South Africa</span>
+          {legalLinks.length > 0 ? (
+            <>
+              <span className="footerDot">•</span>
+              <nav className="footerLegalNav" aria-label="Legal and contact">
+                {legalLinks.map((link, index) => (
+                  <span key={'to' in link ? link.to : link.href} className="footerLegalItem">
+                    {index > 0 ? <span className="footerDot footerDotInline">•</span> : null}
+                    {'to' in link ? (
+                      <Link className="footerLink" to={link.to}>
+                        {link.label}
+                      </Link>
+                    ) : (
+                      <a
+                        className="footerLink"
+                        href={link.href}
+                        {...(link.external ? { target: '_blank', rel: 'noreferrer' } : {})}
+                      >
+                        {link.label}
+                      </a>
+                    )}
+                  </span>
+                ))}
+              </nav>
+            </>
+          ) : null}
         </div>
       </div>
     </footer>
   )
 }
-

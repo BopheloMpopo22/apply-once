@@ -231,12 +231,6 @@ export function HomePage() {
 
       <SiteFooter
         brand={{ name: 'Apply Once', description: 'Apply once, then match and apply smarter.' }}
-        columns={[
-          { title: 'Product', links: ['Features', 'Resources'] },
-          { title: 'Company', links: ['About', 'Contact', 'Partners'] },
-          { title: 'Resources', links: ['Guides', 'Templates', 'FAQs'] },
-          { title: 'Social', links: ['Instagram', 'TikTok', 'YouTube'] },
-        ]}
       />
     </div>
   )

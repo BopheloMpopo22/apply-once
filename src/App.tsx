@@ -14,6 +14,9 @@ import { VarsityProspectusHubPage } from './pages/VarsityProspectusHubPage'
 import { ApplicationPdfPreviewPage } from './pages/ApplicationPdfPreviewPage'
 import { PaymentSuccessPage } from './pages/PaymentSuccessPage'
 import { PastPapersPage } from './pages/PastPapersPage'
+import { AboutPage } from './pages/AboutPage'
+import { TermsPage } from './pages/TermsPage'
+import { ContactPage } from './pages/ContactPage'
 
 export default function App() {
   return (
@@ -46,6 +49,9 @@ export default function App() {
         }
       />
       <Route path="/past-papers" element={<PastPapersPage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/contact" element={<ContactPage />} />
       <Route path="/payment/success" element={<PaymentSuccessPage />} />
       <Route
         path="/profile/application-pdf"

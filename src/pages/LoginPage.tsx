@@ -65,7 +65,7 @@ export function LoginPage() {
       <div className="loginLayout">
         <aside className="loginHero">
           <Link to="/" className="loginLogoLink">
-            <ApplyOnceLogo />
+            <ApplyOnceLogo size="hero" />
           </Link>
           <p className="loginWelcome">Welcome to Apply Once</p>
           <h1 className="loginHeadline">Your future starts with one application.</h1>
