@@ -6,7 +6,7 @@ type ApplyOnceLogoProps = {
 }
 
 export function ApplyOnceLogo({ className, size = 'nav' }: ApplyOnceLogoProps) {
-  const dimension = size === 'hero' ? 56 : 40
+  const dimension = size === 'hero' ? 80 : 52
 
   return (
     <img
