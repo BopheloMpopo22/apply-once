@@ -56,13 +56,19 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: clip;
+}
+
 html,
 body {
   height: 100%;
+  max-width: 100%;
 }
 
 body {
   margin: 0;
+  overflow-x: clip;
 }
 
 a {
@@ -84,6 +90,7 @@ h4 {
 
 .container {
   max-width: 1180px;
+  width: 100%;
   margin: 0 auto;
   padding-left: var(--space-6);
   padding-right: var(--space-6);
@@ -122,9 +129,10 @@ h4 {
 .navLeft {
   display: flex;
   align-items: center;
-  gap: clamp(20px, 4vw, 40px);
+  gap: clamp(12px, 3vw, 40px);
   min-width: 0;
-  flex: 1;
+  flex: 1 1 auto;
+  overflow: hidden;
 }
 
 .navLeft .navLinks {
@@ -1557,23 +1565,33 @@ h4 {
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: clip;
+}
+
 html,
 body {
   height: 100%;
+  max-width: 100%;
 }
 
 body {
   margin: 0;
+  overflow-x: clip;
 }
 
 #root {
   min-height: 100%;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 .appShell {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 .hero {
@@ -2310,8 +2328,10 @@ body {
   grid-template-columns: minmax(0, 148px) minmax(0, 1fr);
   gap: var(--space-5);
   align-items: start;
-  width: min(1320px, 96vw);
+  width: min(1320px, 100%);
+  max-width: 100%;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .appProfileRail {
@@ -3124,7 +3144,8 @@ body {
 
   .appFormMain {
     grid-template-columns: 1fr;
-    width: min(100%, 96vw);
+    width: 100%;
+    max-width: 100%;
   }
 
   .appProfileRail {
@@ -4828,7 +4849,9 @@ body {
 }
 
 .homeHeroWrap {
-  padding: var(--space-5) var(--space-6) var(--space-4);
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  max-width: 100%;
+  overflow: hidden;
 }
 
 /* Match Home From College hero container width (1328px) */
@@ -4836,6 +4859,7 @@ body {
   width: 100%;
   max-width: 1328px;
   margin: 0 auto;
+  min-width: 0;
 }
 
 .homeHeroPanel {
@@ -4846,10 +4870,13 @@ body {
   padding: clamp(40px, 5vw, 60px) clamp(28px, 4vw, 48px);
   background-color: var(--hfc-blue);
   background-image: linear-gradient(-45deg, var(--hfc-blue-bright) 0%, var(--hfc-blue) 100%);
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
   border: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
   align-items: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .homeHeroGrid {
@@ -4897,7 +4924,6 @@ body {
   font-weight: 700;
   letter-spacing: -0.02em;
   color: rgba(255, 255, 255, 0.92);
-  white-space: nowrap;
 }
 
 .homeHeroKicker {
@@ -4961,9 +4987,9 @@ body {
   max-height: min(540px, 58vh);
   height: auto;
   object-fit: contain;
-  object-position: right center;
+  object-position: center center;
   display: block;
-  margin: 0;
+  margin: 0 auto;
   border-radius: 28px;
   filter: drop-shadow(0 28px 56px rgba(15, 23, 42, 0.22));
   animation: homeHeroImageFloat 5.5s ease-in-out infinite;
@@ -5596,12 +5622,19 @@ body {
 }
 
 .hubContainer {
-  width: min(1380px, calc(100vw - 40px));
+  width: min(1380px, 100%);
   margin: 0 auto;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+  box-sizing: border-box;
 }
 
 .hubContainerWide {
-  width: min(1440px, calc(100vw - 32px));
+  width: min(1440px, 100%);
+  margin: 0 auto;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+  box-sizing: border-box;
 }
 
 .hubPanel {
@@ -6898,6 +6931,7 @@ body {
   gap: var(--space-2);
   margin-left: auto;
   flex-shrink: 0;
+  min-width: 0;
 }
 
 .navMenuBtn {
@@ -6977,7 +7011,7 @@ body {
   top: 0;
   right: 0;
   z-index: 60;
-  width: min(100vw, 320px);
+  width: min(88%, 320px);
   height: 100dvh;
   padding: calc(66px + var(--space-4)) var(--space-5) var(--space-6);
   display: flex;
@@ -7096,12 +7130,23 @@ body.navMenuOpen {
 
   .navShell {
     height: auto;
-    min-height: 66px;
-    padding: 8px 0;
+    min-height: 56px;
+    padding: 6px 0;
   }
 
   .nav {
+    gap: var(--space-2);
+    align-items: center;
+  }
+
+  .navLeft {
+    min-width: 0;
+    flex: 1 1 auto;
     gap: var(--space-3);
+  }
+
+  .navBrand {
+    min-width: 0;
   }
 
   .navBrandText {
@@ -7114,6 +7159,7 @@ body.navMenuOpen {
 
   .navAuthInline .navAuth {
     gap: var(--space-2);
+    flex-wrap: nowrap;
   }
 
   .container {
@@ -7121,23 +7167,42 @@ body.navMenuOpen {
     padding-right: var(--space-4);
   }
 
+  .homeHeroWrap {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+
+  .homeHeroPanel {
+    min-height: auto;
+    padding: 28px 20px 24px;
+  }
+
   .homeHeroBrand {
     white-space: normal;
   }
 
   .homePrimaryCard {
-    min-height: 300px;
+    min-height: 260px;
   }
 
   .homePrimaryCardArt {
-    min-height: 200px;
-    padding: 20px 20px 12px;
+    min-height: 170px;
+    padding: 18px 18px 12px;
+  }
+
+  .homePrimaryGrid {
+    max-width: 100%;
   }
 
   .homePaperOfDayBanner,
   .pastPaperOfDayInner {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+  }
+
+  .hubMain {
+    padding-left: var(--space-3);
+    padding-right: var(--space-3);
   }
 
   .hubPanel {
@@ -7145,8 +7210,10 @@ body.navMenuOpen {
   }
 
   .infoPageCard {
-    width: min(100%, calc(100% - 2 * var(--space-4)));
+    width: 100%;
+    max-width: 100%;
     padding: var(--space-5) var(--space-4);
+    box-sizing: border-box;
   }
 
   .footerBottomInner {
@@ -7158,13 +7225,24 @@ body.navMenuOpen {
 
 @media (max-width: 768px) {
   .formMain {
-    padding: var(--space-5) var(--space-3) var(--space-8);
+    padding: var(--space-4) var(--space-3) var(--space-7);
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .formCard,
   .appFormCard {
-    padding: var(--space-5) var(--space-4);
-    border-radius: 18px;
+    padding: var(--space-4) var(--space-3);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .appFormMain {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .appFormTitle {
@@ -7235,27 +7313,50 @@ body.navMenuOpen {
 
 @media (max-width: 640px) {
   .navBrandText {
-    max-width: 120px;
+    font-size: 13px;
+    max-width: 9.5rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
+  .navMuted {
+    display: none;
+  }
+
+  .nav {
+    gap: var(--space-2);
+  }
+
+  .navAuthInline .navAuth .btnPrimary {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
   .logoMarkImage {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
   }
 
   .homeHeroWrap {
-    padding-top: var(--space-3);
+    padding: var(--space-3) var(--space-3) var(--space-2);
   }
 
   .homeHeroPanel {
-    padding: 28px 18px 24px;
+    padding: 24px 18px 22px;
+    border-radius: 18px;
+    min-height: 0;
   }
 
   .homeHeroTitle {
-    font-size: clamp(22px, 7vw, 30px);
+    font-size: clamp(21px, 6.4vw, 28px);
+    line-height: 1.22;
+  }
+
+  .homeHeroCtas {
+    margin-top: var(--space-4);
+    display: grid;
+    gap: var(--space-2);
   }
 
   .heroCtas,
@@ -7267,7 +7368,22 @@ body.navMenuOpen {
   .heroCtas .btn,
   .homeHeroCtas .btn {
     width: 100%;
+    max-width: 100%;
     justify-content: center;
+    white-space: normal;
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .homeHeroMainImage {
+    max-width: 100%;
+    max-height: min(280px, 42vh);
+    border-radius: 16px;
+    filter: drop-shadow(0 16px 32px rgba(15, 23, 42, 0.18));
+  }
+
+  .homeHeroMarquee {
+    margin-top: var(--space-3);
   }
 
   .homeSecondaryGrid,
@@ -7275,16 +7391,36 @@ body.navMenuOpen {
     gap: var(--space-3);
   }
 
+  .homePrimaryGrid {
+    max-width: 100%;
+  }
+
+  .homePrimaryCard {
+    min-height: 240px;
+  }
+
+  .homePrimaryCardArt {
+    min-height: 150px;
+    padding: 16px 16px 10px;
+  }
+
   .homeSelectCardTitle {
-    font-size: 18px;
+    font-size: 17px;
   }
 
   .homeSelectCardContent {
-    padding: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .homePaperOfDayBanner,
+  .pastPaperOfDay,
+  .homePaperOfDayBanner .btn {
+    width: 100%;
+    max-width: 100%;
   }
 
   .formTitle {
-    font-size: clamp(24px, 7vw, 32px);
+    font-size: clamp(22px, 6.5vw, 30px);
   }
 
   .fieldRow {
@@ -7295,8 +7431,38 @@ body.navMenuOpen {
     width: 100%;
   }
 
+  .appFormMain {
+    width: 100%;
+    padding-inline: 0;
+  }
+
+  .formCard,
+  .appFormCard {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .payBannerText {
+    min-width: 0;
+  }
+
   .docRow {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .btn {
+    max-width: 100%;
+  }
+
+  .sectionTitle {
+    font-size: clamp(22px, 6vw, 28px);
+  }
+
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
   }
 }
