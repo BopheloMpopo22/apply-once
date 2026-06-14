@@ -184,7 +184,6 @@ export function ApplicationPage() {
   const [showModePicker, setShowModePicker] = useState(false)
   const [questionnaire, setQuestionnaire] = useState<QuestionnaireState | null>(null)
   const [paidCents, setPaidCents] = useState<number>(0)
-  const [showPayPrompt, setShowPayPrompt] = useState(false)
   const navModeSectionRef = useRef<HTMLDivElement>(null)
 
   const refreshPayment = useCallback(async () => {
@@ -192,11 +191,16 @@ export function ApplicationPage() {
       const s = await api<{ totalPaidCents: number }>('/api/payments/status')
       const total = Number(s.totalPaidCents) || 0
       setPaidCents(total)
-      if (total >= 9500) setShowPayPrompt(false)
     } catch {
       // ignore
     }
   }, [])
+
+  function scrollToPaymentPanel() {
+    requestAnimationFrame(() => {
+      document.getElementById('app-payment-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    })
+  }
 
   useEffect(() => {
     if (!loading) void refreshPayment()
@@ -332,7 +336,7 @@ export function ApplicationPage() {
     const isLast = step >= STEP_LABELS.length - 1
     const next = Math.min(step + 1, STEP_LABELS.length - 1)
     await persist(next)
-    if (isLast && paidCents < 9500) setShowPayPrompt(true)
+    if (isLast && paidCents < 9500) scrollToPaymentPanel()
   }
 
   async function onBack() {
@@ -385,9 +389,7 @@ export function ApplicationPage() {
     const isLast = sectionIndex >= STEP_LABELS.length - 1
     const next = advance && !isLast ? sectionIndex + 1 : sectionIndex
     await persist(next)
-    if (advance && isLast && paidCents < 9500) {
-      setShowPayPrompt(true)
-    }
+    if (isLast && paidCents < 9500) scrollToPaymentPanel()
     if (advance && navMode === 'vertical' && !isLast) {
       requestAnimationFrame(() => scrollToStep(next))
     }
@@ -404,7 +406,7 @@ export function ApplicationPage() {
         isLast={isLast}
         saveBusy={saveBusy}
         onBack={stepIndex > 0 ? () => void onSaveSection(stepIndex - 1, false) : undefined}
-        onContinue={() => void onSaveSection(stepIndex, !isLast)}
+        onContinue={() => void onSaveSection(stepIndex, true)}
       />
     )
   }
@@ -1320,14 +1322,16 @@ export function ApplicationPage() {
         </div>
       </main>
 
-      {showPayPrompt && paidCents < 9500 ? (
-        <PaymentPanel
-          variant="sticky"
-          paidCents={paidCents}
-          onRefreshPayment={refreshPayment}
-          title="Submit your application"
-          successFrom="application"
-        />
+      {paidCents < 9500 ? (
+        <div id="app-payment-panel">
+          <PaymentPanel
+            variant="sticky"
+            paidCents={paidCents}
+            onRefreshPayment={refreshPayment}
+            title="Activate your application"
+            successFrom="application"
+          />
+        </div>
       ) : null}
     </div>
   )

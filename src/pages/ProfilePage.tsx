@@ -9,6 +9,7 @@ import {
 } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { api, getBearerToken, uploadAvatar } from '../api/client'
+import { compressAvatarImage } from '../utils/compressAvatarImage'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import type { QuestionnaireState } from '../components/application/ApplicationQuestionnaire'
 import { ChatThread, type ChatMessage } from '../components/ChatThread'
@@ -243,10 +244,11 @@ export function ProfilePage() {
     if (!file) return
     setAvatarBusy(true)
     setError(null)
-    const preview = URL.createObjectURL(file)
-    setAvatarPreview(preview)
     try {
-      await uploadAvatar(file)
+      const compressed = await compressAvatarImage(file)
+      const preview = URL.createObjectURL(compressed)
+      setAvatarPreview(preview)
+      await uploadAvatar(compressed)
       await refreshSession()
       await load()
     } catch (e) {
@@ -311,7 +313,8 @@ export function ProfilePage() {
               <label className="profileHeroAvatarLabel">
                 <input
                   type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  accept="image/*"
+                  capture="user"
                   className="profileHeroAvatarInput"
                   disabled={avatarBusy}
                   onChange={(ev) => {

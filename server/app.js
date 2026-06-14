@@ -333,12 +333,18 @@ function documentUploadMiddleware(req, res, next) {
 }
 
 const avatarImageFilter = (_req, file, cb) => {
-  if (!/^image\/(jpeg|png|webp|gif)$/.test(file.mimetype)) {
-    cb(new Error('Only JPEG, PNG, WebP or GIF images are allowed'))
+  const mt = String(file.mimetype || '').toLowerCase()
+  const ok =
+    /^image\/(jpeg|jpg|png|webp|gif|heic|heif)$/i.test(mt) ||
+    /\.(jpe?g|png|webp|gif|heic|heif)$/i.test(String(file.originalname || ''))
+  if (!ok) {
+    cb(new Error('Only image files are allowed (JPEG, PNG, WebP, GIF, or HEIC)'))
     return
   }
   cb(null, true)
 }
+
+const AVATAR_MAX_BYTES = 4 * 1024 * 1024
 
 const avatarUploadDisk = multer({
   storage: multer.diskStorage({
@@ -355,13 +361,13 @@ const avatarUploadDisk = multer({
       cb(null, `avatar${safe}`)
     },
   }),
-  limits: { fileSize: 2 * 1024 * 1024 },
+  limits: { fileSize: AVATAR_MAX_BYTES },
   fileFilter: avatarImageFilter,
 })
 
 const avatarUploadMemory = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 2 * 1024 * 1024 },
+  limits: { fileSize: AVATAR_MAX_BYTES },
   fileFilter: avatarImageFilter,
 })
 
@@ -2046,7 +2052,7 @@ app.use((err, _req, res, _next) => {
   if (err instanceof MulterError) {
     const hint =
       err.code === 'LIMIT_FILE_SIZE'
-        ? 'File is too large'
+        ? 'Photo is too large (max 4 MB after compression). Try a smaller image.'
         : err.code === 'LIMIT_UNEXPECTED_FILE'
           ? 'Unexpected file field (use field name "file")'
           : err.message || err.code
