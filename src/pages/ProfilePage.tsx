@@ -314,7 +314,6 @@ export function ProfilePage() {
                 <input
                   type="file"
                   accept="image/*"
-                  capture="user"
                   className="profileHeroAvatarInput"
                   disabled={avatarBusy}
                   onChange={(ev) => {
