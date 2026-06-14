@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
+import { getPaymentLinkR50, getPaymentLinkR95, isPaymentLinkMode } from '../lib/paymentLinks'
 import { getYocoPublicKey, loadYocoSdk } from '../lib/yoco'
 
 export type PaymentPlan = 'once_off_95' | 'split_50_first' | 'split_50_second'
@@ -28,13 +29,28 @@ export function PaymentPanel(props: PaymentPanelProps) {
   const [payBusy, setPayBusy] = useState(false)
   const [payError, setPayError] = useState<string | null>(null)
   const [popupOpen, setPopupOpen] = useState(false)
+  const [linkOpened, setLinkOpened] = useState(false)
+
+  const linkMode = isPaymentLinkMode()
+  const linkR95 = getPaymentLinkR95()
+  const linkR50 = getPaymentLinkR50() || linkR95
 
   if (paidCents >= 9500) return null
 
   const hasFirstInstallment = paidCents >= 5000
   const showOnceOff = !hasFirstInstallment
-  const showFirstSplit = !hasFirstInstallment
+  const showFirstSplit = !hasFirstInstallment && Boolean(linkR50)
   const showSecondSplit = hasFirstInstallment
+
+  function openPaymentLink(url: string) {
+    if (!url) {
+      setPayError('Payment link is not configured yet.')
+      return
+    }
+    setPayError(null)
+    setLinkOpened(true)
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
 
   async function startYocoPayment(plan: PaymentPlan) {
     const publicKey = getYocoPublicKey()
@@ -140,44 +156,93 @@ export function PaymentPanel(props: PaymentPanelProps) {
         <div className="payBannerText">
           <strong>{title}</strong>
           <span className="muted">
-            {hasFirstInstallment
-              ? 'Almost there — pay the remaining R50 to fully activate your application.'
-              : 'Pay anytime: R95 once-off, or R50 now and R50 later.'}
+            {linkMode
+              ? hasFirstInstallment
+                ? 'Pay the remaining R50 on our secure Yoco page to fully activate.'
+                : 'Pay on Yoco’s secure page — card, Apple Pay, and more.'
+              : hasFirstInstallment
+                ? 'Almost there — pay the remaining R50 to fully activate your application.'
+                : 'Pay anytime: R95 once-off, or R50 now and R50 later.'}
           </span>
           <span className="muted">Paid so far: R{(paidCents / 100).toFixed(2)}</span>
+          {linkMode ? (
+            <p className="payLinkSteps">
+              <strong>How it works:</strong> tap Pay → complete payment on Yoco → return here. We
+              confirm your payment in admin (usually within one business day).
+            </p>
+          ) : null}
+          {linkOpened && linkMode ? (
+            <p className="payLinkAfterOpen muted">
+              Payment page opened in a new tab. If it did not open, check your pop-up blocker.
+            </p>
+          ) : null}
           {payError ? <span className="payBannerError">{payError}</span> : null}
         </div>
         <div className="payBannerActions">
-          {showOnceOff ? (
-            <button
-              type="button"
-              className="btn btnBrand btnSmall"
-              disabled={payBusy || popupOpen}
-              onClick={() => void startYocoPayment('once_off_95')}
-            >
-              {payBusy ? 'Opening…' : 'Pay R95'}
-            </button>
-          ) : null}
-          {showFirstSplit ? (
-            <button
-              type="button"
-              className="btn btnOutline btnSmall"
-              disabled={payBusy || popupOpen}
-              onClick={() => void startYocoPayment('split_50_first')}
-            >
-              Pay R50 now
-            </button>
-          ) : null}
-          {showSecondSplit ? (
-            <button
-              type="button"
-              className="btn btnOutline btnSmall"
-              disabled={payBusy || popupOpen}
-              onClick={() => void startYocoPayment('split_50_second')}
-            >
-              {payBusy ? 'Opening…' : 'Pay remaining R50'}
-            </button>
-          ) : null}
+          {linkMode ? (
+            <>
+              {showOnceOff ? (
+                <button
+                  type="button"
+                  className="btn btnBrand btnSmall"
+                  onClick={() => openPaymentLink(linkR95)}
+                >
+                  Pay R95 securely
+                </button>
+              ) : null}
+              {showFirstSplit ? (
+                <button
+                  type="button"
+                  className="btn btnOutline btnSmall"
+                  onClick={() => openPaymentLink(linkR50)}
+                >
+                  Pay R50 now
+                </button>
+              ) : null}
+              {showSecondSplit ? (
+                <button
+                  type="button"
+                  className="btn btnOutline btnSmall"
+                  onClick={() => openPaymentLink(linkR50)}
+                >
+                  Pay remaining R50
+                </button>
+              ) : null}
+            </>
+          ) : (
+            <>
+              {showOnceOff ? (
+                <button
+                  type="button"
+                  className="btn btnBrand btnSmall"
+                  disabled={payBusy || popupOpen}
+                  onClick={() => void startYocoPayment('once_off_95')}
+                >
+                  {payBusy ? 'Opening…' : 'Pay R95'}
+                </button>
+              ) : null}
+              {showFirstSplit ? (
+                <button
+                  type="button"
+                  className="btn btnOutline btnSmall"
+                  disabled={payBusy || popupOpen}
+                  onClick={() => void startYocoPayment('split_50_first')}
+                >
+                  Pay R50 now
+                </button>
+              ) : null}
+              {showSecondSplit ? (
+                <button
+                  type="button"
+                  className="btn btnOutline btnSmall"
+                  disabled={payBusy || popupOpen}
+                  onClick={() => void startYocoPayment('split_50_second')}
+                >
+                  {payBusy ? 'Opening…' : 'Pay remaining R50'}
+                </button>
+              ) : null}
+            </>
+          )}
         </div>
       </div>
     </div>

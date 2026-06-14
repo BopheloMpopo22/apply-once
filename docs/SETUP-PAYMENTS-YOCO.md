@@ -1,6 +1,8 @@
 ## Yoco payments setup (Apply Once)
 
-This app uses **Yoco Gateway (card payments)** with the **Yoco Web SDK popup**.
+> **Payments not working (API sunset)?** Use [payment links](./SETUP-PAYMENTS-YOCO-LINKS.md) until Yoco activates online payments and we migrate to the Checkout API.
+
+This app uses **Yoco Gateway (card payments)** with the **Yoco Web SDK popup** when payment links are not configured.
 
 ### 1) Get your keys (existing Yoco account is fine)
 

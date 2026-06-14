@@ -4397,6 +4397,38 @@ body {
   font-weight: 650;
 }
 
+.payLinkSteps {
+  margin: var(--space-2) 0 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: 12px;
+  background: rgba(33, 50, 230, 0.06);
+  border: 1px solid rgba(33, 50, 230, 0.12);
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(15, 23, 42, 0.82);
+}
+
+.payLinkAfterOpen {
+  margin: var(--space-2) 0 0;
+  font-size: 13px;
+}
+
+.adminPaymentStatus {
+  margin: var(--space-2) 0 var(--space-3);
+  font-weight: 650;
+}
+
+.adminPaymentHistory {
+  margin: 0 0 var(--space-3);
+  padding-left: 1.2rem;
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.72);
+}
+
+.adminPaymentActions {
+  margin-bottom: var(--space-4);
+}
+
 .paymentSuccessShell {
   background: radial-gradient(900px 520px at 15% 0%, rgba(33, 50, 230, 0.12), transparent 55%),
     radial-gradient(700px 480px at 95% 10%, rgba(0, 157, 254, 0.1), transparent 52%),

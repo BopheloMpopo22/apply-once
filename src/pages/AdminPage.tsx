@@ -89,6 +89,14 @@ type StudentDetail = {
     matchedAt: string
     matches: StudentBursaryMatch[]
   } | null
+  paidCents?: number
+  payments?: Array<{
+    id: string
+    plan: string
+    amountPaidCents: number
+    provider: string
+    createdAt: string
+  }>
 }
 
 type VarsityUniversityRow = {
@@ -139,6 +147,8 @@ export function AdminPage() {
   const [emailBody, setEmailBody] = useState('')
   const [emailBusy, setEmailBusy] = useState(false)
   const [emailMessage, setEmailMessage] = useState<string | null>(null)
+  const [paymentRecordBusy, setPaymentRecordBusy] = useState(false)
+  const [paymentRecordMessage, setPaymentRecordMessage] = useState<string | null>(null)
   const [selectedStudentIds, setSelectedStudentIds] = useState<Set<string>>(new Set())
   const [bulkEmailSubject, setBulkEmailSubject] = useState('')
   const [bulkEmailBody, setBulkEmailBody] = useState('')
@@ -251,6 +261,7 @@ export function AdminPage() {
       setDetail(null)
       return
     }
+    setPaymentRecordMessage(null)
     loadDetail(selectedId).catch(() => {})
   }, [selectedId, loadDetail])
 
@@ -425,6 +436,28 @@ export function AdminPage() {
       setError(err instanceof Error ? err.message : 'Could not send email')
     } finally {
       setEmailBusy(false)
+    }
+  }
+
+  async function onRecordPayment(plan: 'once_off_95' | 'split_50_first' | 'split_50_second') {
+    if (!selectedId) return
+    setPaymentRecordBusy(true)
+    setPaymentRecordMessage(null)
+    setError(null)
+    try {
+      const res = await adminApi<{ paidCents: number }>(
+        `/api/admin/students/${encodeURIComponent(selectedId)}/payments/record`,
+        { method: 'POST', json: { plan } },
+      )
+      setPaymentRecordMessage(
+        `Recorded — total paid R${(Number(res.paidCents) / 100).toFixed(2)} for this student.`,
+      )
+      await refreshList()
+      await loadDetail(selectedId)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not record payment')
+    } finally {
+      setPaymentRecordBusy(false)
     }
   }
 
@@ -915,6 +948,69 @@ export function AdminPage() {
                       >
                         Preview & download PDF
                       </Link>
+                    </div>
+
+                    <h3 className="adminSubheading">Application fee (Yoco link)</h3>
+                    <p className="adminMuted">
+                      Students pay via your Yoco payment link. When you see the payment in the Yoco
+                      app, mark them here so their profile shows PAID.
+                    </p>
+                    <p className="adminPaymentStatus">
+                      Status:{' '}
+                      {Number(detail.paidCents || 0) >= 9500 ? (
+                        <span className="adminBursaryBadgeOpen">PAID (R95+)</span>
+                      ) : Number(detail.paidCents || 0) >= 5000 ? (
+                        <span className="adminBursaryBadgeClosed">
+                          PART — R{(Number(detail.paidCents) / 100).toFixed(2)} paid
+                        </span>
+                      ) : (
+                        <span className="adminMuted">UNPAID</span>
+                      )}
+                    </p>
+                    {detail.payments && detail.payments.length > 0 ? (
+                      <ul className="adminPaymentHistory">
+                        {detail.payments.map((p) => (
+                          <li key={p.id}>
+                            R{(p.amountPaidCents / 100).toFixed(2)} · {p.plan.replace(/_/g, ' ')} ·{' '}
+                            {p.provider} · {new Date(p.createdAt).toLocaleString()}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="adminMuted">No payments recorded yet.</p>
+                    )}
+                    {paymentRecordMessage ? <p className="adminOk">{paymentRecordMessage}</p> : null}
+                    <div className="formActions adminPaymentActions">
+                      {Number(detail.paidCents || 0) < 9500 ? (
+                        <button
+                          type="button"
+                          className="btn btnDark btnSmall"
+                          disabled={paymentRecordBusy}
+                          onClick={() => void onRecordPayment('once_off_95')}
+                        >
+                          Mark R95 paid
+                        </button>
+                      ) : null}
+                      {Number(detail.paidCents || 0) < 5000 ? (
+                        <button
+                          type="button"
+                          className="btn btnOutline btnSmall"
+                          disabled={paymentRecordBusy}
+                          onClick={() => void onRecordPayment('split_50_first')}
+                        >
+                          Mark R50 paid (1st)
+                        </button>
+                      ) : null}
+                      {Number(detail.paidCents || 0) >= 5000 && Number(detail.paidCents || 0) < 9500 ? (
+                        <button
+                          type="button"
+                          className="btn btnOutline btnSmall"
+                          disabled={paymentRecordBusy}
+                          onClick={() => void onRecordPayment('split_50_second')}
+                        >
+                          Mark R50 paid (2nd)
+                        </button>
+                      ) : null}
                     </div>
 
                     <h3 className="adminSubheading">Career questionnaire & bursary matches</h3>

@@ -517,9 +517,17 @@ function sumPaidCents(rows) {
 
 app.get('/api/payments/status', authMiddleware, async (req, res) => {
   const rows = await prisma.payment.findMany({
-    where: { userId: req.userId, provider: 'yoco' },
+    where: { userId: req.userId, status: 'paid' },
     orderBy: { createdAt: 'desc' },
-    select: { id: true, plan: true, amountDueCents: true, amountPaidCents: true, status: true, createdAt: true },
+    select: {
+      id: true,
+      plan: true,
+      amountDueCents: true,
+      amountPaidCents: true,
+      status: true,
+      provider: true,
+      createdAt: true,
+    },
   })
   const totalPaidCents = sumPaidCents(rows.filter((r) => r.status === 'paid'))
   res.json({
@@ -1313,9 +1321,9 @@ app.get('/api/admin/students', adminMiddleware, async (_req, res) => {
         select: { stepIndex: true, updatedAt: true },
       },
       payments: {
-        where: { provider: 'yoco', status: 'paid' },
+        where: { status: 'paid' },
         orderBy: { createdAt: 'desc' },
-        select: { amountPaidCents: true, plan: true },
+        select: { amountPaidCents: true, plan: true, provider: true, createdAt: true },
       },
       _count: {
         select: { inboxItems: true, documents: true },
@@ -1427,6 +1435,44 @@ app.get('/api/admin/students/:id/bursary-matches', adminMiddleware, async (req, 
   })
 })
 
+app.post('/api/admin/students/:id/payments/record', adminMiddleware, async (req, res) => {
+  const id = String(req.params.id || '')
+  const plan = String(req.body?.plan || '').trim()
+  if (!['once_off_95', 'split_50_first', 'split_50_second'].includes(plan)) {
+    return res.status(400).json({ error: 'Invalid payment plan' })
+  }
+
+  const user = await prisma.user.findUnique({ where: { id }, select: { id: true, email: true } })
+  if (!user) return res.status(404).json({ error: 'Student not found' })
+
+  const amountInCents = plan === 'once_off_95' ? 9500 : 5000
+  const note = String(req.body?.note || '').trim()
+
+  const payment = await prisma.payment.create({
+    data: {
+      userId: user.id,
+      plan,
+      amountDueCents: amountInCents,
+      amountPaidCents: amountInCents,
+      status: 'paid',
+      provider: 'yoco_link',
+      providerChargeId: note || 'admin_confirmed',
+    },
+    select: { id: true, plan: true, amountPaidCents: true, createdAt: true },
+  })
+
+  const rows = await prisma.payment.findMany({
+    where: { userId: user.id, status: 'paid' },
+    select: { amountPaidCents: true },
+  })
+
+  res.json({
+    ok: true,
+    payment,
+    paidCents: sumPaidCents(rows),
+  })
+})
+
 app.get('/api/admin/students/:id', adminMiddleware, async (req, res) => {
   const id = String(req.params.id || '')
   const user = await prisma.user.findUnique({
@@ -1438,6 +1484,17 @@ app.get('/api/admin/students/:id', adminMiddleware, async (req, res) => {
       avatarStoragePath: true,
       profile: true,
       application: true,
+      payments: {
+        where: { status: 'paid' },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          plan: true,
+          amountPaidCents: true,
+          provider: true,
+          createdAt: true,
+        },
+      },
       documents: {
         orderBy: { createdAt: 'desc' },
         select: {
@@ -1519,11 +1576,15 @@ app.get('/api/admin/students/:id', adminMiddleware, async (req, res) => {
     }
   }
 
+  const paidCents = sumPaidCents(user.payments)
+
   res.json({
     id: user.id,
     email: user.email,
     createdAt: user.createdAt,
     hasAvatar: Boolean(user.avatarStoragePath),
+    paidCents,
+    payments: user.payments,
     profile: user.profile,
     application: applicationOut,
     documents: user.documents,
