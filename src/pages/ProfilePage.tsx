@@ -18,6 +18,7 @@ import { Navbar } from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
 import { computeCompletion } from '../utils/applicationCompletion'
 import { PaymentPanel } from '../components/PaymentPanel'
+import { ProfileLoadingShell } from '../components/ProfileLoadingShell'
 
 const STEP_LABELS = [
   'Profile',
@@ -44,21 +45,8 @@ type InboxItem = {
 export function ProfileGate(props: { children: ReactNode }) {
   const { user, loading } = useAuth()
   const location = useLocation()
-  if (loading) {
-    return (
-      <div className="formShell">
-        <Navbar
-          logo={<ApplyOnceLogo />}
-          links={[
-            { label: 'Features', to: '/#features' },
-            { label: 'Resources', to: '/#resources' },
-          ]}
-        />
-        <main className="formMain">
-          <p className="formLead">Loading your profile…</p>
-        </main>
-      </div>
-    )
+  if (loading && !user) {
+    return <ProfileLoadingShell />
   }
   if (!user) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />
@@ -119,20 +107,22 @@ export function ProfilePage() {
   const load = useCallback(async () => {
     setError(null)
     try {
-      const [inboxList, draft, chatList, q] = await Promise.all([
-        api<InboxItem[]>('/api/inbox'),
-        api<{ stepIndex: number; payload?: unknown }>('/api/application'),
-        api<ChatMessage[]>('/api/chat'),
-        api<QuestionnaireState>('/api/questionnaire'),
-      ])
-      setItems(inboxList)
-      setDraftStep(typeof draft.stepIndex === 'number' ? draft.stepIndex : 0)
+      const data = await api<{
+        inbox: InboxItem[]
+        application: { stepIndex: number; payload?: unknown }
+        chat: ChatMessage[]
+        questionnaire: QuestionnaireState
+        payments: { totalPaidCents: number }
+      }>('/api/profile/bootstrap')
+      setItems(data.inbox)
+      setDraftStep(typeof data.application.stepIndex === 'number' ? data.application.stepIndex : 0)
       setDraftPayload(
-        draft && typeof draft === 'object' && (draft as { payload?: unknown }).payload && typeof (draft as { payload?: unknown }).payload === 'object'
-          ? ((draft as { payload: unknown }).payload as Record<string, unknown>)
+        data.application.payload && typeof data.application.payload === 'object'
+          ? (data.application.payload as Record<string, unknown>)
           : {},
       )
-      setChat(chatList)
+      setChat(data.chat)
+      const q = data.questionnaire
       setQuestionnaire({
         answers: {
           studyChoice1: q.answers?.studyChoice1 ?? '',
@@ -148,6 +138,7 @@ export function ProfilePage() {
         scholarshipCount: q.scholarshipCount ?? null,
         matchedAt: q.matchedAt ?? null,
       })
+      setPaidCents(Number(data.payments.totalPaidCents) || 0)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not load profile')
     } finally {
@@ -165,12 +156,8 @@ export function ProfilePage() {
   }, [])
 
   useEffect(() => {
-    load()
+    void load()
   }, [load])
-
-  useEffect(() => {
-    void refreshPayment()
-  }, [refreshPayment])
 
   useEffect(() => {
     let cancelled = false
@@ -363,7 +350,11 @@ export function ProfilePage() {
                 <p className="profilePanelTag">Keep going — you are closer than you think</p>
               </div>
               {loading ? (
-                <p className="profileMuted">Loading…</p>
+                <div className="profileSkeletonPanelInner" aria-hidden="true">
+                  <div className="profileSkeletonRing" />
+                  <div className="profileSkeletonLine" />
+                  <div className="profileSkeletonLine profileSkeletonShort" />
+                </div>
               ) : (
                 <>
                   <div className="profileProgressRingWrap">
@@ -510,7 +501,11 @@ export function ProfilePage() {
               it’ll show up here. Submit your reply once and we’ll attach it to your profile.
             </p>
             {loading ? (
-              <p className="profileMuted">Loading…</p>
+              <div className="profileSkeletonInbox" aria-hidden="true">
+                <div className="profileSkeletonLine profileSkeletonCardTitle" />
+                <div className="profileSkeletonLine" />
+                <div className="profileSkeletonLine profileSkeletonShort" />
+              </div>
             ) : (
               <div className="profileInbox">
                 {items

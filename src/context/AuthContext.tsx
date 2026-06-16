@@ -9,18 +9,10 @@ import {
 } from 'react'
 import { api, getBearerToken, setToken } from '../api/client'
 import { markHasAccount } from '../constants'
+import { hasStoredSession, readCachedMe, writeCachedMe, type CachedSessionUser } from '../lib/meCache'
 import { supabase } from '../lib/supabaseClient'
 
-const ME_CACHE_KEY = 'apply_once_me_cache_v1'
-
-export type SessionUser = {
-  id: string
-  email: string
-  createdAt?: string
-  firstName?: string | null
-  lastName?: string | null
-  hasAvatar?: boolean
-}
+export type SessionUser = CachedSessionUser
 
 type AuthState = {
   user: SessionUser | null
@@ -39,39 +31,33 @@ async function fetchMe(): Promise<SessionUser> {
   return api<SessionUser>('/api/me')
 }
 
-function readCachedMe(): SessionUser | null {
-  try {
-    const raw = localStorage.getItem(ME_CACHE_KEY)
-    if (!raw) return null
-    const parsed = JSON.parse(raw) as unknown
-    if (!parsed || typeof parsed !== 'object') return null
-    const u = parsed as Partial<SessionUser>
-    if (!u.id || !u.email) return null
-    return {
-      id: String(u.id),
-      email: String(u.email),
-      createdAt: typeof u.createdAt === 'string' ? u.createdAt : undefined,
-      firstName: u.firstName ?? null,
-      lastName: u.lastName ?? null,
-      hasAvatar: Boolean(u.hasAvatar),
-    }
-  } catch {
-    return null
-  }
-}
-
-function writeCachedMe(me: SessionUser | null) {
-  try {
-    if (!me) localStorage.removeItem(ME_CACHE_KEY)
-    else localStorage.setItem(ME_CACHE_KEY, JSON.stringify(me))
-  } catch {
-    /* ignore */
+function sessionUserFromSupabaseUser(
+  u: { id: string; email?: string | null; user_metadata?: Record<string, unknown> },
+  fallbackEmail: string,
+): SessionUser {
+  const meta = u.user_metadata ?? {}
+  return {
+    id: u.id,
+    email: String(u.email || fallbackEmail).trim().toLowerCase(),
+    firstName:
+      typeof meta.firstName === 'string'
+        ? meta.firstName
+        : typeof meta.first_name === 'string'
+          ? meta.first_name
+          : null,
+    lastName:
+      typeof meta.lastName === 'string'
+        ? meta.lastName
+        : typeof meta.last_name === 'string'
+          ? meta.last_name
+          : null,
+    hasAvatar: false,
   }
 }
 
 export function AuthProvider(props: { children: ReactNode }) {
   const [user, setUser] = useState<SessionUser | null>(() => readCachedMe())
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(() => !hasStoredSession())
   const [isAdmin, setIsAdmin] = useState(false)
 
   const refreshAdmin = useCallback(async () => {
@@ -104,7 +90,7 @@ export function AuthProvider(props: { children: ReactNode }) {
       setUser(me)
       writeCachedMe(me)
       markHasAccount()
-      await refreshAdmin()
+      void refreshAdmin()
     } catch (e) {
       const msg = e instanceof Error ? e.message : ''
       if (/Unauthorized|Invalid token|^Not found$/i.test(msg)) {
@@ -122,15 +108,47 @@ export function AuthProvider(props: { children: ReactNode }) {
     async function boot() {
       const token = await getBearerToken()
       if (!token) {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
         return
       }
+
+      const cached = readCachedMe()
+      if (cached) {
+        if (!cancelled) {
+          setUser(cached)
+          setLoading(false)
+        }
+        try {
+          const me = await fetchMe()
+          if (!cancelled) {
+            setUser(me)
+            writeCachedMe(me)
+            markHasAccount()
+          }
+        } catch (e) {
+          if (!cancelled) {
+            const msg = e instanceof Error ? e.message : ''
+            if (/Unauthorized|Invalid token|^Not found$/i.test(msg)) {
+              setToken(null)
+              setUser(null)
+              writeCachedMe(null)
+              setIsAdmin(false)
+              await supabase?.auth.signOut()
+            }
+          }
+        } finally {
+          if (!cancelled) void refreshAdmin()
+        }
+        return
+      }
+
       try {
         const me = await fetchMe()
-        if (!cancelled) setUser(me)
-        if (!cancelled) writeCachedMe(me)
-        if (!cancelled) markHasAccount()
-        if (!cancelled) await refreshAdmin()
+        if (!cancelled) {
+          setUser(me)
+          writeCachedMe(me)
+          markHasAccount()
+        }
       } catch (e) {
         if (!cancelled) {
           const msg = e instanceof Error ? e.message : ''
@@ -143,14 +161,17 @@ export function AuthProvider(props: { children: ReactNode }) {
           }
         }
       } finally {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+          void refreshAdmin()
+        }
       }
     }
-    boot()
+    void boot()
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [refreshAdmin])
 
   useEffect(() => {
     if (!supabase) return
@@ -187,55 +208,69 @@ export function AuthProvider(props: { children: ReactNode }) {
 
   const loginWithEmail = useCallback(
     async (email: string, password: string) => {
-    if (!supabase) {
-      throw new Error(
-        'Email sign-in is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
-      )
-    }
-    const clean = email.trim().toLowerCase()
-    if (!clean) throw new Error('Email is required')
-    if (!password || password.length < 8) throw new Error('Password must be at least 8 characters')
-    const { data, error } = await supabase.auth.signInWithPassword({ email: clean, password })
-    if (error) throw error
-    if (data.session?.access_token) {
-      setToken(data.session.access_token)
-      markHasAccount()
-      await refreshSession()
-    }
+      if (!supabase) {
+        throw new Error(
+          'Email sign-in is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
+        )
+      }
+      const clean = email.trim().toLowerCase()
+      if (!clean) throw new Error('Email is required')
+      if (!password || password.length < 8) throw new Error('Password must be at least 8 characters')
+      const { data, error } = await supabase.auth.signInWithPassword({ email: clean, password })
+      if (error) throw error
+      if (data.session?.access_token) {
+        setToken(data.session.access_token)
+        markHasAccount()
+        if (data.user) {
+          const optimistic = sessionUserFromSupabaseUser(data.user, clean)
+          setUser(optimistic)
+          writeCachedMe(optimistic)
+          setLoading(false)
+        }
+        void refreshSession()
+      }
     },
     [refreshSession],
   )
 
-  const registerWithEmail = useCallback(async (email: string, password: string, name?: { firstName: string; lastName: string }) => {
-    if (!supabase) {
-      throw new Error(
-        'Email sign-in is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
-      )
-    }
-    const clean = email.trim().toLowerCase()
-    if (!clean) throw new Error('Email is required')
-    if (!password || password.length < 8) throw new Error('Password must be at least 8 characters')
-    const { data, error } = await supabase.auth.signUp({
-      email: clean,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-        data: name
-          ? {
-              firstName: name.firstName.trim(),
-              lastName: name.lastName.trim(),
-            }
-          : undefined,
-      },
-    })
-    if (error) throw error
-    markHasAccount()
-    // If email confirmation is OFF, we'll have a session and can refresh immediately.
-    if (data.session?.access_token) {
-      setToken(data.session.access_token)
-      await refreshSession()
-    }
-  }, [refreshSession])
+  const registerWithEmail = useCallback(
+    async (email: string, password: string, name?: { firstName: string; lastName: string }) => {
+      if (!supabase) {
+        throw new Error(
+          'Email sign-in is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
+        )
+      }
+      const clean = email.trim().toLowerCase()
+      if (!clean) throw new Error('Email is required')
+      if (!password || password.length < 8) throw new Error('Password must be at least 8 characters')
+      const { data, error } = await supabase.auth.signUp({
+        email: clean,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: name
+            ? {
+                firstName: name.firstName.trim(),
+                lastName: name.lastName.trim(),
+              }
+            : undefined,
+        },
+      })
+      if (error) throw error
+      markHasAccount()
+      if (data.session?.access_token) {
+        setToken(data.session.access_token)
+        if (data.user) {
+          const optimistic = sessionUserFromSupabaseUser(data.user, clean)
+          setUser(optimistic)
+          writeCachedMe(optimistic)
+          setLoading(false)
+        }
+        void refreshSession()
+      }
+    },
+    [refreshSession],
+  )
 
   const value = useMemo(
     () => ({

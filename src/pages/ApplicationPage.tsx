@@ -10,6 +10,7 @@ import {
 } from '../components/application/ApplicationQuestionnaire'
 import { BursaryLogoMarquee } from '../components/application/BursaryLogoMarquee'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
+import { ProfileLoadingShell } from '../components/ProfileLoadingShell'
 import { Navbar } from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
 import { computeCompletion } from '../utils/applicationCompletion'
@@ -143,21 +144,8 @@ const emptyPayload = (): ApplicationPayload => ({
 export function ApplicationGate(props: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
   const location = useLocation()
-  if (loading) {
-    return (
-      <div className="formShell">
-        <Navbar
-          logo={<ApplyOnceLogo />}
-          links={[
-            { label: 'Features', to: '/#features' },
-            { label: 'Resources', to: '/#resources' },
-          ]}
-        />
-        <main className="formMain">
-          <p className="formLead">Loading your application…</p>
-        </main>
-      </div>
-    )
+  if (loading && !user) {
+    return <ProfileLoadingShell />
   }
   if (!user) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />

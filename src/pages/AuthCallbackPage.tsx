@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api, setToken } from '../api/client'
+import type { SessionUser } from '../context/AuthContext'
+import { writeCachedMe } from '../lib/meCache'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { Navbar } from '../components/Navbar'
 import { supabase } from '../lib/supabaseClient'
@@ -45,7 +47,8 @@ export function AuthCallbackPage() {
 
       // Verify the API accepts this token and that a Prisma user is linked/created.
       try {
-        await api('/api/me')
+        const me = await api<SessionUser>('/api/me')
+        writeCachedMe(me)
       } catch (e) {
         const msg = e instanceof Error ? e.message : 'Unknown error'
         setFailed(`Signed in, but the API rejected the session: ${msg}`)

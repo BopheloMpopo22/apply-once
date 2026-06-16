@@ -31,6 +31,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const prisma = new PrismaClient()
 const app = express()
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-insecure-secret'
+const SUPABASE_JWT_SECRET = String(process.env.SUPABASE_JWT_SECRET || '').trim()
 const ADMIN_SECRET = String(process.env.ADMIN_SECRET || '').trim()
 const ADMIN_EMAILS = String(process.env.ADMIN_EMAILS || '')
   .split(',')
@@ -190,6 +191,17 @@ async function ensureAppUserFromSupabase(authId, jwtPayload) {
   return user
 }
 
+function verifySupabaseAccessToken(token) {
+  if (!SUPABASE_JWT_SECRET) return null
+  try {
+    const payload = jwt.verify(token, SUPABASE_JWT_SECRET)
+    if (!payload || typeof payload !== 'object' || !payload.sub) return null
+    return payload
+  } catch {
+    return null
+  }
+}
+
 async function authMiddleware(req, res, next) {
   const header = req.headers.authorization
   const token = header?.startsWith('Bearer ') ? header.slice(7) : null
@@ -203,6 +215,31 @@ async function authMiddleware(req, res, next) {
   } catch {
     /* try Supabase Auth JWT */
   }
+
+  const sbPayload = verifySupabaseAccessToken(token)
+  if (sbPayload) {
+    try {
+      const authId = String(sbPayload.sub)
+      req.supabaseEmail = String(sbPayload.email || '').trim().toLowerCase()
+      const user = await ensureAppUserFromSupabase(authId, {
+        sub: authId,
+        email: sbPayload.email ?? null,
+        user_metadata: sbPayload.user_metadata ?? {},
+      })
+      req.userId = user.id
+      return next()
+    } catch (e) {
+      if (e instanceof Error && e.message === 'CONFLICT_EMAIL_AUTH') {
+        return res.status(409).json({
+          error:
+            'This email is already linked to another account. Sign in with email/password or contact support.',
+        })
+      }
+      console.error(e)
+      return res.status(401).json({ error: 'Invalid token' })
+    }
+  }
+
   try {
     const sb = supabaseAdmin()
     if (!sb) {
@@ -585,6 +622,130 @@ app.get('/api/me', authMiddleware, async (req, res) => {
     firstName: user.profile?.firstName ?? null,
     lastName: user.profile?.lastName ?? null,
     hasAvatar: Boolean(user.avatarStoragePath),
+  })
+})
+
+app.get('/api/profile/bootstrap', authMiddleware, async (req, res) => {
+  const userId = req.userId
+  const [
+    inboxItems,
+    draft,
+    chatMessages,
+    questionnaireRow,
+    paidRows,
+    pendingEft,
+    profileRow,
+  ] = await Promise.all([
+    prisma.profileInboxItem.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        body: true,
+        kind: true,
+        requiresResponse: true,
+        studentResponse: true,
+        respondedAt: true,
+        createdAt: true,
+      },
+    }),
+    prisma.applicationDraft.upsert({
+      where: { userId },
+      update: {},
+      create: { userId, payload: '{}', stepIndex: 0 },
+    }),
+    prisma.chatMessage.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true, sender: true, body: true, createdAt: true },
+    }),
+    prisma.careerQuestionnaire.findUnique({ where: { userId } }),
+    prisma.payment.findMany({
+      where: { userId, status: 'paid' },
+      orderBy: { createdAt: 'desc' },
+      select: { amountPaidCents: true },
+    }),
+    prisma.payment.findFirst({
+      where: { userId, status: 'pending', provider: 'eft' },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        plan: true,
+        amountDueCents: true,
+        providerChargeId: true,
+        createdAt: true,
+      },
+    }),
+    prisma.profile.findUnique({
+      where: { userId },
+      select: { lastName: true, phone: true },
+    }),
+  ])
+
+  let applicationPayload = {}
+  try {
+    applicationPayload = JSON.parse(draft.payload || '{}')
+  } catch {
+    applicationPayload = {}
+  }
+
+  let questionnaireAnswers = {}
+  if (questionnaireRow) {
+    try {
+      questionnaireAnswers = JSON.parse(questionnaireRow.answers || '{}')
+    } catch {
+      questionnaireAnswers = {}
+    }
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { email: true },
+  })
+  const totalPaidCents = sumPaidCents(paidRows)
+
+  res.json({
+    inbox: inboxItems,
+    application: {
+      stepIndex: draft.stepIndex,
+      payload: applicationPayload,
+      updatedAt: draft.updatedAt,
+    },
+    chat: chatMessages,
+    questionnaire: questionnaireRow
+      ? {
+          answers: questionnaireAnswers,
+          skipped: questionnaireRow.skipped,
+          completedAt: questionnaireRow.completedAt,
+          bursaryCount: questionnaireRow.bursaryCount,
+          scholarshipCount: questionnaireRow.scholarshipCount,
+          matchedAt: questionnaireRow.matchedAt,
+          updatedAt: questionnaireRow.updatedAt,
+        }
+      : {
+          answers: {},
+          skipped: false,
+          completedAt: null,
+          bursaryCount: null,
+          scholarshipCount: null,
+          matchedAt: null,
+        },
+    payments: {
+      totalPaidCents,
+      paidR95: totalPaidCents >= 9500,
+      needsPayment: totalPaidCents < 9500,
+      pendingEft: pendingEft
+        ? {
+            id: pendingEft.id,
+            plan: pendingEft.plan,
+            amountDueCents: pendingEft.amountDueCents,
+            documentId: pendingEft.providerChargeId,
+            submittedAt: pendingEft.createdAt,
+          }
+        : null,
+    },
+    eftReference: buildEftPaymentReference(profileRow, user?.email || ''),
   })
 })
 
