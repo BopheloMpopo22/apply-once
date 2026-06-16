@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { adminApi, getAdminToken, setAdminToken } from '../api/adminClient'
+import { adminApi, adminDownloadFile, getAdminToken, setAdminToken } from '../api/adminClient'
 import { ChatThread, type ChatMessage } from '../components/ChatThread'
 import type { ProgrammeRequirement, UniversityId } from '../utils/varsity/types'
 import { getStudentCatalogueYear } from '../utils/varsity/studentCatalogueYear'
@@ -18,6 +18,7 @@ type StudentRow = {
   inboxCount: number
   documentCount: number
   paidCents?: number
+  eftPending?: boolean
 }
 
 type InboxRow = {
@@ -94,7 +95,19 @@ type StudentDetail = {
     id: string
     plan: string
     amountPaidCents: number
+    amountDueCents: number
+    status: string
     provider: string
+    providerChargeId: string | null
+    failureReason: string | null
+    createdAt: string
+  }>
+  pendingEftPayments?: Array<{
+    id: string
+    plan: string
+    amountDueCents: number
+    providerChargeId: string | null
+    failureReason: string | null
     createdAt: string
   }>
 }
@@ -732,6 +745,8 @@ export function AdminPage() {
                               <span className="adminBursaryBadgeOpen">PAID</span>
                             ) : Number(row.paidCents || 0) >= 5000 ? (
                               <span className="adminBursaryBadgeClosed">PART</span>
+                            ) : row.eftPending ? (
+                              <span className="adminEftBadge">EFT proof</span>
                             ) : (
                               <span className="adminMuted">UNPAID</span>
                             )}
@@ -950,11 +965,48 @@ export function AdminPage() {
                       </Link>
                     </div>
 
-                    <h3 className="adminSubheading">Application fee (Yoco link)</h3>
+                    <h3 className="adminSubheading">Application fee</h3>
                     <p className="adminMuted">
-                      Students pay via your Yoco payment link. When you see the payment in the Yoco
-                      app, mark them here so their profile shows PAID.
+                      Students pay by EFT and upload proof on their profile, or via card when Yoco is
+                      active. Confirm here after you verify the payment.
                     </p>
+                    {detail.pendingEftPayments && detail.pendingEftPayments.length > 0 ? (
+                      <div className="adminEftPendingBanner">
+                        <strong>EFT proof waiting for you</strong>
+                        <ul className="adminEftPendingList">
+                          {detail.pendingEftPayments.map((p) => (
+                            <li key={p.id}>
+                              R{(p.amountDueCents / 100).toFixed(2)} · {p.plan.replace(/_/g, ' ')} ·{' '}
+                              {new Date(p.createdAt).toLocaleString()}
+                              {p.failureReason ? (
+                                <span className="adminMuted"> · Bank ref: {p.failureReason}</span>
+                              ) : null}
+                              {p.providerChargeId ? (
+                                <>
+                                  {' '}
+                                  <button
+                                    type="button"
+                                    className="btn btnOutline btnSmall adminEftProofBtn"
+                                    onClick={() =>
+                                      void adminDownloadFile(
+                                        `/api/admin/students/${encodeURIComponent(detail.id)}/documents/${encodeURIComponent(p.providerChargeId!)}/file`,
+                                        `payment-proof-${detail.email}`,
+                                      ).catch((err) =>
+                                        setError(
+                                          err instanceof Error ? err.message : 'Could not open proof',
+                                        ),
+                                      )
+                                    }
+                                  >
+                                    View proof
+                                  </button>
+                                </>
+                              ) : null}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
                     <p className="adminPaymentStatus">
                       Status:{' '}
                       {Number(detail.paidCents || 0) >= 9500 ? (
@@ -967,9 +1019,11 @@ export function AdminPage() {
                         <span className="adminMuted">UNPAID</span>
                       )}
                     </p>
-                    {detail.payments && detail.payments.length > 0 ? (
+                    {detail.payments && detail.payments.filter((p) => p.status === 'paid').length > 0 ? (
                       <ul className="adminPaymentHistory">
-                        {detail.payments.map((p) => (
+                        {detail.payments
+                          .filter((p) => p.status === 'paid')
+                          .map((p) => (
                           <li key={p.id}>
                             R{(p.amountPaidCents / 100).toFixed(2)} · {p.plan.replace(/_/g, ' ')} ·{' '}
                             {p.provider} · {new Date(p.createdAt).toLocaleString()}
@@ -1072,10 +1126,32 @@ export function AdminPage() {
                       <ul className="adminDocList">
                         {detail.documents.map((d) => (
                           <li key={d.id}>
-                            <strong>{d.category}</strong> — {d.filename}{' '}
+                            <strong>{d.category === 'payment_proof' ? 'Payment proof' : d.category}</strong>{' '}
+                            — {d.filename}{' '}
                             <span className="adminMuted">
                               ({Math.round(d.size / 1024)} KB · {new Date(d.createdAt).toLocaleDateString()})
                             </span>
+                            {d.category === 'payment_proof' ? (
+                              <>
+                                {' '}
+                                <button
+                                  type="button"
+                                  className="btn btnOutline btnSmall adminEftProofBtn"
+                                  onClick={() =>
+                                    void adminDownloadFile(
+                                      `/api/admin/students/${encodeURIComponent(detail.id)}/documents/${encodeURIComponent(d.id)}/file`,
+                                      d.filename,
+                                    ).catch((err) =>
+                                      setError(
+                                        err instanceof Error ? err.message : 'Could not open document',
+                                      ),
+                                    )
+                                  }
+                                >
+                                  View
+                                </button>
+                              </>
+                            ) : null}
                           </li>
                         ))}
                       </ul>

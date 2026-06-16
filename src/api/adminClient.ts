@@ -46,3 +46,33 @@ export async function adminApi<T>(
   }
   return data as T
 }
+
+export async function adminDownloadFile(path: string, filename: string) {
+  const headers = new Headers()
+  const bearer = await getBearerToken()
+  if (bearer) headers.set('Authorization', `Bearer ${bearer}`)
+  const legacy = getAdminToken()
+  if (legacy) headers.set('X-Admin-Token', legacy)
+  const res = await fetch(path, { headers })
+  if (!res.ok) {
+    const text = await res.text()
+    let msg = res.statusText
+    try {
+      const data = JSON.parse(text) as { error?: string }
+      if (data.error) msg = data.error
+    } catch {
+      /* ignore */
+    }
+    throw new Error(msg)
+  }
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.rel = 'noopener'
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}

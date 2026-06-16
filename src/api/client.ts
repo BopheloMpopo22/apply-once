@@ -156,3 +156,28 @@ export async function uploadDocument(category: string, file: File) {
   }
   return data
 }
+
+export async function uploadPaymentProof(plan: string, file: File, bankReference?: string) {
+  const fd = new FormData()
+  fd.append('plan', plan)
+  fd.append('file', file)
+  if (bankReference?.trim()) fd.append('bankReference', bankReference.trim())
+  const token = await getBearerToken()
+  const headers: HeadersInit = {}
+  if (token) headers.Authorization = `Bearer ${token}`
+  const res = await fetch('/api/payments/eft/proof', {
+    method: 'POST',
+    headers,
+    body: fd,
+  })
+  const text = await res.text()
+  const data = parseJsonResponse(text, '/api/payments/eft/proof')
+  if (!res.ok) {
+    const msg =
+      typeof data === 'object' && data !== null && 'error' in data
+        ? String((data as { error: string }).error)
+        : res.statusText
+    throw new Error(msg)
+  }
+  return data
+}

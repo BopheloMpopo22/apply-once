@@ -332,6 +332,77 @@ function documentUploadMiddleware(req, res, next) {
   ;(useRemoteFiles() ? documentUploadMemory : documentUploadDisk).single('file')(req, res, next)
 }
 
+const paymentProofFileFilter = (_req, file, cb) => {
+  const mt = String(file.mimetype || '').toLowerCase()
+  const name = String(file.originalname || '')
+  const ok =
+    /^image\/(jpeg|jpg|png|webp|gif|heic|heif)$/i.test(mt) ||
+    mt === 'application/pdf' ||
+    /\.(jpe?g|png|webp|gif|heic|heif|pdf)$/i.test(name)
+  if (!ok) {
+    cb(new Error('Upload a screenshot or PDF from your banking app'))
+    return
+  }
+  cb(null, true)
+}
+
+const paymentProofUploadDisk = multer({
+  storage: documentDiskStorage,
+  limits: { fileSize: 8 * 1024 * 1024 },
+  fileFilter: paymentProofFileFilter,
+})
+
+const paymentProofUploadMemory = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 8 * 1024 * 1024 },
+  fileFilter: paymentProofFileFilter,
+})
+
+function paymentProofUploadMiddleware(req, res, next) {
+  ;(useRemoteFiles() ? paymentProofUploadMemory : paymentProofUploadDisk).single('file')(req, res, next)
+}
+
+function buildEftPaymentReference(profile, email) {
+  const surname = String(profile?.lastName || '')
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z]/g, '')
+  const phone = String(profile?.phone || '').replace(/\D/g, '')
+  const phoneTail = phone.slice(-4) || '0000'
+  const emailLocal = String(email || '').split('@')[0] || 'STUDENT'
+  const slug =
+    surname ||
+    emailLocal
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, '')
+      .slice(0, 12) ||
+    'STUDENT'
+  return `AO-${slug}-${phoneTail}`
+}
+
+async function notifyAdminsEftProof(user, plan, amountLabel, reference) {
+  if (!RESEND_API_KEY || !ADMIN_EMAILS.length) return
+  const adminUrl = String(process.env.PUBLIC_SITE_URL || 'https://applyonce.org').replace(/\/$/, '')
+  const subject = `EFT proof submitted — ${user.email} (${amountLabel})`
+  const body = `A student submitted proof of EFT payment on Apply Once.
+
+Student: ${user.email}
+Amount: ${amountLabel}
+Payment reference: ${reference}
+Plan: ${plan}
+
+Open Admin, find this student, review the payment proof, and mark as paid.
+Admin: ${adminUrl}/admin
+`
+  for (const to of ADMIN_EMAILS) {
+    try {
+      await sendResendEmail(to, subject, body)
+    } catch (e) {
+      console.error('EFT admin notify failed:', to, e)
+    }
+  }
+}
+
 const avatarImageFilter = (_req, file, cb) => {
   const mt = String(file.mimetype || '').toLowerCase()
   const ok =
@@ -536,6 +607,17 @@ app.get('/api/payments/status', authMiddleware, async (req, res) => {
     },
   })
   const totalPaidCents = sumPaidCents(rows.filter((r) => r.status === 'paid'))
+  const pendingEft = await prisma.payment.findFirst({
+    where: { userId: req.userId, status: 'pending', provider: 'eft' },
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      plan: true,
+      amountDueCents: true,
+      providerChargeId: true,
+      createdAt: true,
+    },
+  })
   res.json({
     rows,
     totalPaidCents,
@@ -543,7 +625,151 @@ app.get('/api/payments/status', authMiddleware, async (req, res) => {
     paidSplitTotal: totalPaidCents >= 10000,
     paidSplitFirst: totalPaidCents >= 5000,
     needsPayment: totalPaidCents < 9500,
+    pendingEft: pendingEft
+      ? {
+          id: pendingEft.id,
+          plan: pendingEft.plan,
+          amountDueCents: pendingEft.amountDueCents,
+          documentId: pendingEft.providerChargeId,
+          submittedAt: pendingEft.createdAt,
+        }
+      : null,
   })
+})
+
+app.get('/api/payments/eft/reference', authMiddleware, async (req, res) => {
+  const user = await prisma.user.findUnique({
+    where: { id: req.userId },
+    select: { email: true, profile: { select: { lastName: true, phone: true } } },
+  })
+  if (!user) return res.status(404).json({ error: 'Not found' })
+  res.json({
+    reference: buildEftPaymentReference(user.profile, user.email),
+  })
+})
+
+app.post('/api/payments/eft/proof', authMiddleware, paymentProofUploadMiddleware, async (req, res, next) => {
+  try {
+    if (vercelNeedsRemoteFiles()) {
+      return res.status(503).json({
+        error:
+          'Payment proof uploads need Supabase Storage. Set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, and SUPABASE_STORAGE_BUCKET.',
+      })
+    }
+    const plan = String(req.body?.plan || '').trim()
+    if (!['once_off_95', 'split_50_first', 'split_50_second'].includes(plan)) {
+      return res.status(400).json({ error: 'Invalid payment plan' })
+    }
+    if (!req.file) {
+      return res.status(400).json({ error: 'Upload a screenshot or PDF of your payment' })
+    }
+    const bankReference = String(req.body?.bankReference || '').trim().slice(0, 120)
+
+    const user = await prisma.user.findUnique({
+      where: { id: req.userId },
+      select: {
+        id: true,
+        email: true,
+        profile: { select: { firstName: true, lastName: true, phone: true } },
+      },
+    })
+    if (!user) return res.status(404).json({ error: 'Not found' })
+
+    const paidRows = await prisma.payment.findMany({
+      where: { userId: req.userId, status: 'paid' },
+      select: { amountPaidCents: true },
+    })
+    const totalPaidCents = sumPaidCents(paidRows)
+    if (totalPaidCents >= 9500) {
+      return res.status(400).json({ error: 'Your application fee is already paid' })
+    }
+    if (plan === 'split_50_second' && totalPaidCents < 5000) {
+      return res.status(400).json({ error: 'Pay the first R50 installment before the second' })
+    }
+    if (plan !== 'split_50_second' && totalPaidCents >= 5000) {
+      return res.status(400).json({ error: 'Use the remaining R50 installment option' })
+    }
+
+    const existingPending = await prisma.payment.findFirst({
+      where: { userId: req.userId, status: 'pending', provider: 'eft', plan },
+      select: { id: true },
+    })
+    if (existingPending) {
+      return res.status(409).json({
+        error: 'We already have your proof for this payment — we will confirm it within one business day.',
+      })
+    }
+
+    let storagePath
+    if (useRemoteFiles()) {
+      const safe = req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_')
+      storagePath = `documents/${req.userId}/${Date.now()}-payment-proof-${safe}`
+      await remotePut(storagePath, req.file.buffer, req.file.mimetype)
+    } else {
+      const relPath = path.relative(path.join(__dirname, '..'), req.file.path)
+      storagePath = relPath.replace(/\\/g, '/')
+    }
+
+    const doc = await prisma.document.create({
+      data: {
+        userId: req.userId,
+        category: 'payment_proof',
+        filename: req.file.originalname,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        storagePath,
+      },
+      select: { id: true, filename: true, createdAt: true },
+    })
+
+    const amountInCents = plan === 'once_off_95' ? 9500 : 5000
+    const amountLabel = plan === 'once_off_95' ? 'R95' : 'R50'
+    const eftReference = buildEftPaymentReference(user.profile, user.email)
+
+    const payment = await prisma.payment.create({
+      data: {
+        userId: req.userId,
+        plan,
+        amountDueCents: amountInCents,
+        amountPaidCents: 0,
+        status: 'pending',
+        provider: 'eft',
+        providerChargeId: doc.id,
+        failureReason: bankReference || null,
+      },
+      select: { id: true, plan: true, createdAt: true },
+    })
+
+    const studentName =
+      [user.profile?.firstName, user.profile?.lastName].filter(Boolean).join(' ').trim() || user.email
+    const chatBody = [
+      `EFT payment proof submitted (${amountLabel}).`,
+      bankReference ? `Bank reference: ${bankReference}` : null,
+      `Our reference: ${eftReference}`,
+      'Awaiting confirmation — usually within one business day.',
+    ]
+      .filter(Boolean)
+      .join(' ')
+
+    await prisma.chatMessage.create({
+      data: { userId: req.userId, sender: 'student', body: chatBody },
+    })
+
+    void notifyAdminsEftProof(user, plan, amountLabel, eftReference)
+
+    res.status(201).json({
+      ok: true,
+      payment,
+      document: doc,
+      message: 'Proof received — we will confirm your payment within one business day.',
+    })
+  } catch (err) {
+    if (useRemoteFiles()) {
+      console.error('eft proof upload:', err)
+      return res.status(502).json({ error: 'Could not save payment proof. Please try again.' })
+    }
+    next(err)
+  }
 })
 
 app.post('/api/payments/yoco/charge', authMiddleware, async (req, res) => {
@@ -1332,7 +1558,11 @@ app.get('/api/admin/students', adminMiddleware, async (_req, res) => {
         select: { amountPaidCents: true, plan: true, provider: true, createdAt: true },
       },
       _count: {
-        select: { inboxItems: true, documents: true },
+        select: {
+          inboxItems: true,
+          documents: true,
+          payments: { where: { status: 'pending', provider: 'eft' } },
+        },
       },
     },
   })
@@ -1350,6 +1580,7 @@ app.get('/api/admin/students', adminMiddleware, async (_req, res) => {
       applicationUpdatedAt: u.application?.updatedAt ?? null,
       inboxCount: u._count.inboxItems,
       documentCount: u._count.documents,
+      eftPending: u._count.payments > 0,
     })),
   )
 })
@@ -1454,6 +1685,15 @@ app.post('/api/admin/students/:id/payments/record', adminMiddleware, async (req,
   const amountInCents = plan === 'once_off_95' ? 9500 : 5000
   const note = String(req.body?.note || '').trim()
 
+  const hadPendingEft = await prisma.payment.count({
+    where: { userId: user.id, status: 'pending', provider: 'eft', plan },
+  })
+
+  await prisma.payment.updateMany({
+    where: { userId: user.id, status: 'pending', provider: 'eft', plan },
+    data: { status: 'cancelled', failureReason: 'confirmed_by_admin' },
+  })
+
   const payment = await prisma.payment.create({
     data: {
       userId: user.id,
@@ -1461,7 +1701,7 @@ app.post('/api/admin/students/:id/payments/record', adminMiddleware, async (req,
       amountDueCents: amountInCents,
       amountPaidCents: amountInCents,
       status: 'paid',
-      provider: 'yoco_link',
+      provider: hadPendingEft ? 'eft' : 'yoco_link',
       providerChargeId: note || 'admin_confirmed',
     },
     select: { id: true, plan: true, amountPaidCents: true, createdAt: true },
@@ -1491,13 +1731,16 @@ app.get('/api/admin/students/:id', adminMiddleware, async (req, res) => {
       profile: true,
       application: true,
       payments: {
-        where: { status: 'paid' },
         orderBy: { createdAt: 'desc' },
         select: {
           id: true,
           plan: true,
           amountPaidCents: true,
+          amountDueCents: true,
+          status: true,
           provider: true,
+          providerChargeId: true,
+          failureReason: true,
           createdAt: true,
         },
       },
@@ -1582,7 +1825,8 @@ app.get('/api/admin/students/:id', adminMiddleware, async (req, res) => {
     }
   }
 
-  const paidCents = sumPaidCents(user.payments)
+  const paidCents = sumPaidCents(user.payments.filter((p) => p.status === 'paid'))
+  const pendingEftPayments = user.payments.filter((p) => p.status === 'pending' && p.provider === 'eft')
 
   res.json({
     id: user.id,
@@ -1591,6 +1835,7 @@ app.get('/api/admin/students/:id', adminMiddleware, async (req, res) => {
     hasAvatar: Boolean(user.avatarStoragePath),
     paidCents,
     payments: user.payments,
+    pendingEftPayments,
     profile: user.profile,
     application: applicationOut,
     documents: user.documents,
@@ -1651,6 +1896,36 @@ app.post('/api/admin/students/:id/chat', adminMiddleware, async (req, res) => {
     select: { id: true, sender: true, body: true, createdAt: true },
   })
   res.status(201).json(row)
+})
+
+app.get('/api/admin/students/:id/documents/:docId/file', adminMiddleware, async (req, res) => {
+  const studentId = String(req.params.id || '')
+  const docId = String(req.params.docId || '')
+  const doc = await prisma.document.findFirst({
+    where: { id: docId, userId: studentId },
+    select: { storagePath: true, filename: true, mimeType: true },
+  })
+  if (!doc) return res.status(404).json({ error: 'Document not found' })
+
+  const safeName = String(doc.filename || 'document').replace(/[^\w.\-() ]+/g, '_')
+  res.setHeader('Content-Disposition', `inline; filename="${safeName}"`)
+
+  if (doc.storagePath.startsWith('uploads/')) {
+    const abs = absFromStorage(doc.storagePath)
+    if (!abs.startsWith(uploadsRoot) || !fs.existsSync(abs)) {
+      return res.status(404).json({ error: 'File not found' })
+    }
+    const ext = path.extname(abs).toLowerCase()
+    res.setHeader('Content-Type', doc.mimeType || mimeFromExt(ext))
+    return res.sendFile(abs)
+  }
+  try {
+    const buf = await remoteDownloadBuffer(doc.storagePath)
+    res.setHeader('Content-Type', doc.mimeType || 'application/octet-stream')
+    return res.send(buf)
+  } catch {
+    return res.status(404).json({ error: 'File not found' })
+  }
 })
 
 app.post('/api/admin/students/:id/email', adminMiddleware, async (req, res) => {

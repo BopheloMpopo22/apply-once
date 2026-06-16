@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
+import { EftPaymentSection } from './EftPaymentSection'
+import { isEftPaymentMode } from '../lib/eftPayment'
 import { getPaymentLinkR50, getPaymentLinkR95, isPaymentLinkMode } from '../lib/paymentLinks'
 import { getYocoPublicKey, loadYocoSdk } from '../lib/yoco'
 
@@ -31,7 +33,8 @@ export function PaymentPanel(props: PaymentPanelProps) {
   const [popupOpen, setPopupOpen] = useState(false)
   const [linkOpened, setLinkOpened] = useState(false)
 
-  const linkMode = isPaymentLinkMode()
+  const linkMode = isPaymentLinkMode() && !isEftPaymentMode()
+  const eftMode = isEftPaymentMode()
   const linkR95 = getPaymentLinkR95()
   const linkR50 = getPaymentLinkR50() || linkR95
 
@@ -156,7 +159,11 @@ export function PaymentPanel(props: PaymentPanelProps) {
         <div className="payBannerText">
           <strong>{title}</strong>
           <span className="muted">
-            {linkMode
+            {eftMode
+              ? hasFirstInstallment
+                ? 'Pay the remaining R50 by EFT and upload your proof below.'
+                : 'Pay R95 (or R50 now) by EFT — upload proof when done.'
+              : linkMode
               ? hasFirstInstallment
                 ? 'Pay the remaining R50 on our secure Yoco page to fully activate.'
                 : 'Pay on Yoco’s secure page — card, Apple Pay, and more.'
@@ -165,6 +172,9 @@ export function PaymentPanel(props: PaymentPanelProps) {
                 : 'Pay anytime: R95 once-off, or R50 now and R50 later.'}
           </span>
           <span className="muted">Paid so far: R{(paidCents / 100).toFixed(2)}</span>
+          {eftMode ? (
+            <EftPaymentSection paidCents={paidCents} onSubmitted={onRefreshPayment} />
+          ) : null}
           {linkMode ? (
             <p className="payLinkSteps">
               <strong>How it works:</strong> tap Pay → complete payment on Yoco → return here. We
@@ -178,6 +188,7 @@ export function PaymentPanel(props: PaymentPanelProps) {
           ) : null}
           {payError ? <span className="payBannerError">{payError}</span> : null}
         </div>
+        {eftMode ? null : (
         <div className="payBannerActions">
           {linkMode ? (
             <>
@@ -244,6 +255,7 @@ export function PaymentPanel(props: PaymentPanelProps) {
             </>
           )}
         </div>
+        )}
       </div>
     </div>
   )
