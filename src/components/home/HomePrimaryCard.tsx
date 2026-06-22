@@ -6,11 +6,16 @@ export type HomePrimaryCardProps = {
   image: string
   imageAlt: string
   href: string
-  hoverTheme: 'blue' | 'orange'
+  hoverTheme: 'blue' | 'orange' | 'green'
 }
 
 export function HomePrimaryCard({ title, description, image, imageAlt, href, hoverTheme }: HomePrimaryCardProps) {
-  const themeClass = hoverTheme === 'orange' ? 'homePrimaryCardOrange' : 'homePrimaryCardBlue'
+  const themeClass =
+    hoverTheme === 'orange'
+      ? 'homePrimaryCardOrange'
+      : hoverTheme === 'green'
+        ? 'homePrimaryCardGreen'
+        : 'homePrimaryCardBlue'
 
   return (
     <Link className={`homePrimaryCard ${themeClass}`} to={href}>

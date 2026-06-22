@@ -14,6 +14,7 @@ import { VarsityProspectusHubPage } from './pages/VarsityProspectusHubPage'
 import { ApplicationPdfPreviewPage } from './pages/ApplicationPdfPreviewPage'
 import { PaymentSuccessPage } from './pages/PaymentSuccessPage'
 import { PastPapersPage } from './pages/PastPapersPage'
+import { CareerProgrammesPage } from './pages/CareerProgrammesPage'
 import { AboutPage } from './pages/AboutPage'
 import { TermsPage } from './pages/TermsPage'
 import { ContactPage } from './pages/ContactPage'
@@ -26,6 +27,7 @@ export default function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/varsity-calculator" element={<VarsityCalculatorPage />} />
+      <Route path="/programmes-for-work" element={<CareerProgrammesPage />} />
       <Route path="/hubs/:hubSlug" element={<StudentHubPage />} />
       <Route path="/varsity-guides/uni/:universityId" element={<VarsityProspectusHubPage />} />
       <Route path="/varsity-guides/:guideId" element={<VarsityGuidePage />} />

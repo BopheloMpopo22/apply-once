@@ -5640,6 +5640,33 @@ body {
   background: linear-gradient(165deg, #ea580c 0%, #fb923c 100%);
 }
 
+.homePrimaryCardGreen:hover {
+  background: linear-gradient(165deg, #059669 0%, #34d399 100%);
+}
+
+.homePrimaryGridThree {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 1024px) {
+  .homePrimaryGridThree {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1200px) {
+  .homePrimaryGridThree {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .homePrimaryGridThree .homePrimaryCard:last-child {
+    grid-column: 1 / -1;
+    max-width: 560px;
+    justify-self: center;
+    width: 100%;
+  }
+}
+
 .homePrimaryCardArt {
   display: flex;
   align-items: center;
@@ -8193,5 +8220,441 @@ body.navMenuOpen {
   video {
     max-width: 100%;
     height: auto;
+  }
+}
+
+/* ——— Career programmes hub (SA work opportunities) ——— */
+.careerHubShell {
+  background: linear-gradient(180deg, rgba(33, 50, 230, 0.04) 0%, #fff 28%);
+}
+
+.careerHubHero {
+  padding: var(--space-6) 0 var(--space-5);
+}
+
+.careerHubHeroCompact {
+  padding-bottom: var(--space-4);
+}
+
+.careerHubHeroInner {
+  max-width: 920px;
+}
+
+.careerHubKicker {
+  margin: 0 0 var(--space-2);
+  font-weight: 700;
+  color: var(--hfc-blue);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.careerHubTitle {
+  margin: 0 0 var(--space-3);
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+
+.careerHubLead {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.55;
+  color: rgba(15, 23, 42, 0.72);
+  max-width: 720px;
+}
+
+.careerHubMain {
+  padding-bottom: var(--space-8);
+}
+
+.careerHubLayout {
+  display: grid;
+  grid-template-columns: minmax(240px, 280px) minmax(0, 1fr) minmax(240px, 300px);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.careerHubLeft,
+.careerHubCenter,
+.careerHubRight {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.careerHubToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: end;
+}
+
+.careerHubFilter {
+  display: grid;
+  gap: 4px;
+  min-width: 220px;
+}
+
+.careerHubSearch {
+  flex: 1;
+  min-width: min(100%, 280px);
+}
+
+.careerHubDisclaimer {
+  margin: 0;
+  font-size: 13px;
+}
+
+.careerListingGrid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.careerListingCard {
+  border: 1px solid rgba(33, 50, 230, 0.12);
+  border-radius: 18px;
+  padding: var(--space-4);
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.careerListingCardHead {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.careerListingTitle {
+  margin: 0;
+  font-size: 18px;
+}
+
+.careerListingOrg {
+  margin: 4px 0 0;
+  font-size: 14px;
+}
+
+.careerListingStatus {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.careerListingStatusOpen {
+  background: rgba(34, 197, 94, 0.15);
+  color: #166534;
+}
+
+.careerListingStatusRolling {
+  background: rgba(33, 50, 230, 0.12);
+  color: var(--hfc-blue);
+}
+
+.careerListingStatusExpired {
+  background: rgba(148, 163, 184, 0.25);
+  color: #475569;
+}
+
+.careerListingSummary {
+  margin: var(--space-3) 0;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.careerListingMeta {
+  margin: 0 0 var(--space-3);
+  font-size: 13px;
+}
+
+.careerListingTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: var(--space-3);
+}
+
+.careerListingTag {
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(33, 50, 230, 0.08);
+  color: var(--hfc-blue);
+}
+
+.careerListingActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.careerListingDates {
+  margin: var(--space-3) 0 0;
+  font-size: 12px;
+}
+
+.careerProfileCard {
+  border-radius: 18px;
+  border: 2px solid rgba(33, 50, 230, 0.14);
+  background: linear-gradient(145deg, rgba(33, 50, 230, 0.06), #fff 55%);
+  padding: var(--space-4);
+}
+
+.careerProfileCardHead {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.careerProfileAvatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.careerProfileName {
+  margin: 0;
+  font-size: 20px;
+}
+
+.careerProfileMeta {
+  margin: 2px 0 0;
+  font-size: 13px;
+}
+
+.careerProfileFacts {
+  margin: 0;
+  display: grid;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.careerProfileFacts dt {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.careerProfileFacts dd {
+  margin: 0;
+  color: rgba(15, 23, 42, 0.78);
+}
+
+.careerProfileCardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: var(--space-4);
+}
+
+.careerSidePanel {
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: #fff;
+  padding: var(--space-4);
+}
+
+.careerSidePanelTitle {
+  margin: 0 0 var(--space-2);
+  font-size: 17px;
+}
+
+.careerSidePanelLead {
+  margin: 0 0 var(--space-3);
+  font-size: 13px;
+}
+
+.careerCoursesList,
+.careerAgenciesList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.careerCoursesGroup summary {
+  cursor: pointer;
+  font-weight: 650;
+  padding: 8px 0;
+}
+
+.careerCoursesGroup ul {
+  margin: 0;
+  padding-left: 1rem;
+  font-size: 13px;
+}
+
+.careerCoursesGroup li {
+  margin-bottom: 6px;
+}
+
+.careerAgencyCard {
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(33, 50, 230, 0.04);
+  border: 1px solid rgba(33, 50, 230, 0.08);
+}
+
+.careerAgencyHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.careerAgencyScope {
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.careerAgencySummary {
+  margin: 8px 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.careerAgencyLink {
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--hfc-blue);
+}
+
+.careerHubFoot {
+  margin-top: var(--space-6);
+  font-size: 14px;
+}
+
+.careerWizardShell {
+  padding: 0 var(--space-4) var(--space-8);
+  display: flex;
+  justify-content: center;
+}
+
+.careerWizardCard {
+  width: min(560px, 100%);
+  border-radius: 22px;
+  border: 2px solid rgba(33, 50, 230, 0.14);
+  background: #fff;
+  padding: var(--space-5);
+  box-shadow: var(--shadow-md);
+}
+
+.careerWizardProgressWrap {
+  margin-bottom: var(--space-4);
+}
+
+.careerWizardProgressTrack {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(33, 50, 230, 0.12);
+  overflow: hidden;
+}
+
+.careerWizardProgressFill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--hfc-blue), var(--hfc-blue-bright));
+  transition: width 0.25s ease;
+}
+
+.careerWizardProgressLabel {
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--hfc-blue);
+}
+
+.careerWizardEmoji {
+  font-size: 40px;
+  margin: 0;
+  text-align: center;
+}
+
+.careerWizardTitle {
+  margin: 0 0 var(--space-4);
+  text-align: center;
+  font-size: 24px;
+}
+
+.careerWizardOptions {
+  display: grid;
+  gap: 10px;
+}
+
+.careerWizardChip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: #fff;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.careerWizardChipActive {
+  border-color: var(--hfc-blue);
+  background: rgba(33, 50, 230, 0.08);
+}
+
+.careerWizardFields {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.careerWizardField {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.careerWizardTextarea {
+  resize: vertical;
+  min-height: 96px;
+}
+
+.careerWizardCheck {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.careerWizardActions {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+@media (max-width: 1100px) {
+  .careerHubLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .careerHubRight {
+    order: 3;
+  }
+
+  .careerHubCenter {
+    order: 2;
+  }
+
+  .careerHubLeft {
+    order: 1;
   }
 }

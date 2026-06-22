@@ -75,7 +75,7 @@ export function HomePage() {
               Start here
             </h2>
             <p className="homeSectionLead muted">Tap a card to open.</p>
-            <div className="homePrimaryGrid">
+            <div className="homePrimaryGrid homePrimaryGridThree">
               {HOME_PRIMARY_CARDS.map((card) => (
                 <HomePrimaryCard key={card.id} {...card} />
               ))}
