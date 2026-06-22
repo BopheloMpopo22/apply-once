@@ -4,6 +4,11 @@ import { adminApi, adminDownloadFile, getAdminToken, setAdminToken } from '../ap
 import { ChatThread, type ChatMessage } from '../components/ChatThread'
 import type { ProgrammeRequirement, UniversityId } from '../utils/varsity/types'
 import { getStudentCatalogueYear } from '../utils/varsity/studentCatalogueYear'
+import {
+  PAYMENT_FULLY_PAID_CENTS,
+  PAYMENT_INSTALLMENT_CENTS,
+  formatPaymentRand,
+} from '../constants/payments'
 
 type StudentRow = {
   id: string
@@ -741,9 +746,9 @@ export function AdminPage() {
                           </td>
                           <td className="adminTableEmail">{row.email}</td>
                           <td>
-                            {Number(row.paidCents || 0) >= 9500 ? (
+                            {Number(row.paidCents || 0) >= PAYMENT_FULLY_PAID_CENTS ? (
                               <span className="adminBursaryBadgeOpen">PAID</span>
-                            ) : Number(row.paidCents || 0) >= 5000 ? (
+                            ) : Number(row.paidCents || 0) >= PAYMENT_INSTALLMENT_CENTS ? (
                               <span className="adminBursaryBadgeClosed">PART</span>
                             ) : row.eftPending ? (
                               <span className="adminEftBadge">EFT proof</span>
@@ -1009,9 +1014,9 @@ export function AdminPage() {
                     ) : null}
                     <p className="adminPaymentStatus">
                       Status:{' '}
-                      {Number(detail.paidCents || 0) >= 9500 ? (
-                        <span className="adminBursaryBadgeOpen">PAID (R95+)</span>
-                      ) : Number(detail.paidCents || 0) >= 5000 ? (
+                      {Number(detail.paidCents || 0) >= PAYMENT_FULLY_PAID_CENTS ? (
+                        <span className="adminBursaryBadgeOpen">PAID ({formatPaymentRand(PAYMENT_FULLY_PAID_CENTS)}+)</span>
+                      ) : Number(detail.paidCents || 0) >= PAYMENT_INSTALLMENT_CENTS ? (
                         <span className="adminBursaryBadgeClosed">
                           PART — R{(Number(detail.paidCents) / 100).toFixed(2)} paid
                         </span>
@@ -1035,34 +1040,35 @@ export function AdminPage() {
                     )}
                     {paymentRecordMessage ? <p className="adminOk">{paymentRecordMessage}</p> : null}
                     <div className="formActions adminPaymentActions">
-                      {Number(detail.paidCents || 0) < 9500 ? (
+                      {Number(detail.paidCents || 0) < PAYMENT_FULLY_PAID_CENTS ? (
                         <button
                           type="button"
                           className="btn btnDark btnSmall"
                           disabled={paymentRecordBusy}
                           onClick={() => void onRecordPayment('once_off_95')}
                         >
-                          Mark R95 paid
+                          Mark {formatPaymentRand(PAYMENT_FULLY_PAID_CENTS)} paid
                         </button>
                       ) : null}
-                      {Number(detail.paidCents || 0) < 5000 ? (
+                      {Number(detail.paidCents || 0) < PAYMENT_INSTALLMENT_CENTS ? (
                         <button
                           type="button"
                           className="btn btnOutline btnSmall"
                           disabled={paymentRecordBusy}
                           onClick={() => void onRecordPayment('split_50_first')}
                         >
-                          Mark R50 paid (1st)
+                          Mark {formatPaymentRand(PAYMENT_INSTALLMENT_CENTS)} paid (1st)
                         </button>
                       ) : null}
-                      {Number(detail.paidCents || 0) >= 5000 && Number(detail.paidCents || 0) < 9500 ? (
+                      {Number(detail.paidCents || 0) >= PAYMENT_INSTALLMENT_CENTS &&
+                      Number(detail.paidCents || 0) < PAYMENT_FULLY_PAID_CENTS ? (
                         <button
                           type="button"
                           className="btn btnOutline btnSmall"
                           disabled={paymentRecordBusy}
                           onClick={() => void onRecordPayment('split_50_second')}
                         >
-                          Mark R50 paid (2nd)
+                          Mark {formatPaymentRand(PAYMENT_INSTALLMENT_CENTS)} paid (2nd)
                         </button>
                       ) : null}
                     </div>

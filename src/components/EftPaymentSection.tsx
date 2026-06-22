@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { PaymentPlan } from './PaymentPanel'
 import { api, uploadPaymentProof } from '../api/client'
+import {
+  PAYMENT_INSTALLMENT_CENTS,
+  PAYMENT_ONCE_OFF_CENTS,
+  formatPaymentRand,
+} from '../constants/payments'
 import { getEftBankDetails, type EftBankDetails } from '../lib/eftPayment'
 
 type PendingEft = {
@@ -17,11 +22,13 @@ type EftPaymentSectionProps = {
 }
 
 function amountLabelForPlan(plan: PaymentPlan): string {
-  return plan === 'once_off_95' ? 'R95' : 'R50'
+  return plan === 'once_off_95'
+    ? formatPaymentRand(PAYMENT_ONCE_OFF_CENTS)
+    : formatPaymentRand(PAYMENT_INSTALLMENT_CENTS)
 }
 
 function defaultPlan(paidCents: number): PaymentPlan {
-  if (paidCents >= 5000) return 'split_50_second'
+  if (paidCents >= PAYMENT_INSTALLMENT_CENTS) return 'split_50_second'
   return 'once_off_95'
 }
 
@@ -98,8 +105,11 @@ export function EftPaymentSection(props: EftPaymentSectionProps) {
 
   if (!bank) return null
 
-  const hasFirstInstallment = paidCents >= 5000
-  const dueLabel = plan === 'once_off_95' ? 'R95.00' : 'R50.00'
+  const hasFirstInstallment = paidCents >= PAYMENT_INSTALLMENT_CENTS
+  const dueLabel =
+    plan === 'once_off_95'
+      ? `${formatPaymentRand(PAYMENT_ONCE_OFF_CENTS)}.00`
+      : `${formatPaymentRand(PAYMENT_INSTALLMENT_CENTS)}.00`
 
   async function onSubmitProof(e: React.FormEvent) {
     e.preventDefault()
@@ -159,7 +169,7 @@ export function EftPaymentSection(props: EftPaymentSectionProps) {
               checked={plan === 'once_off_95'}
               onChange={() => setPlan('once_off_95')}
             />
-            R95 once-off
+            {formatPaymentRand(PAYMENT_ONCE_OFF_CENTS)} once-off
           </label>
           <label className="eftPlanOption">
             <input
@@ -168,7 +178,7 @@ export function EftPaymentSection(props: EftPaymentSectionProps) {
               checked={plan === 'split_50_first'}
               onChange={() => setPlan('split_50_first')}
             />
-            R50 now (R50 later)
+            {formatPaymentRand(PAYMENT_INSTALLMENT_CENTS)} now ({formatPaymentRand(PAYMENT_INSTALLMENT_CENTS)} later)
           </label>
         </div>
       ) : null}

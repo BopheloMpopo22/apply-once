@@ -3,6 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { EftPaymentSection } from './EftPaymentSection'
 import { isEftPaymentMode } from '../lib/eftPayment'
+import {
+  PAYMENT_FULLY_PAID_CENTS,
+  PAYMENT_INSTALLMENT_CENTS,
+  PAYMENT_ONCE_OFF_CENTS,
+  formatPaymentRand,
+} from '../constants/payments'
 import { getPaymentLinkR50, getPaymentLinkR95, isPaymentLinkMode } from '../lib/paymentLinks'
 import { getYocoPublicKey, loadYocoSdk } from '../lib/yoco'
 
@@ -38,9 +44,9 @@ export function PaymentPanel(props: PaymentPanelProps) {
   const linkR95 = getPaymentLinkR95()
   const linkR50 = getPaymentLinkR50() || linkR95
 
-  if (paidCents >= 9500) return null
+  if (paidCents >= PAYMENT_FULLY_PAID_CENTS) return null
 
-  const hasFirstInstallment = paidCents >= 5000
+  const hasFirstInstallment = paidCents >= PAYMENT_INSTALLMENT_CENTS
   const showOnceOff = !hasFirstInstallment
   const showFirstSplit = !hasFirstInstallment && Boolean(linkR50)
   const showSecondSplit = hasFirstInstallment
@@ -96,14 +102,18 @@ export function PaymentPanel(props: PaymentPanelProps) {
       const YocoSDK = window.YocoSDK
       if (!YocoSDK) throw new Error('Could not load payment form')
       const yoco = new YocoSDK({ publicKey })
-      const amountInCents = plan === 'once_off_95' ? 9500 : 5000
+      const amountInCents =
+        plan === 'once_off_95' ? PAYMENT_ONCE_OFF_CENTS : PAYMENT_INSTALLMENT_CENTS
 
       await new Promise<void>((resolve, reject) => {
         yoco.showPopup({
           amountInCents,
           currency: 'ZAR',
           name: plan === 'once_off_95' ? 'Apply Once application fee' : 'Apply Once application installment',
-          description: plan === 'once_off_95' ? 'Once-off fee (R95)' : 'Installment (R50)',
+          description:
+            plan === 'once_off_95'
+              ? `Once-off fee (${formatPaymentRand(PAYMENT_ONCE_OFF_CENTS)})`
+              : `Installment (${formatPaymentRand(PAYMENT_INSTALLMENT_CENTS)})`,
           callback: (result) => {
             callbackFired = true
             disarmFocusFallback()
@@ -125,7 +135,7 @@ export function PaymentPanel(props: PaymentPanelProps) {
                 await api('/api/payments/yoco/charge', { method: 'POST', json: { token, plan } })
                 const status = await api<{ totalPaidCents: number }>('/api/payments/status')
                 await onRefreshPayment()
-                if (Number(status.totalPaidCents) >= 9500) {
+                if (Number(status.totalPaidCents) >= PAYMENT_FULLY_PAID_CENTS) {
                   navigate('/payment/success', { replace: true, state: { from: successFrom } })
                 }
                 resolve()
@@ -161,15 +171,15 @@ export function PaymentPanel(props: PaymentPanelProps) {
           <span className="muted">
             {eftMode
               ? hasFirstInstallment
-                ? 'Pay the remaining R50 by EFT and upload your proof below.'
-                : 'Pay R95 (or R50 now) by EFT — upload proof when done.'
+                ? `Pay the remaining ${formatPaymentRand(PAYMENT_INSTALLMENT_CENTS)} by EFT and upload your proof below.`
+                : `Pay ${formatPaymentRand(PAYMENT_ONCE_OFF_CENTS)} (or ${formatPaymentRand(PAYMENT_INSTALLMENT_CENTS)} now) by EFT — upload proof when done.`
               : linkMode
               ? hasFirstInstallment
-                ? 'Pay the remaining R50 on our secure Yoco page to fully activate.'
+                ? `Pay the remaining ${formatPaymentRand(PAYMENT_INSTALLMENT_CENTS)} on our secure Yoco page to fully activate.`
                 : 'Pay on Yoco’s secure page — card, Apple Pay, and more.'
               : hasFirstInstallment
-                ? 'Almost there — pay the remaining R50 to fully activate your application.'
-                : 'Pay anytime: R95 once-off, or R50 now and R50 later.'}
+                ? `Almost there — pay the remaining ${formatPaymentRand(PAYMENT_INSTALLMENT_CENTS)} to fully activate your application.`
+                : `Pay anytime: ${formatPaymentRand(PAYMENT_ONCE_OFF_CENTS)} once-off, or ${formatPaymentRand(PAYMENT_INSTALLMENT_CENTS)} now and ${formatPaymentRand(PAYMENT_INSTALLMENT_CENTS)} later.`}
           </span>
           <span className="muted">Paid so far: R{(paidCents / 100).toFixed(2)}</span>
           {eftMode ? (
@@ -198,7 +208,7 @@ export function PaymentPanel(props: PaymentPanelProps) {
                   className="btn btnBrand btnSmall"
                   onClick={() => openPaymentLink(linkR95)}
                 >
-                  Pay R95 securely
+                  Pay {formatPaymentRand(PAYMENT_ONCE_OFF_CENTS)} securely
                 </button>
               ) : null}
               {showFirstSplit ? (
@@ -207,7 +217,7 @@ export function PaymentPanel(props: PaymentPanelProps) {
                   className="btn btnOutline btnSmall"
                   onClick={() => openPaymentLink(linkR50)}
                 >
-                  Pay R50 now
+                  Pay {formatPaymentRand(PAYMENT_INSTALLMENT_CENTS)} now
                 </button>
               ) : null}
               {showSecondSplit ? (
@@ -216,7 +226,7 @@ export function PaymentPanel(props: PaymentPanelProps) {
                   className="btn btnOutline btnSmall"
                   onClick={() => openPaymentLink(linkR50)}
                 >
-                  Pay remaining R50
+                  Pay remaining {formatPaymentRand(PAYMENT_INSTALLMENT_CENTS)}
                 </button>
               ) : null}
             </>
@@ -229,7 +239,7 @@ export function PaymentPanel(props: PaymentPanelProps) {
                   disabled={payBusy || popupOpen}
                   onClick={() => void startYocoPayment('once_off_95')}
                 >
-                  {payBusy ? 'Opening…' : 'Pay R95'}
+                  {payBusy ? 'Opening…' : `Pay ${formatPaymentRand(PAYMENT_ONCE_OFF_CENTS)}`}
                 </button>
               ) : null}
               {showFirstSplit ? (
@@ -239,7 +249,7 @@ export function PaymentPanel(props: PaymentPanelProps) {
                   disabled={payBusy || popupOpen}
                   onClick={() => void startYocoPayment('split_50_first')}
                 >
-                  Pay R50 now
+                  Pay {formatPaymentRand(PAYMENT_INSTALLMENT_CENTS)} now
                 </button>
               ) : null}
               {showSecondSplit ? (
@@ -249,7 +259,7 @@ export function PaymentPanel(props: PaymentPanelProps) {
                   disabled={payBusy || popupOpen}
                   onClick={() => void startYocoPayment('split_50_second')}
                 >
-                  {payBusy ? 'Opening…' : 'Pay remaining R50'}
+                  {payBusy ? 'Opening…' : `Pay remaining ${formatPaymentRand(PAYMENT_INSTALLMENT_CENTS)}`}
                 </button>
               ) : null}
             </>

@@ -30,10 +30,10 @@ Run `scripts/supabase-payments-table.sql` in Supabase SQL Editor.
 ### 4) How it works in the website
 
 - Student completes application (100%) → payment banner appears:
-  - **Pay R95 once-off**, OR
-  - **Pay R50 now** then **Pay remaining R50** later
+  - **Pay R60 once-off**, OR
+  - **Pay R40 now** then **Pay remaining R40** later
 - Admin student list shows payment status:
-  - **PAID**: \(\ge R95\)
-  - **PART**: \(\ge R50\) but < R95
-  - **UNPAID**: < R50
+  - **PAID**: \(\ge R60\)
+  - **PART**: \(\ge R40\) but < R60
+  - **UNPAID**: < R40
 

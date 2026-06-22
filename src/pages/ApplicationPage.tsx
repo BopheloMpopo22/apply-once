@@ -15,6 +15,7 @@ import { Navbar } from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
 import { computeCompletion } from '../utils/applicationCompletion'
 import { PaymentPanel } from '../components/PaymentPanel'
+import { PAYMENT_FULLY_PAID_CENTS } from '../constants/payments'
 
 type ApplicationUiMeta = {
   navigationMode?: ApplicationNavMode
@@ -180,7 +181,7 @@ export function ApplicationPage() {
       const s = await api<{ totalPaidCents: number }>('/api/payments/status')
       const total = Number(s.totalPaidCents) || 0
       setPaidCents(total)
-      if (total >= 9500) setShowPayPrompt(false)
+      if (total >= PAYMENT_FULLY_PAID_CENTS) setShowPayPrompt(false)
     } catch {
       // ignore
     }
@@ -327,7 +328,7 @@ export function ApplicationPage() {
     const isLast = step >= STEP_LABELS.length - 1
     const next = Math.min(step + 1, STEP_LABELS.length - 1)
     await persist(next)
-    if (isLast && paidCents < 9500) setShowPayPrompt(true)
+    if (isLast && paidCents < PAYMENT_FULLY_PAID_CENTS) setShowPayPrompt(true)
   }
 
   async function onBack() {
@@ -380,7 +381,7 @@ export function ApplicationPage() {
     const isLast = sectionIndex >= STEP_LABELS.length - 1
     const next = advance && !isLast ? sectionIndex + 1 : sectionIndex
     await persist(next)
-    if (isLast && advance && paidCents < 9500) setShowPayPrompt(true)
+    if (isLast && advance && paidCents < PAYMENT_FULLY_PAID_CENTS) setShowPayPrompt(true)
     if (advance && navMode === 'vertical' && !isLast) {
       requestAnimationFrame(() => scrollToStep(next))
     }
@@ -1313,7 +1314,7 @@ export function ApplicationPage() {
         </div>
       </main>
 
-      {showPayPrompt && paidCents < 9500 ? (
+      {showPayPrompt && paidCents < PAYMENT_FULLY_PAID_CENTS ? (
         <div id="app-payment-panel">
           <PaymentPanel
             variant="sticky"

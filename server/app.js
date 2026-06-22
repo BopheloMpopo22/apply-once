@@ -24,6 +24,14 @@ import {
   rowToBursary,
   syncBursaryCatalogue,
 } from './bursaryMatch.js'
+import {
+  PAYMENT_FULLY_PAID_CENTS,
+  PAYMENT_INSTALLMENT_CENTS,
+  PAYMENT_ONCE_OFF_CENTS,
+  PAYMENT_SPLIT_TOTAL_CENTS,
+  paymentAmountCentsForPlan,
+  paymentAmountLabelForPlan,
+} from './paymentAmounts.js'
 const YOCO_SECRET_KEY = String(process.env.YOCO_SECRET_KEY || '').trim()
 const RESEND_API_KEY = String(process.env.RESEND_API_KEY || '').trim()
 const EMAIL_FROM = String(process.env.EMAIL_FROM || 'Apply Once <onboarding@resend.dev>').trim()
@@ -733,8 +741,8 @@ app.get('/api/profile/bootstrap', authMiddleware, async (req, res) => {
         },
     payments: {
       totalPaidCents,
-      paidR95: totalPaidCents >= 9500,
-      needsPayment: totalPaidCents < 9500,
+      paidR95: totalPaidCents >= PAYMENT_FULLY_PAID_CENTS,
+      needsPayment: totalPaidCents < PAYMENT_FULLY_PAID_CENTS,
       pendingEft: pendingEft
         ? {
             id: pendingEft.id,
@@ -782,10 +790,10 @@ app.get('/api/payments/status', authMiddleware, async (req, res) => {
   res.json({
     rows,
     totalPaidCents,
-    paidR95: totalPaidCents >= 9500,
-    paidSplitTotal: totalPaidCents >= 10000,
-    paidSplitFirst: totalPaidCents >= 5000,
-    needsPayment: totalPaidCents < 9500,
+    paidR95: totalPaidCents >= PAYMENT_FULLY_PAID_CENTS,
+    paidSplitTotal: totalPaidCents >= PAYMENT_SPLIT_TOTAL_CENTS,
+    paidSplitFirst: totalPaidCents >= PAYMENT_INSTALLMENT_CENTS,
+    needsPayment: totalPaidCents < PAYMENT_FULLY_PAID_CENTS,
     pendingEft: pendingEft
       ? {
           id: pendingEft.id,
@@ -841,14 +849,14 @@ app.post('/api/payments/eft/proof', authMiddleware, paymentProofUploadMiddleware
       select: { amountPaidCents: true },
     })
     const totalPaidCents = sumPaidCents(paidRows)
-    if (totalPaidCents >= 9500) {
+    if (totalPaidCents >= PAYMENT_FULLY_PAID_CENTS) {
       return res.status(400).json({ error: 'Your application fee is already paid' })
     }
-    if (plan === 'split_50_second' && totalPaidCents < 5000) {
-      return res.status(400).json({ error: 'Pay the first R50 installment before the second' })
+    if (plan === 'split_50_second' && totalPaidCents < PAYMENT_INSTALLMENT_CENTS) {
+      return res.status(400).json({ error: 'Pay the first R40 installment before the second' })
     }
-    if (plan !== 'split_50_second' && totalPaidCents >= 5000) {
-      return res.status(400).json({ error: 'Use the remaining R50 installment option' })
+    if (plan !== 'split_50_second' && totalPaidCents >= PAYMENT_INSTALLMENT_CENTS) {
+      return res.status(400).json({ error: 'Use the remaining R40 installment option' })
     }
 
     const existingPending = await prisma.payment.findFirst({
@@ -883,8 +891,8 @@ app.post('/api/payments/eft/proof', authMiddleware, paymentProofUploadMiddleware
       select: { id: true, filename: true, createdAt: true },
     })
 
-    const amountInCents = plan === 'once_off_95' ? 9500 : 5000
-    const amountLabel = plan === 'once_off_95' ? 'R95' : 'R50'
+    const amountInCents = paymentAmountCentsForPlan(plan)
+    const amountLabel = paymentAmountLabelForPlan(plan)
     const eftReference = buildEftPaymentReference(user.profile, user.email)
 
     const payment = await prisma.payment.create({
@@ -943,7 +951,7 @@ app.post('/api/payments/yoco/charge', authMiddleware, async (req, res) => {
   if (!['once_off_95', 'split_50_first', 'split_50_second'].includes(plan)) {
     return res.status(400).json({ error: 'Invalid payment plan' })
   }
-  const amountInCents = plan === 'once_off_95' ? 9500 : 5000
+  const amountInCents = paymentAmountCentsForPlan(plan)
 
   const payment = await prisma.payment.create({
     data: {
@@ -1843,7 +1851,7 @@ app.post('/api/admin/students/:id/payments/record', adminMiddleware, async (req,
   const user = await prisma.user.findUnique({ where: { id }, select: { id: true, email: true } })
   if (!user) return res.status(404).json({ error: 'Student not found' })
 
-  const amountInCents = plan === 'once_off_95' ? 9500 : 5000
+  const amountInCents = paymentAmountCentsForPlan(plan)
   const note = String(req.body?.note || '').trim()
 
   const hadPendingEft = await prisma.payment.count({
