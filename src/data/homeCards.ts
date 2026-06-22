@@ -1,5 +1,4 @@
 import { HOME_PRIMARY_IMAGES } from '../utils/preloadHomeAssets'
-import vacationWorkImg from '../assets/Vacation Work and Internships.png'
 import { HUB_REGISTRY } from './hubs/hubRegistry'
 
 /** Home page card imagery — Unsplash (free to use with attribution in production). */
@@ -30,8 +29,8 @@ export const HOME_PRIMARY_CARDS = [
     title: 'Programmes for work',
     description:
       'Graduate programmes, internships, vacation work, skills courses & job agencies — built for SA students.',
-    image: vacationWorkImg,
-    imageAlt: 'Student work and internship opportunities',
+    image: HOME_PRIMARY_IMAGES.workPrograms,
+    imageAlt: 'Work programmes for South African students',
     href: '/programmes-for-work',
     hoverTheme: 'green' as const,
   },

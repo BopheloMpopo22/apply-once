@@ -1,6 +1,7 @@
 import applicationFormImg from '../assets/application-logos.png'
 import floatingImage from '../assets/floating-image.png'
 import varsityCalculatorImg from '../assets/Varsity-calculator.png'
+import workProgramsImg from '../assets/Work programs.png'
 
 /** Critical above-the-fold homepage images — preloaded before first paint when possible. */
 export const HOME_HERO_IMAGE = floatingImage
@@ -8,9 +9,10 @@ export const HOME_HERO_IMAGE = floatingImage
 export const HOME_PRIMARY_IMAGES = {
   application: applicationFormImg,
   varsityCalculator: varsityCalculatorImg,
+  workPrograms: workProgramsImg,
 } as const
 
-const CRITICAL_HOME_IMAGES = [floatingImage, applicationFormImg, varsityCalculatorImg] as const
+const CRITICAL_HOME_IMAGES = [floatingImage, applicationFormImg, varsityCalculatorImg, workProgramsImg] as const
 
 function injectPreloadLinks() {
   for (const href of CRITICAL_HOME_IMAGES) {
