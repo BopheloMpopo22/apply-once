@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { CareerAgenciesPanel } from '../components/careerHub/CareerAgenciesPanel'
@@ -16,23 +16,38 @@ import {
 import type { CareerListingType, CareerProfile } from '../types/careerHub'
 import { readCareerProfile } from '../utils/careerHub/profileStorage'
 
+const LISTINGS_PAGE_SIZE = 5
+
 export function CareerProgrammesPage() {
   const hubData = useMemo(() => getCareerHubData(), [])
   const [profile, setProfile] = useState<CareerProfile | null>(() => readCareerProfile())
   const [showWizard, setShowWizard] = useState(() => !readCareerProfile())
   const [listingType, setListingType] = useState<CareerListingType | 'all'>('all')
   const [search, setSearch] = useState('')
+  const [visibleCount, setVisibleCount] = useState(LISTINGS_PAGE_SIZE)
 
   const filtered = useMemo(
     () => filterListings(hubData.listings, listingType, search),
     [hubData.listings, listingType, search],
   )
 
+  const visibleListings = useMemo(
+    () => filtered.slice(0, visibleCount),
+    [filtered, visibleCount],
+  )
+
+  const remainingCount = Math.max(0, filtered.length - visibleCount)
+
+  useEffect(() => {
+    setVisibleCount(LISTINGS_PAGE_SIZE)
+  }, [listingType, search])
+
   const counts = useMemo(() => {
     return {
       graduate: hubData.listings.filter((l) => l.type === 'graduate').length,
       internship: hubData.listings.filter((l) => l.type === 'internship').length,
       vacation: hubData.listings.filter((l) => l.type === 'vacation').length,
+      learnership: hubData.listings.filter((l) => l.type === 'learnership').length,
       open: hubData.listings.filter((l) => l.status === 'open' || l.status === 'rolling').length,
     }
   }, [hubData.listings])
@@ -124,6 +139,9 @@ export function CareerProgrammesPage() {
                   <option value="vacation">
                     {CAREER_LISTING_TYPE_LABELS.vacation} ({counts.vacation})
                   </option>
+                  <option value="learnership">
+                    {CAREER_LISTING_TYPE_LABELS.learnership} ({counts.learnership})
+                  </option>
                 </select>
               </label>
               <input
@@ -144,9 +162,21 @@ export function CareerProgrammesPage() {
               {filtered.length === 0 ? (
                 <p className="formLead">No matches — try another filter or search term.</p>
               ) : (
-                filtered.map((listing) => <CareerListingCard key={listing.id} listing={listing} />)
+                visibleListings.map((listing) => <CareerListingCard key={listing.id} listing={listing} />)
               )}
             </div>
+
+            {remainingCount > 0 ? (
+              <div className="careerListingMoreWrap">
+                <button
+                  type="button"
+                  className="btn btnOutline btnSmall careerListingMoreBtn"
+                  onClick={() => setVisibleCount((count) => count + LISTINGS_PAGE_SIZE)}
+                >
+                  Show more ({remainingCount} remaining)
+                </button>
+              </div>
+            ) : null}
           </div>
 
           <div className="careerHubRight">

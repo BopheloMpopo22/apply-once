@@ -5669,11 +5669,11 @@ body {
 
 .homePrimaryCardArt {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 300px;
-  padding: 28px 32px 16px;
+  padding: 12px 14px 8px;
   background: #f1f5f9;
   transition: background var(--transition);
   overflow: hidden;
@@ -5684,10 +5684,13 @@ body {
 }
 
 .homePrimaryCardImg {
-  width: auto;
-  max-width: 72%;
-  max-height: 228px;
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  max-width: 100%;
+  max-height: none;
   object-fit: contain;
+  object-position: center;
   display: block;
   border-radius: 14px;
   transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
@@ -7882,7 +7885,11 @@ body.navMenuOpen {
 
   .homePrimaryCardArt {
     min-height: 170px;
-    padding: 18px 18px 12px;
+    padding: 12px 14px 8px;
+  }
+
+  .homePrimaryCardImg {
+    min-height: 140px;
   }
 
   .homePrimaryGrid {
@@ -8157,7 +8164,11 @@ body.navMenuOpen {
 
   .homePrimaryCardArt {
     min-height: 150px;
-    padding: 16px 16px 10px;
+    padding: 10px 12px 8px;
+  }
+
+  .homePrimaryCardImg {
+    min-height: 120px;
   }
 
   .homeSelectCardTitle {
@@ -8397,6 +8408,16 @@ body.navMenuOpen {
   font-size: 12px;
 }
 
+.careerListingMoreWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-4);
+}
+
+.careerListingMoreBtn {
+  min-width: 220px;
+}
+
 .careerProfileCard {
   border-radius: 18px;
   border: 2px solid rgba(33, 50, 230, 0.14);
@@ -8618,13 +8639,50 @@ body.navMenuOpen {
 
 .careerWizardField {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   font-size: 14px;
+}
+
+.careerWizardField > span {
+  font-weight: 650;
+  color: rgba(15, 23, 42, 0.82);
+}
+
+.careerWizardField input,
+.careerWizardField textarea,
+.careerWizardField select {
+  width: 100%;
+  border: 2px solid rgba(33, 50, 230, 0.14);
+  border-radius: 18px;
+  padding: 14px 16px;
+  font: inherit;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  color: var(--text);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.careerWizardField input::placeholder,
+.careerWizardField textarea::placeholder {
+  color: rgba(15, 23, 42, 0.42);
+}
+
+.careerWizardField input:focus,
+.careerWizardField textarea:focus,
+.careerWizardField select:focus {
+  outline: none;
+  border-color: var(--hfc-blue);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(33, 50, 230, 0.12);
 }
 
 .careerWizardTextarea {
   resize: vertical;
-  min-height: 96px;
+  min-height: 110px;
+  border-radius: 20px;
+  line-height: 1.5;
 }
 
 .careerWizardCheck {

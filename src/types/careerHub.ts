@@ -6,7 +6,7 @@ export type CareerStage =
   | 'in_university'
   | 'finished_university'
 
-export type CareerListingType = 'graduate' | 'internship' | 'vacation'
+export type CareerListingType = 'graduate' | 'internship' | 'vacation' | 'learnership'
 
 export type ListingApplicationStatus = 'open' | 'expired' | 'rolling'
 

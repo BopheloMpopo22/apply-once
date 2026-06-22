@@ -1,4 +1,5 @@
 import { COURSES } from '../hubs/coursesData'
+import { LEARNERSHIPS } from '../hubs/learnershipsData'
 import { VACATION_WORK } from '../hubs/vacationWorkData'
 import type { CareerListing, CareerListingType, GraduateProgrammeSource } from '../../types/careerHub'
 import type { HubListingEntry } from '../../types/hubs'
@@ -61,8 +62,13 @@ function fromGraduateSource(entry: GraduateProgrammeSource): CareerListing {
 
 const vacationListings = VACATION_WORK.map((e) => fromHubListing(e, inferVacationType(e)))
 const graduateListings = GRADUATE_PROGRAMME_SOURCES.map(fromGraduateSource)
+const learnershipListings = LEARNERSHIPS.map((e) => fromHubListing(e, 'learnership'))
 
-export const CAREER_LISTINGS: CareerListing[] = [...graduateListings, ...vacationListings].sort((a, b) => {
+export const CAREER_LISTINGS: CareerListing[] = [
+  ...graduateListings,
+  ...vacationListings,
+  ...learnershipListings,
+].sort((a, b) => {
   const order = { open: 0, rolling: 1, expired: 2 }
   const statusDiff = order[a.status] - order[b.status]
   if (statusDiff !== 0) return statusDiff
@@ -73,6 +79,7 @@ export const CAREER_LISTING_TYPE_LABELS: Record<CareerListingType, string> = {
   graduate: 'Graduate programmes',
   internship: 'Internships',
   vacation: 'Vacation work',
+  learnership: 'Learnerships',
 }
 
 export function getCareerHubData() {
