@@ -21,6 +21,7 @@ model User {
   updatedAt         DateTime @updatedAt
   profile           Profile?
   careerQuestionnaire CareerQuestionnaire?
+  workProgrammeProfile WorkProgrammeProfile?
   payments          Payment[]
   application       ApplicationDraft?
   documents         Document[]
@@ -101,6 +102,23 @@ model CareerQuestionnaire {
   scholarshipCount  Int?
   matchedAt         DateTime?
   updatedAt   DateTime  @updatedAt
+}
+
+/// Programmes-for-work questionnaire (career hub).
+model WorkProgrammeProfile {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stage             String
+  province          String
+  locationDetail    String    @default("")
+  interests         String    @default("")
+  fieldOfStudy      String    @default("")
+  stillInHighSchool Boolean   @default(false)
+  jobInterests      String    @default("")
+  displayName       String    @default("")
+  completedAt       DateTime?
+  updatedAt         DateTime  @updatedAt
 }
 
 /// Curated SA bursaries & scholarships we may apply to on behalf of students.

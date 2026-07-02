@@ -643,6 +643,7 @@ app.get('/api/profile/bootstrap', authMiddleware, async (req, res) => {
     paidRows,
     pendingEft,
     profileRow,
+    workProgrammeRow,
   ] = await Promise.all([
     prisma.profileInboxItem.findMany({
       where: { userId },
@@ -689,6 +690,7 @@ app.get('/api/profile/bootstrap', authMiddleware, async (req, res) => {
       where: { userId },
       select: { lastName: true, phone: true },
     }),
+    prisma.workProgrammeProfile.findUnique({ where: { userId } }),
   ])
 
   let applicationPayload = {}
@@ -754,6 +756,7 @@ app.get('/api/profile/bootstrap', authMiddleware, async (req, res) => {
         : null,
     },
     eftReference: buildEftPaymentReference(profileRow, user?.email || ''),
+    workProgrammeProfile: workProgrammeRow ? workProgrammeRowToJson(workProgrammeRow) : null,
   })
 })
 
@@ -1246,6 +1249,76 @@ app.post('/api/questionnaire/match', authMiddleware, async (req, res) => {
   const catalogue = rows.map(rowToBursary)
   const match = matchOpenOpportunities(answers, catalogue)
   res.json(match)
+})
+
+const WORK_PROGRAMME_STAGES = new Set([
+  'in_matric',
+  'finished_matric',
+  'in_university',
+  'finished_university',
+])
+
+function workProgrammeRowToJson(row) {
+  return {
+    stage: row.stage,
+    province: row.province,
+    locationDetail: row.locationDetail || '',
+    interests: row.interests || '',
+    fieldOfStudy: row.fieldOfStudy || '',
+    stillInHighSchool: Boolean(row.stillInHighSchool),
+    jobInterests: row.jobInterests || '',
+    displayName: row.displayName || '',
+    completedAt: row.completedAt ? row.completedAt.toISOString() : new Date().toISOString(),
+  }
+}
+
+function parseWorkProgrammeProfileBody(body) {
+  const stage = typeof body?.stage === 'string' ? body.stage.trim() : ''
+  if (!WORK_PROGRAMME_STAGES.has(stage)) {
+    return { error: 'Invalid study stage.' }
+  }
+  const province = typeof body?.province === 'string' ? body.province.trim() : ''
+  if (!province) return { error: 'Province is required.' }
+  const displayName = typeof body?.displayName === 'string' ? body.displayName.trim() : ''
+  if (!displayName) return { error: 'Display name is required.' }
+  const interests = typeof body?.interests === 'string' ? body.interests.trim() : ''
+  const jobInterests = typeof body?.jobInterests === 'string' ? body.jobInterests.trim() : ''
+  if (interests.length < 2) return { error: 'Please share your interests.' }
+  if (jobInterests.length < 2) return { error: 'Please share your job interests.' }
+  return {
+    data: {
+      stage,
+      province,
+      locationDetail: typeof body?.locationDetail === 'string' ? body.locationDetail.trim() : '',
+      interests,
+      fieldOfStudy: typeof body?.fieldOfStudy === 'string' ? body.fieldOfStudy.trim() : '',
+      stillInHighSchool: Boolean(body?.stillInHighSchool),
+      jobInterests,
+      displayName,
+      completedAt: new Date(),
+    },
+  }
+}
+
+app.get('/api/work-programmes/profile', authMiddleware, async (req, res) => {
+  const row = await prisma.workProgrammeProfile.findUnique({ where: { userId: req.userId } })
+  res.json({ profile: row ? workProgrammeRowToJson(row) : null })
+})
+
+app.put('/api/work-programmes/profile', authMiddleware, async (req, res) => {
+  const parsed = parseWorkProgrammeProfileBody(req.body)
+  if (parsed.error) return res.status(400).json({ error: parsed.error })
+  const row = await prisma.workProgrammeProfile.upsert({
+    where: { userId: req.userId },
+    create: { userId: req.userId, ...parsed.data },
+    update: parsed.data,
+  })
+  res.json({ profile: workProgrammeRowToJson(row) })
+})
+
+app.delete('/api/work-programmes/profile', authMiddleware, async (req, res) => {
+  await prisma.workProgrammeProfile.deleteMany({ where: { userId: req.userId } })
+  res.json({ ok: true })
 })
 
 app.get('/api/application', authMiddleware, async (req, res) => {

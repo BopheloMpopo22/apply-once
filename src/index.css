@@ -8297,7 +8297,7 @@ body.navMenuOpen {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
-  align-items: end;
+  align-items: center;
 }
 
 .careerHubFilter {
@@ -8697,6 +8697,110 @@ body.navMenuOpen {
   justify-content: space-between;
   gap: var(--space-3);
   margin-top: var(--space-5);
+}
+
+.careerListingsBoard {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.careerSectionJump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: var(--space-2);
+}
+
+.careerSectionJumpLink {
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 650;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(33, 50, 230, 0.16);
+  background: rgba(33, 50, 230, 0.06);
+  color: var(--hfc-blue);
+}
+
+.careerListingSection {
+  padding-top: var(--space-2);
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.careerListingSection:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.careerListingSectionHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.careerListingSectionTitle {
+  margin: 0;
+  font-size: 20px;
+}
+
+.careerListingSectionMeta {
+  margin: 4px 0 0;
+  font-size: 13px;
+}
+
+.careerListingSectionEmpty {
+  margin: 0;
+  font-size: 14px;
+}
+
+.careerListingGridSection {
+  gap: var(--space-3);
+}
+
+.careerListingMoreWrapSection {
+  margin-top: var(--space-3);
+}
+
+.careerListingEligibility {
+  margin: 0 0 var(--space-2);
+  font-size: 12px;
+}
+
+.careerHubBrowseAll {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.careerWizardOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.careerWizardOverlayInner {
+  position: relative;
+  width: min(600px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+}
+
+.careerWizardOverlayClose {
+  display: block;
+  margin: var(--space-3) auto 0;
+}
+
+.profileWorkFacts {
+  margin-top: var(--space-3);
 }
 
 @media (max-width: 1100px) {

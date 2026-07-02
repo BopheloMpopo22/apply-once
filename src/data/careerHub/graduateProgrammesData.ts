@@ -27,6 +27,8 @@ export const GRADUATE_PROGRAMME_SOURCES: GraduateProgrammeSource[] = [
     ],
     applicationOpens: 'Typically Feb–Apr for following year intake',
     applicationCloses: 'Confirm on Discovery careers — usually mid-year',
+    opensOn: '2026-02-01',
+    closesOn: '2026-06-30',
     duration: '12–24 months',
     compensation: 'Market-related graduate salary + benefits',
     links: [
@@ -49,6 +51,8 @@ export const GRADUATE_PROGRAMME_SOURCES: GraduateProgrammeSource[] = [
     whoCanApply: ['Final-year BCom, BSc, BEng, LLB, IT degrees', 'SA citizen or valid work permit'],
     applicationOpens: 'Usually opens Q1 each year',
     applicationCloses: 'Rolling per stream — watch early careers portal',
+    opensOn: '2026-01-15',
+    closesOn: '2026-05-31',
     duration: '18–24 months',
     compensation: 'Graduate package + banking benefits',
     links: [

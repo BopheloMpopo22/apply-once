@@ -12,11 +12,14 @@ import { api, getBearerToken, uploadAvatar } from '../api/client'
 import { compressAvatarImage } from '../utils/compressAvatarImage'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import type { QuestionnaireState } from '../components/application/ApplicationQuestionnaire'
+import type { CareerProfile } from '../types/careerHub'
 import { ChatThread, type ChatMessage } from '../components/ChatThread'
 import { ProfileCareerGoals } from '../components/profile/ProfileCareerGoals'
+import { ProfileWorkProgrammes } from '../components/profile/ProfileWorkProgrammes'
 import { Navbar } from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
 import { computeCompletion } from '../utils/applicationCompletion'
+import { writeCareerProfile } from '../utils/careerHub/profileStorage'
 import { PaymentPanel } from '../components/PaymentPanel'
 import { ProfileLoadingShell } from '../components/ProfileLoadingShell'
 
@@ -75,6 +78,7 @@ export function ProfilePage() {
   const [error, setError] = useState<string | null>(null)
   const [draftPayload, setDraftPayload] = useState<Record<string, unknown>>({})
   const [questionnaire, setQuestionnaire] = useState<QuestionnaireState | null>(null)
+  const [workProgrammeProfile, setWorkProgrammeProfile] = useState<CareerProfile | null>(null)
   const [chat, setChat] = useState<ChatMessage[]>([])
   const [chatDraft, setChatDraft] = useState('')
   const [chatBusy, setChatBusy] = useState(false)
@@ -112,6 +116,7 @@ export function ProfilePage() {
         application: { stepIndex: number; payload?: unknown }
         chat: ChatMessage[]
         questionnaire: QuestionnaireState
+        workProgrammeProfile: CareerProfile | null
         payments: { totalPaidCents: number }
       }>('/api/profile/bootstrap')
       setItems(data.inbox)
@@ -138,6 +143,10 @@ export function ProfilePage() {
         scholarshipCount: q.scholarshipCount ?? null,
         matchedAt: q.matchedAt ?? null,
       })
+      setWorkProgrammeProfile(data.workProgrammeProfile ?? null)
+      if (data.workProgrammeProfile) {
+        writeCareerProfile(data.workProgrammeProfile)
+      }
       setPaidCents(Number(data.payments.totalPaidCents) || 0)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not load profile')
@@ -432,6 +441,8 @@ export function ProfilePage() {
             </section>
 
             <ProfileCareerGoals initial={questionnaire} onUpdated={setQuestionnaire} />
+
+            <ProfileWorkProgrammes profile={workProgrammeProfile} />
 
             <section className="profilePanel profilePanelChat" aria-labelledby="profile-chat-heading">
               <div className="profilePanelHead profilePanelHeadChat">

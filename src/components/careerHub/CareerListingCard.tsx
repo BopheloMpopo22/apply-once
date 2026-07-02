@@ -1,18 +1,23 @@
 import type { CareerListing } from '../../types/careerHub'
 import { listingStatusLabel } from '../../utils/careerHub/listingStatus'
+import { formatListingDate } from '../../utils/careerHub/parseListingDates'
 
 type CareerListingCardProps = {
   listing: CareerListing
+  showEligibilityHint?: boolean
 }
 
 export function CareerListingCard(props: CareerListingCardProps) {
-  const { listing } = props
+  const { listing, showEligibilityHint = false } = props
   const statusClass =
     listing.status === 'open'
       ? 'careerListingStatusOpen'
       : listing.status === 'rolling'
         ? 'careerListingStatusRolling'
         : 'careerListingStatusExpired'
+
+  const opensLabel = formatListingDate(listing.opensOn)
+  const closesLabel = formatListingDate(listing.closesOn)
 
   return (
     <article className="careerListingCard">
@@ -23,6 +28,9 @@ export function CareerListingCard(props: CareerListingCardProps) {
         </div>
         <span className={`careerListingStatus ${statusClass}`}>{listingStatusLabel(listing.status)}</span>
       </div>
+      {showEligibilityHint ? (
+        <p className="careerListingEligibility muted">Usually for a different study stage — confirm on the official site.</p>
+      ) : null}
       <p className="careerListingSummary">{listing.summary}</p>
       <p className="careerListingMeta muted">
         📍 {listing.location} · ⏱ {listing.duration} · 💰 {listing.compensation}
@@ -51,7 +59,9 @@ export function CareerListingCard(props: CareerListingCardProps) {
       </div>
       {listing.applicationCloses ? (
         <p className="careerListingDates muted">
-          Opens: {listing.applicationOpens} · Closes: {listing.applicationCloses}
+          {opensLabel ? `Opens ${opensLabel}` : `Opens: ${listing.applicationOpens}`}
+          {' · '}
+          {closesLabel ? `Closes ${closesLabel}` : `Closes: ${listing.applicationCloses}`}
         </p>
       ) : null}
     </article>

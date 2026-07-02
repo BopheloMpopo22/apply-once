@@ -7,7 +7,8 @@ import {
 } from '../../utils/careerHub/profileStorage'
 
 type CareerProfileWizardProps = {
-  onComplete: (profile: CareerProfile) => void
+  initialProfile?: CareerProfile | null
+  onComplete: (profile: CareerProfile) => void | Promise<void>
 }
 
 const STEPS = [
@@ -19,16 +20,18 @@ const STEPS = [
 ] as const
 
 export function CareerProfileWizard(props: CareerProfileWizardProps) {
-  const { onComplete } = props
+  const { initialProfile, onComplete } = props
   const [step, setStep] = useState(0)
-  const [stage, setStage] = useState<CareerStage | ''>('')
-  const [province, setProvince] = useState('')
-  const [locationDetail, setLocationDetail] = useState('')
-  const [interests, setInterests] = useState('')
-  const [fieldOfStudy, setFieldOfStudy] = useState('')
-  const [stillInHighSchool, setStillInHighSchool] = useState(false)
-  const [jobInterests, setJobInterests] = useState('')
-  const [displayName, setDisplayName] = useState('')
+  const [stage, setStage] = useState<CareerStage | ''>(initialProfile?.stage ?? '')
+  const [province, setProvince] = useState(initialProfile?.province ?? '')
+  const [locationDetail, setLocationDetail] = useState(initialProfile?.locationDetail ?? '')
+  const [interests, setInterests] = useState(initialProfile?.interests ?? '')
+  const [fieldOfStudy, setFieldOfStudy] = useState(
+    initialProfile?.stillInHighSchool ? '' : (initialProfile?.fieldOfStudy ?? ''),
+  )
+  const [stillInHighSchool, setStillInHighSchool] = useState(initialProfile?.stillInHighSchool ?? false)
+  const [jobInterests, setJobInterests] = useState(initialProfile?.jobInterests ?? '')
+  const [displayName, setDisplayName] = useState(initialProfile?.displayName ?? '')
 
   const progress = ((step + 1) / STEPS.length) * 100
   const current = STEPS[step]
@@ -60,7 +63,7 @@ export function CareerProfileWizard(props: CareerProfileWizardProps) {
       completedAt: new Date().toISOString(),
     }
     writeCareerProfile(profile)
-    onComplete(profile)
+    void onComplete(profile)
   }
 
   function onNext() {

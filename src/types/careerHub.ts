@@ -36,11 +36,16 @@ export type CareerListing = {
   whoCanApply: string[]
   applicationOpens: string
   applicationCloses: string
+  /** Parsed or curated ISO date (YYYY-MM-DD) for sorting. */
+  opensOn: string | null
+  closesOn: string | null
   status: ListingApplicationStatus
   duration: string
   compensation: string
   links: HubResourceLink[]
   notes: string
+  eligibleStages: CareerStage[]
+  popularityRank: number
 }
 
 export type CareerAgency = {
@@ -69,4 +74,7 @@ export type GraduateProgrammeSource = Omit<
   type?: CareerListingType
   province?: string
   organisation?: string
+  opensOn?: string
+  closesOn?: string
+  eligibleStages?: CareerStage[]
 }

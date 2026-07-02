@@ -1,13 +1,14 @@
 import type { CareerProfile } from '../../types/careerHub'
-import { CAREER_STAGE_OPTIONS, clearCareerProfile } from '../../utils/careerHub/profileStorage'
+import { CAREER_STAGE_OPTIONS } from '../../utils/careerHub/profileStorage'
 
 type CareerProfileCardProps = {
   profile: CareerProfile
   onEdit: () => void
+  onClear: () => void
 }
 
 export function CareerProfileCard(props: CareerProfileCardProps) {
-  const { profile, onEdit } = props
+  const { profile, onEdit, onClear } = props
   const stageLabel = CAREER_STAGE_OPTIONS.find((s) => s.value === profile.stage)?.label ?? profile.stage
   const stageEmoji = CAREER_STAGE_OPTIONS.find((s) => s.value === profile.stage)?.emoji ?? '👤'
 
@@ -50,10 +51,7 @@ export function CareerProfileCard(props: CareerProfileCardProps) {
         <button
           type="button"
           className="btn btnGhost btnSmall"
-          onClick={() => {
-            clearCareerProfile()
-            onEdit()
-          }}
+          onClick={onClear}
         >
           Start over
         </button>

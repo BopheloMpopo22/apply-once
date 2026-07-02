@@ -3,9 +3,18 @@ import { LEARNERSHIPS } from '../hubs/learnershipsData'
 import { VACATION_WORK } from '../hubs/vacationWorkData'
 import type { CareerListing, CareerListingType, GraduateProgrammeSource } from '../../types/careerHub'
 import type { HubListingEntry } from '../../types/hubs'
+import { defaultEligibleStages } from '../../utils/careerHub/listingEligibility'
 import { deriveListingStatus } from '../../utils/careerHub/listingStatus'
+import { parseListingDates } from '../../utils/careerHub/parseListingDates'
+import { sortListings } from '../../utils/careerHub/listingSort'
 import { CAREER_AGENCIES } from './agenciesData'
 import { GRADUATE_PROGRAMME_SOURCES } from './graduateProgrammesData'
+
+type ListingSource = HubListingEntry & {
+  opensOn?: string
+  closesOn?: string
+  eligibleStages?: GraduateProgrammeSource['eligibleStages']
+}
 
 function inferVacationType(entry: HubListingEntry): CareerListingType {
   const text = `${entry.id} ${entry.name} ${entry.summary}`.toLowerCase()
@@ -14,66 +23,64 @@ function inferVacationType(entry: HubListingEntry): CareerListingType {
   return 'internship'
 }
 
-function fromHubListing(entry: HubListingEntry, type: CareerListingType): CareerListing {
+function enrichListing(
+  entry: ListingSource,
+  type: CareerListingType,
+  extras?: { organisation?: string; province?: string },
+): CareerListing {
+  const dates = parseListingDates(entry.applicationOpens, entry.applicationCloses, {
+    opensOn: entry.opensOn ?? null,
+    closesOn: entry.closesOn ?? null,
+  })
+
   return {
     id: entry.id,
     type,
     name: entry.name,
     shortName: entry.shortName,
-    organisation: entry.shortName,
+    organisation: extras?.organisation ?? entry.shortName,
     location: entry.location,
-    province: entry.location.includes('National') ? 'National' : entry.location.split(',')[0]?.trim() || 'National',
+    province:
+      extras?.province ??
+      (entry.location.includes('National') ? 'National' : entry.location.split(',')[0]?.trim() || 'National'),
     website: entry.website,
     summary: entry.summary,
     knownFor: entry.knownFor,
     whoCanApply: entry.whoCanApply,
     applicationOpens: entry.applicationOpens,
     applicationCloses: entry.applicationCloses,
-    status: deriveListingStatus(entry.applicationOpens, entry.applicationCloses),
+    opensOn: dates.opensOn,
+    closesOn: dates.closesOn,
+    status: deriveListingStatus(entry.applicationOpens, entry.applicationCloses, dates),
     duration: entry.duration,
     compensation: entry.compensation,
     links: entry.links,
     notes: entry.notes,
+    eligibleStages: entry.eligibleStages ?? defaultEligibleStages(type),
+    popularityRank: entry.popularityRank,
   }
 }
 
+function fromHubListing(entry: HubListingEntry, type: CareerListingType): CareerListing {
+  return enrichListing(entry, type)
+}
+
 function fromGraduateSource(entry: GraduateProgrammeSource): CareerListing {
-  return {
-    id: entry.id,
-    type: entry.type ?? 'graduate',
-    name: entry.name,
-    shortName: entry.shortName,
+  return enrichListing(entry as ListingSource, entry.type ?? 'graduate', {
     organisation: entry.organisation ?? entry.shortName,
-    location: entry.location,
     province: entry.province ?? 'National',
-    website: entry.website,
-    summary: entry.summary,
-    knownFor: entry.knownFor,
-    whoCanApply: entry.whoCanApply,
-    applicationOpens: entry.applicationOpens,
-    applicationCloses: entry.applicationCloses,
-    status: deriveListingStatus(entry.applicationOpens, entry.applicationCloses),
-    duration: entry.duration,
-    compensation: entry.compensation,
-    links: entry.links,
-    notes: entry.notes,
-  }
+  })
 }
 
 const vacationListings = VACATION_WORK.map((e) => fromHubListing(e, inferVacationType(e)))
 const graduateListings = GRADUATE_PROGRAMME_SOURCES.map(fromGraduateSource)
 const learnershipListings = LEARNERSHIPS.map((e) => fromHubListing(e, 'learnership'))
 
-export const CAREER_LISTINGS: CareerListing[] = [
+export const CAREER_LISTINGS: CareerListing[] = sortListings([
   ...graduateListings,
   ...vacationListings,
   ...learnershipListings,
-].sort((a, b) => {
-  const order = { open: 0, rolling: 1, expired: 2 }
-  const statusDiff = order[a.status] - order[b.status]
-  if (statusDiff !== 0) return statusDiff
-  return a.name.localeCompare(b.name)
-})
+])
 
 export const CAREER_LISTING_TYPE_LABELS: Record<CareerListingType, string> = {
   graduate: 'Graduate programmes',
