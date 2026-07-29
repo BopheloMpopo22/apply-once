@@ -1,0 +1,192 @@
+import type { GraduateProgrammeSource } from '../../types/careerHub'
+
+function portal(
+  e: GraduateProgrammeSource & { type: NonNullable<GraduateProgrammeSource['type']> },
+): GraduateProgrammeSource {
+  return e
+}
+
+/**
+ * Aggregator / discovery portals — students browse live lists here when they want “everything else”.
+ * Keep these near the top via low popularityRank.
+ */
+export const EARLY_CAREER_PORTALS: GraduateProgrammeSource[] = [
+  portal({
+    id: 'portal-sa-youth-jobs',
+    type: 'internship',
+    name: 'SA Youth — Internships & work opportunities',
+    shortName: 'SA Youth',
+    organisation: 'SA Youth',
+    location: 'National',
+    province: 'National',
+    website: 'https://sayouth.mobi',
+    summary:
+      'National youth portal — register once and get matched to internships, YES placements, learnerships, and entry jobs from public and private partners.',
+    knownFor: ['National portal', 'Internships', 'YES', 'Free'],
+    whoCanApply: ['SA youth typically 18–35', 'Unemployed or seeking first experience'],
+    applicationOpens: 'Year-round registration',
+    applicationCloses: 'N/A — rolling matches',
+    duration: 'Varies by placement',
+    compensation: 'Depends on opportunity',
+    links: [
+      { label: 'SA Youth', url: 'https://sayouth.mobi', kind: 'official' },
+      { label: 'Register', url: 'https://sayouth.mobi', kind: 'register' },
+    ],
+    notes: 'Best “see everything” starting point for matric and post-matric youth.',
+    popularityRank: 1,
+  }),
+  portal({
+    id: 'portal-careers24-grad',
+    type: 'graduate',
+    name: 'Careers24 — Graduate & internship jobs',
+    shortName: 'Careers24',
+    organisation: 'Careers24',
+    location: 'National',
+    province: 'National',
+    website: 'https://www.careers24.com',
+    summary:
+      'Major SA job board — filter for graduate programmes, internships, and entry-level roles across industries. New vacancies appear daily.',
+    knownFor: ['Job board', 'Graduate filter', 'Nationwide', 'Daily updates'],
+    whoCanApply: ['Anyone searching SA early-career roles', 'Create a free profile to apply faster'],
+    applicationOpens: 'Rolling — new posts daily',
+    applicationCloses: 'Per vacancy',
+    duration: 'Varies by employer',
+    compensation: 'Listed per advert',
+    links: [
+      { label: 'Careers24', url: 'https://www.careers24.com', kind: 'official' },
+      {
+        label: 'Graduate jobs',
+        url: 'https://www.careers24.com/jobs/lc-south-africa/e-graduate/',
+        kind: 'register',
+      },
+    ],
+    notes: 'Use keyword “graduate programme” or “internship” plus your city.',
+    popularityRank: 2,
+  }),
+  portal({
+    id: 'portal-pnet-early',
+    type: 'graduate',
+    name: 'PNet — Graduate & junior opportunities',
+    shortName: 'PNet',
+    organisation: 'PNet',
+    location: 'National',
+    province: 'National',
+    website: 'https://www.pnet.co.za',
+    summary:
+      'Popular SA careers site used by corporates and agencies — search graduate, junior, and internship vacancies and set email alerts.',
+    knownFor: ['Job alerts', 'Corporate ads', 'Graduate search'],
+    whoCanApply: ['Job seekers with a free PNet profile'],
+    applicationOpens: 'Rolling',
+    applicationCloses: 'Per vacancy',
+    duration: 'Varies',
+    compensation: 'Listed per advert',
+    links: [
+      { label: 'PNet', url: 'https://www.pnet.co.za', kind: 'official' },
+      { label: 'Create profile', url: 'https://www.pnet.co.za', kind: 'register' },
+    ],
+    notes: 'Set alerts for “graduate”, “internship”, and your field of study.',
+    popularityRank: 3,
+  }),
+  portal({
+    id: 'portal-indeed-za',
+    type: 'internship',
+    name: 'Indeed South Africa — Internships & graduate jobs',
+    shortName: 'Indeed ZA',
+    organisation: 'Indeed',
+    location: 'National',
+    province: 'National',
+    website: 'https://za.indeed.com',
+    summary:
+      'Aggregates internships, vacation work, and graduate ads from many employers and agencies. Useful for spotting recent openings quickly.',
+    knownFor: ['Aggregator', 'Internships', 'Alerts'],
+    whoCanApply: ['Anyone with a free Indeed account'],
+    applicationOpens: 'Rolling',
+    applicationCloses: 'Per vacancy',
+    duration: 'Varies',
+    compensation: 'Listed per advert',
+    links: [
+      { label: 'Indeed ZA', url: 'https://za.indeed.com', kind: 'official' },
+      {
+        label: 'Internship search',
+        url: 'https://za.indeed.com/jobs?q=internship',
+        kind: 'register',
+      },
+    ],
+    notes: 'Always click through to the employer site before you apply or pay anything.',
+    popularityRank: 4,
+  }),
+  portal({
+    id: 'portal-careerjunction',
+    type: 'vacation',
+    name: 'CareerJunction — Student & vacation roles',
+    shortName: 'CareerJunction',
+    organisation: 'CareerJunction',
+    location: 'National',
+    province: 'National',
+    website: 'https://www.careerjunction.co.za',
+    summary:
+      'SA job portal used by employers advertising vacation work, student programmes, and junior roles — good supplement to company career pages.',
+    knownFor: ['Vacation work search', 'Student jobs', 'Alerts'],
+    whoCanApply: ['Students and recent graduates'],
+    applicationOpens: 'Rolling — peaks before June/July & Dec holidays',
+    applicationCloses: 'Per vacancy',
+    duration: 'Varies',
+    compensation: 'Listed per advert',
+    links: [
+      { label: 'CareerJunction', url: 'https://www.careerjunction.co.za', kind: 'official' },
+    ],
+    notes: 'Search “vacation work” and “student programme” from March–May each year.',
+    popularityRank: 5,
+  }),
+  portal({
+    id: 'portal-gov-jobs',
+    type: 'internship',
+    name: 'Gov.za — Public sector job opportunities',
+    shortName: 'Gov.za',
+    organisation: 'South African Government',
+    location: 'National',
+    province: 'National',
+    website: 'https://www.gov.za/about-government/job-opportunities',
+    summary:
+      'Official government landing page for public-sector opportunities — links through to department and DPSA vacancy channels.',
+    knownFor: ['Government', 'Internships', 'Official'],
+    whoCanApply: ['SA citizens meeting each post’s requirements'],
+    applicationOpens: 'When departments advertise',
+    applicationCloses: 'Per circular',
+    duration: 'Often 12–24 months for internships',
+    compensation: 'Public service scales',
+    links: [
+      {
+        label: 'Gov job opportunities',
+        url: 'https://www.gov.za/about-government/job-opportunities',
+        kind: 'official',
+      },
+      { label: 'DPSA circulars', url: 'https://www.dpsa.gov.za/newsroom/psvc/', kind: 'guide' },
+    ],
+    notes: 'Pair with DPSA circulars and provincial treasury sites.',
+    popularityRank: 6,
+  }),
+  portal({
+    id: 'portal-linkedin-za',
+    type: 'graduate',
+    name: 'LinkedIn — Early career & graduate programmes (SA)',
+    shortName: 'LinkedIn',
+    organisation: 'LinkedIn',
+    location: 'National / remote',
+    province: 'National',
+    website: 'https://www.linkedin.com/jobs/',
+    summary:
+      'Many SA banks, consultancies, and corporates post graduate and internship openings on LinkedIn. Follow company pages and turn on alerts.',
+    knownFor: ['Company pages', 'Job alerts', 'Networking'],
+    whoCanApply: ['Students and graduates with a LinkedIn profile'],
+    applicationOpens: 'Rolling',
+    applicationCloses: 'Per vacancy',
+    duration: 'Varies',
+    compensation: 'Listed per advert',
+    links: [
+      { label: 'LinkedIn Jobs', url: 'https://www.linkedin.com/jobs/', kind: 'official' },
+    ],
+    notes: 'Filter location South Africa + “graduate programme” / “internship”.',
+    popularityRank: 7,
+  }),
+]

@@ -8,7 +8,9 @@ import { deriveListingStatus } from '../../utils/careerHub/listingStatus'
 import { parseListingDates } from '../../utils/careerHub/parseListingDates'
 import { sortListings } from '../../utils/careerHub/listingSort'
 import { CAREER_AGENCIES } from './agenciesData'
+import { EARLY_CAREER_PORTALS } from './earlyCareerPortalsData'
 import { GRADUATE_PROGRAMME_SOURCES } from './graduateProgrammesData'
+import { GRADUATE_PROGRAMME_EXTRA } from './graduateProgrammesExtra'
 
 type ListingSource = HubListingEntry & {
   opensOn?: string
@@ -73,10 +75,12 @@ function fromGraduateSource(entry: GraduateProgrammeSource): CareerListing {
 }
 
 const vacationListings = VACATION_WORK.map((e) => fromHubListing(e, inferVacationType(e)))
-const graduateListings = GRADUATE_PROGRAMME_SOURCES.map(fromGraduateSource)
+const graduateListings = [...GRADUATE_PROGRAMME_SOURCES, ...GRADUATE_PROGRAMME_EXTRA].map(fromGraduateSource)
+const portalListings = EARLY_CAREER_PORTALS.map(fromGraduateSource)
 const learnershipListings = LEARNERSHIPS.map((e) => fromHubListing(e, 'learnership'))
 
 export const CAREER_LISTINGS: CareerListing[] = sortListings([
+  ...portalListings,
   ...graduateListings,
   ...vacationListings,
   ...learnershipListings,
