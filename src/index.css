@@ -8236,52 +8236,56 @@ body.navMenuOpen {
 
 /* ——— Career programmes hub (SA work opportunities) ——— */
 .careerHubShell {
-  background: linear-gradient(180deg, rgba(33, 50, 230, 0.04) 0%, #fff 28%);
+  background:
+    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(33, 50, 230, 0.1), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(52, 211, 153, 0.12), transparent 50%),
+    linear-gradient(180deg, #f4f7ff 0%, #fff 42%);
 }
 
 .careerHubHero {
-  padding: var(--space-6) 0 var(--space-5);
+  padding: var(--space-7) 0 var(--space-5);
 }
 
 .careerHubHeroCompact {
-  padding-bottom: var(--space-4);
+  padding: var(--space-6) 0 var(--space-4);
 }
 
 .careerHubHeroInner {
-  max-width: 920px;
+  max-width: 1100px;
 }
 
 .careerHubKicker {
   margin: 0 0 var(--space-2);
   font-weight: 700;
   color: var(--hfc-blue);
-  font-size: 14px;
+  font-size: 15px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .careerHubTitle {
   margin: 0 0 var(--space-3);
-  font-size: clamp(28px, 4vw, 42px);
-  line-height: 1.12;
+  font-size: clamp(32px, 4.5vw, 48px);
+  line-height: 1.1;
   letter-spacing: -0.02em;
 }
 
 .careerHubLead {
   margin: 0;
-  font-size: 17px;
+  font-size: 18px;
   line-height: 1.55;
   color: rgba(15, 23, 42, 0.72);
-  max-width: 720px;
+  max-width: 820px;
 }
 
 .careerHubMain {
-  padding-bottom: var(--space-8);
+  padding-bottom: var(--space-9);
+  max-width: 1280px;
 }
 
 .careerHubLayout {
   display: grid;
-  grid-template-columns: minmax(240px, 280px) minmax(0, 1fr) minmax(240px, 300px);
+  grid-template-columns: minmax(280px, 320px) minmax(0, 1fr) minmax(280px, 340px);
   gap: var(--space-5);
   align-items: start;
 }
@@ -8298,6 +8302,11 @@ body.navMenuOpen {
   flex-wrap: wrap;
   gap: var(--space-3);
   align-items: center;
+  padding: var(--space-4);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(33, 50, 230, 0.12);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
 }
 
 .careerHubFilter {
@@ -8309,11 +8318,15 @@ body.navMenuOpen {
 .careerHubSearch {
   flex: 1;
   min-width: min(100%, 280px);
+  min-height: 48px;
+  font-size: 16px;
+  border-radius: 14px;
+  padding: 12px 16px;
 }
 
 .careerHubDisclaimer {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .careerListingGrid {
@@ -8322,11 +8335,17 @@ body.navMenuOpen {
 }
 
 .careerListingCard {
-  border: 1px solid rgba(33, 50, 230, 0.12);
-  border-radius: 18px;
-  padding: var(--space-4);
+  border: 1px solid rgba(33, 50, 230, 0.14);
+  border-radius: 22px;
+  padding: var(--space-5);
   background: #fff;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.careerListingCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.1);
 }
 
 .careerListingCardHead {
@@ -8334,23 +8353,25 @@ body.navMenuOpen {
   justify-content: space-between;
   gap: var(--space-3);
   align-items: flex-start;
+  margin-bottom: var(--space-2);
 }
 
 .careerListingTitle {
   margin: 0;
-  font-size: 18px;
+  font-size: 20px;
+  line-height: 1.25;
 }
 
 .careerListingOrg {
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   font-size: 14px;
 }
 
 .careerListingStatus {
   flex-shrink: 0;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  padding: 4px 10px;
+  padding: 6px 10px;
   border-radius: 999px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -8373,25 +8394,25 @@ body.navMenuOpen {
 
 .careerListingSummary {
   margin: var(--space-3) 0;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.55;
 }
 
 .careerListingMeta {
   margin: 0 0 var(--space-3);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .careerListingTags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: var(--space-3);
+  gap: 8px;
+  margin-bottom: var(--space-4);
 }
 
 .careerListingTag {
-  font-size: 12px;
-  padding: 3px 8px;
+  font-size: 13px;
+  padding: 5px 10px;
   border-radius: 999px;
   background: rgba(33, 50, 230, 0.08);
   color: var(--hfc-blue);
@@ -8400,12 +8421,12 @@ body.navMenuOpen {
 .careerListingActions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
 .careerListingDates {
   margin: var(--space-3) 0 0;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .careerListingMoreWrap {
@@ -8415,14 +8436,16 @@ body.navMenuOpen {
 }
 
 .careerListingMoreBtn {
-  min-width: 220px;
+  min-width: 240px;
+  min-height: 44px;
 }
 
 .careerProfileCard {
-  border-radius: 18px;
+  border-radius: 22px;
   border: 2px solid rgba(33, 50, 230, 0.14);
-  background: linear-gradient(145deg, rgba(33, 50, 230, 0.06), #fff 55%);
-  padding: var(--space-4);
+  background: linear-gradient(145deg, rgba(33, 50, 230, 0.08), #fff 55%);
+  padding: var(--space-5);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
 }
 
 .careerProfileCardHead {
@@ -8478,20 +8501,21 @@ body.navMenuOpen {
 }
 
 .careerSidePanel {
-  border-radius: 18px;
-  border: 1px solid var(--border);
+  border-radius: 22px;
+  border: 1px solid rgba(33, 50, 230, 0.12);
   background: #fff;
-  padding: var(--space-4);
+  padding: var(--space-5);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
 }
 
 .careerSidePanelTitle {
   margin: 0 0 var(--space-2);
-  font-size: 17px;
+  font-size: 19px;
 }
 
 .careerSidePanelLead {
   margin: 0 0 var(--space-3);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .careerCoursesList,
@@ -8506,24 +8530,26 @@ body.navMenuOpen {
 .careerCoursesGroup summary {
   cursor: pointer;
   font-weight: 650;
-  padding: 8px 0;
+  padding: 10px 0;
+  font-size: 15px;
 }
 
 .careerCoursesGroup ul {
   margin: 0;
   padding-left: 1rem;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .careerCoursesGroup li {
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .careerAgencyCard {
-  border-radius: 12px;
-  padding: 10px 12px;
-  background: rgba(33, 50, 230, 0.04);
-  border: 1px solid rgba(33, 50, 230, 0.08);
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: linear-gradient(160deg, rgba(33, 50, 230, 0.06), #fff 70%);
+  border: 1px solid rgba(33, 50, 230, 0.12);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
 }
 
 .careerAgencyHead {
@@ -8533,20 +8559,24 @@ body.navMenuOpen {
   align-items: baseline;
 }
 
+.careerAgencyHead strong {
+  font-size: 15px;
+}
+
 .careerAgencyScope {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 650;
   white-space: nowrap;
 }
 
 .careerAgencySummary {
-  margin: 8px 0;
-  font-size: 13px;
-  line-height: 1.45;
+  margin: 10px 0;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .careerAgencyLink {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 650;
   color: var(--hfc-blue);
 }
@@ -8701,35 +8731,79 @@ body.navMenuOpen {
 
 .careerListingsBoard {
   display: grid;
-  gap: var(--space-6);
+  gap: var(--space-5);
+  scroll-margin-top: 88px;
 }
 
 .careerSectionJump {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: var(--space-2);
+  position: sticky;
+  top: 72px;
+  z-index: 5;
+  padding: 10px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(33, 50, 230, 0.12);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(8px);
 }
 
 .careerSectionJumpLink {
+  appearance: none;
+  cursor: pointer;
   text-decoration: none;
-  font-size: 13px;
+  font: inherit;
+  font-size: 14px;
   font-weight: 650;
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-radius: 999px;
   border: 1px solid rgba(33, 50, 230, 0.16);
   background: rgba(33, 50, 230, 0.06);
   color: var(--hfc-blue);
 }
 
+.careerSectionJumpLinkActive {
+  background: var(--hfc-blue);
+  border-color: var(--hfc-blue);
+  color: #fff;
+}
+
+.careerSectionJumpLinkActive .muted {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.careerSectionFocusLead {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(15, 23, 42, 0.72);
+}
+
+.careerInlineLink {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--hfc-blue);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .careerListingSection {
-  padding-top: var(--space-2);
-  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  padding: var(--space-5);
+  border-radius: 22px;
+  border: 1px solid rgba(33, 50, 230, 0.1);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04);
 }
 
 .careerListingSection:first-of-type {
-  border-top: none;
-  padding-top: 0;
+  border-top: 1px solid rgba(33, 50, 230, 0.1);
+  padding-top: var(--space-5);
 }
 
 .careerListingSectionHead {
@@ -8737,42 +8811,42 @@ body.navMenuOpen {
   justify-content: space-between;
   align-items: flex-start;
   gap: var(--space-3);
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
 }
 
 .careerListingSectionTitle {
   margin: 0;
-  font-size: 20px;
+  font-size: 24px;
 }
 
 .careerListingSectionMeta {
-  margin: 4px 0 0;
-  font-size: 13px;
+  margin: 6px 0 0;
+  font-size: 14px;
 }
 
 .careerListingSectionEmpty {
   margin: 0;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .careerListingGridSection {
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .careerListingMoreWrapSection {
-  margin-top: var(--space-3);
+  margin-top: var(--space-4);
 }
 
 .careerListingEligibility {
   margin: 0 0 var(--space-2);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .careerHubBrowseAll {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: 15px;
   white-space: nowrap;
 }
 

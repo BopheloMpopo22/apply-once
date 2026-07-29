@@ -27,11 +27,26 @@ export function Navbar(props: { logo: ReactNode; links: NavLink[]; variant?: 'br
     return () => document.body.classList.remove('navMenuOpen')
   }, [menuOpen])
 
+  /** Close via backdrop / X — pop the menu history entry. */
   const closeMenu = useCallback(() => {
     setMenuOpen(false)
     if (menuHistoryPushed.current) {
       menuHistoryPushed.current = false
       history.back()
+    }
+  }, [])
+
+  /**
+   * Close when following a Link. Do NOT call history.back() — that undoes the
+   * navigation and is why Profile / Application / Home appeared broken on mobile.
+   */
+  const closeMenuForNav = useCallback(() => {
+    setMenuOpen(false)
+    if (menuHistoryPushed.current) {
+      menuHistoryPushed.current = false
+      if (history.state && typeof history.state === 'object' && 'navMenu' in history.state) {
+        history.replaceState(null, '')
+      }
     }
   }, [])
 
@@ -109,7 +124,7 @@ export function Navbar(props: { logo: ReactNode; links: NavLink[]; variant?: 'br
         aria-hidden={!menuOpen}
       >
         <div className="navMobileMenuHeader">
-          <Link className="navMobileHome" to="/" onClick={closeMenu}>
+          <Link className="navMobileHome" to="/" onClick={closeMenuForNav}>
             {props.logo}
             <span>Apply Once</span>
           </Link>
@@ -119,11 +134,11 @@ export function Navbar(props: { logo: ReactNode; links: NavLink[]; variant?: 'br
         </div>
 
         <nav className="navMobileLinks" aria-label="Mobile navigation">
-          <Link className="navMobileLink" to="/" onClick={closeMenu}>
+          <Link className="navMobileLink" to="/" onClick={closeMenuForNav}>
             Home
           </Link>
           {props.links.map((l) => (
-            <Link key={l.to} className="navMobileLink" to={l.to} onClick={closeMenu}>
+            <Link key={l.to} className="navMobileLink" to={l.to} onClick={closeMenuForNav}>
               {l.label}
             </Link>
           ))}
@@ -131,7 +146,7 @@ export function Navbar(props: { logo: ReactNode; links: NavLink[]; variant?: 'br
 
         <div className="navMobileDivider" aria-hidden="true" />
 
-        <NavAuth layout="menu" onNavigate={closeMenu} />
+        <NavAuth layout="menu" onNavigate={closeMenuForNav} />
       </div>
     </div>
   )
