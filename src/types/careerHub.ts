@@ -61,10 +61,26 @@ export type CareerAgency = {
   notes: string
 }
 
+export type JobSearchLinkCategory =
+  | 'south-africa'
+  | 'remote'
+  | 'overseas'
+  | 'government-youth'
+
+export type JobSearchLink = {
+  id: string
+  name: string
+  shortName: string
+  category: JobSearchLinkCategory
+  website: string
+  blurb: string
+}
+
 export type CareerHubData = {
   listings: CareerListing[]
   courses: CourseEntry[]
   agencies: CareerAgency[]
+  jobSearchLinks: JobSearchLink[]
 }
 
 export type GraduateProgrammeSource = Omit<

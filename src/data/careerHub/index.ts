@@ -11,6 +11,7 @@ import { CAREER_AGENCIES } from './agenciesData'
 import { EARLY_CAREER_PORTALS } from './earlyCareerPortalsData'
 import { GRADUATE_PROGRAMME_SOURCES } from './graduateProgrammesData'
 import { GRADUATE_PROGRAMME_EXTRA } from './graduateProgrammesExtra'
+import { JOB_SEARCH_LINKS } from './jobSearchLinksData'
 
 type ListingSource = HubListingEntry & {
   opensOn?: string
@@ -98,6 +99,7 @@ export function getCareerHubData() {
     listings: CAREER_LISTINGS,
     courses: COURSES,
     agencies: CAREER_AGENCIES,
+    jobSearchLinks: JOB_SEARCH_LINKS,
   }
 }
 

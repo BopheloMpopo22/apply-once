@@ -8581,6 +8581,46 @@ body.navMenuOpen {
   color: var(--hfc-blue);
 }
 
+.careerJobSearchList {
+  display: grid;
+  gap: 4px;
+}
+
+.careerJobSearchGroup summary {
+  cursor: pointer;
+  font-weight: 650;
+  font-size: 14px;
+  padding: 10px 0;
+  list-style: none;
+}
+
+.careerJobSearchGroup summary::-webkit-details-marker {
+  display: none;
+}
+
+.careerJobSearchGroup ul {
+  list-style: none;
+  margin: 0 0 var(--space-2);
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.careerJobSearchItem p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.careerJobSearchItem a {
+  color: var(--hfc-blue);
+  text-decoration: none;
+}
+
+.careerJobSearchItem a:hover {
+  text-decoration: underline;
+}
+
 .careerHubFoot {
   margin-top: var(--space-6);
   font-size: 14px;

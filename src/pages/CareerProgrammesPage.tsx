@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { CareerAgenciesPanel } from '../components/careerHub/CareerAgenciesPanel'
 import { CareerCoursesPanel } from '../components/careerHub/CareerCoursesPanel'
+import { CareerJobSearchLinksPanel } from '../components/careerHub/CareerJobSearchLinksPanel'
 import { CareerListingsBoard } from '../components/careerHub/CareerListingsBoard'
 import { CareerProfileCard } from '../components/careerHub/CareerProfileCard'
 import { CareerProfileWizard } from '../components/careerHub/CareerProfileWizard'
@@ -121,6 +122,7 @@ export function CareerProgrammesPage() {
               }}
             />
             <CareerCoursesPanel courses={hubData.courses} />
+            <CareerJobSearchLinksPanel links={hubData.jobSearchLinks} />
           </div>
 
           <div className="careerHubCenter">
