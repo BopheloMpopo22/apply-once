@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { adminApi, adminDownloadFile, getAdminToken, setAdminToken } from '../api/adminClient'
+import { AdminNewsletterPanel } from '../components/admin/AdminNewsletterPanel'
 import { ChatThread, type ChatMessage } from '../components/ChatThread'
 import type { ProgrammeRequirement, UniversityId } from '../utils/varsity/types'
 import { getStudentCatalogueYear } from '../utils/varsity/studentCatalogueYear'
@@ -547,6 +548,8 @@ export function AdminPage() {
 
             {error ? <div className="formError adminError">{error}</div> : null}
             {varsityError ? <div className="formError adminError">{varsityError}</div> : null}
+
+            <AdminNewsletterPanel onError={setError} />
 
             <section className="adminCard" style={{ gridColumn: '1 / -1' }}>
               <div className="adminToolbar" style={{ marginTop: 0 }}>

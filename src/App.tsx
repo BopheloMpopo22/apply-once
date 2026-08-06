@@ -18,6 +18,11 @@ import { CareerProgrammesPage } from './pages/CareerProgrammesPage'
 import { AboutPage } from './pages/AboutPage'
 import { TermsPage } from './pages/TermsPage'
 import { ContactPage } from './pages/ContactPage'
+import {
+  NewsletterIssuePage,
+  NewsletterPage,
+  NewsletterUnsubscribePage,
+} from './pages/NewsletterPage'
 
 export default function App() {
   return (
@@ -51,6 +56,9 @@ export default function App() {
         }
       />
       <Route path="/past-papers" element={<PastPapersPage />} />
+      <Route path="/newsletter" element={<NewsletterPage />} />
+      <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribePage />} />
+      <Route path="/newsletter/:slug" element={<NewsletterIssuePage />} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/terms" element={<TermsPage />} />
       <Route path="/contact" element={<ContactPage />} />

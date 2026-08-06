@@ -246,3 +246,40 @@ model VarsityProgrammeRequirement {
 
   @@index([ruleSetId])
 }
+
+/// Free weekly School → Industry newsletter subscribers.
+model NewsletterSubscriber {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  firstName      String
+  lastName       String
+  /// Opaque token for reading issues + unsubscribe (stored client-side).
+  accessToken    String    @unique
+  unsubscribedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([createdAt])
+}
+
+/// One weekly "newspaper" edition on /newsletter.
+model NewsletterIssue {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  title         String
+  /// Short eyebrow e.g. "Week of 10 Aug 2026 · Banking"
+  kicker        String    @default("")
+  /// One-line teaser shown on the landing page.
+  summary       String    @default("")
+  /// Main body (plain text; blank lines = paragraphs; lines starting with # = headings; - = bullets).
+  body          String    @default("")
+  issueNumber   Int
+  published     Boolean   @default(false)
+  publishedAt   DateTime?
+  emailSentAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([published, publishedAt])
+  @@index([issueNumber])
+}

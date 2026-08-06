@@ -8934,3 +8934,381 @@ body.navMenuOpen {
     order: 1;
   }
 }
+
+/* ——— School → Industry newsletter ——— */
+.nlShell {
+  --nl-ink: #1a1714;
+  --nl-muted: #5c574f;
+  --nl-paper: #f7f3eb;
+  --nl-rule: rgba(26, 23, 20, 0.14);
+  --nl-accent: #0b5f4b;
+  background:
+    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(11, 95, 75, 0.08), transparent 55%),
+    linear-gradient(180deg, #ebe4d6 0%, var(--nl-paper) 28%, #f3efe6 100%);
+  color: var(--nl-ink);
+  min-height: 100vh;
+}
+
+.nlHero {
+  border-bottom: 1px solid var(--nl-rule);
+  padding: clamp(2rem, 5vw, 3.25rem) 0 1.75rem;
+}
+
+.nlHeroInner {
+  max-width: 46rem;
+}
+
+.nlKicker {
+  font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nl-accent);
+  margin: 0 0 0.65rem;
+}
+
+.nlTitle {
+  font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  font-size: clamp(2rem, 5.5vw, 3.1rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.75rem;
+}
+
+.nlLead {
+  font-size: 1.1rem;
+  line-height: 1.55;
+  color: var(--nl-muted);
+  margin: 0 0 0.5rem;
+  max-width: 36rem;
+}
+
+.nlHeroMeta {
+  margin: 0.75rem 0 0;
+  font-size: 0.95rem;
+}
+
+.nlMain,
+.nlIssueMain {
+  padding: 1.75rem 0 3.5rem;
+  max-width: 46rem;
+}
+
+.nlSectionTitle {
+  font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  font-size: 1.45rem;
+  margin: 0 0 0.4rem;
+}
+
+.nlSectionLead {
+  margin: 0 0 1.1rem;
+  line-height: 1.5;
+}
+
+.nlSubscribeCard,
+.nlLatestCard,
+.nlWelcomeBar {
+  background: rgba(255, 252, 246, 0.92);
+  border: 1px solid var(--nl-rule);
+  border-radius: 2px;
+  padding: 1.35rem 1.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.nlSubscribeForm {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem 1rem;
+}
+
+.nlField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.nlField .input {
+  font-weight: 400;
+  border-radius: 2px;
+  border-color: var(--nl-rule);
+  background: #fffef9;
+}
+
+.nlFieldFull {
+  grid-column: 1 / -1;
+}
+
+.nlSubscribeBtn {
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin-top: 0.25rem;
+}
+
+.nlFormOk {
+  margin: 0.85rem 0 0;
+  color: var(--nl-accent);
+  font-size: 0.95rem;
+}
+
+.nlWelcomeBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.nlWelcomeBar p {
+  margin: 0;
+}
+
+.nlIssueBadge {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nl-accent);
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.nlLatestTitle,
+.nlPaperTitle {
+  font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  font-size: clamp(1.45rem, 3.2vw, 2rem);
+  line-height: 1.2;
+  margin: 0 0 0.45rem;
+}
+
+.nlIssueKicker {
+  margin: 0 0 0.65rem;
+  font-style: italic;
+}
+
+.nlLatestSummary {
+  margin: 0 0 1rem;
+  line-height: 1.55;
+  color: var(--nl-muted);
+}
+
+.nlArchive {
+  margin: 1.75rem 0;
+}
+
+.nlArchiveList {
+  list-style: none;
+  margin: 0.85rem 0 0;
+  padding: 0;
+  border-top: 1px solid var(--nl-rule);
+}
+
+.nlArchiveList li {
+  border-bottom: 1px solid var(--nl-rule);
+}
+
+.nlArchiveLink {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  padding: 0.85rem 0.15rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+a.nlArchiveLink:hover strong {
+  color: var(--nl-accent);
+}
+
+.nlArchiveLocked {
+  opacity: 0.72;
+}
+
+.nlArchiveNum {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--nl-muted);
+  min-width: 2.25rem;
+}
+
+.nlArchiveMeta {
+  display: block;
+  font-size: 0.9rem;
+  margin-top: 0.15rem;
+}
+
+.nlCta {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 2px solid var(--nl-ink);
+}
+
+.nlCtaActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 0.9rem;
+}
+
+.nlBack {
+  display: inline-block;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: var(--nl-accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.nlBack:hover {
+  text-decoration: underline;
+}
+
+.nlPaper {
+  background: #fffef9;
+  border: 1px solid var(--nl-rule);
+  box-shadow: 0 12px 40px rgba(26, 23, 20, 0.06);
+  padding: clamp(1.25rem, 4vw, 2.25rem);
+  margin-top: 0.5rem;
+}
+
+.nlPaperDeck {
+  font-size: 1.08rem;
+  line-height: 1.5;
+  color: var(--nl-muted);
+  margin: 0 0 1.5rem;
+  padding-bottom: 1.15rem;
+  border-bottom: 1px solid var(--nl-rule);
+}
+
+.nlPaperBody {
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.nlBodyH2 {
+  font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  font-size: 1.35rem;
+  margin: 1.6rem 0 0.55rem;
+  line-height: 1.25;
+}
+
+.nlBodyH3 {
+  font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  font-size: 1.15rem;
+  margin: 1.35rem 0 0.45rem;
+}
+
+.nlBodyH4 {
+  font-size: 1rem;
+  margin: 1.15rem 0 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--nl-muted);
+}
+
+.nlBodyP {
+  margin: 0 0 1rem;
+}
+
+.nlBodyList {
+  margin: 0 0 1rem;
+  padding-left: 1.25rem;
+}
+
+.nlBodyList li {
+  margin-bottom: 0.35rem;
+}
+
+.nlPaperBody a {
+  color: var(--nl-accent);
+}
+
+.nlPaperFoot {
+  margin-top: 2rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--nl-rule);
+}
+
+.nlPaperFoot a {
+  color: var(--nl-accent);
+}
+
+@media (max-width: 560px) {
+  .nlSubscribeForm {
+    grid-template-columns: 1fr;
+  }
+
+  .nlSubscribeBtn {
+    width: 100%;
+    justify-self: stretch;
+  }
+}
+
+.adminNewsletterCard {
+  grid-column: 1 / -1;
+}
+
+.adminCardHeadRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.adminNewsletterActions,
+.adminNewsletterFormActions,
+.adminNewsletterRowActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.adminNewsletterForm {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.adminNewsletterBody {
+  width: 100%;
+  font-family: ui-monospace, "Cascadia Code", "Segoe UI Mono", monospace;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  resize: vertical;
+  min-height: 12rem;
+}
+
+.adminOkMessage {
+  color: #0b5f4b;
+  margin: 0 0 0.85rem;
+  font-size: 0.95rem;
+}
+
+.adminSubhead {
+  font-size: 1.05rem;
+  margin: 0 0 0.65rem;
+}
+
+.adminNewsletterIssueList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.adminNewsletterIssueRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.adminNewsletterIssueRow:last-child {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}

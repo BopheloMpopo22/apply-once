@@ -11,6 +11,7 @@ import PDFDocument from 'pdfkit'
 const MulterError = multer.MulterError
 import path from 'path'
 import fs from 'fs'
+import crypto from 'crypto'
 import { fileURLToPath } from 'url'
 import { PrismaClient } from '@prisma/client'
 import { remoteDownloadBuffer, remotePut, remoteRemove, useRemoteFiles } from './storage.js'
@@ -2560,6 +2561,313 @@ app.post(
     }
   },
 )
+
+// ——— Weekly School → Industry newsletter ———
+
+const PUBLIC_SITE_URL = String(process.env.PUBLIC_SITE_URL || 'https://applyonce.org').replace(/\/$/, '')
+
+function slugifyNewsletter(title) {
+  return String(title || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 80)
+}
+
+function issuePublicJson(issue, { fullBody = false } = {}) {
+  return {
+    id: issue.id,
+    slug: issue.slug,
+    title: issue.title,
+    kicker: issue.kicker || '',
+    summary: issue.summary || '',
+    body: fullBody ? issue.body || '' : undefined,
+    issueNumber: issue.issueNumber,
+    published: issue.published,
+    publishedAt: issue.publishedAt,
+    emailSentAt: issue.emailSentAt,
+  }
+}
+
+async function findActiveSubscriberByToken(token) {
+  const t = String(token || '').trim()
+  if (!t || t.length < 16) return null
+  const row = await prisma.newsletterSubscriber.findUnique({ where: { accessToken: t } })
+  if (!row || row.unsubscribedAt) return null
+  return row
+}
+
+async function sendNewsletterIssueEmail(subscriber, issue) {
+  if (!RESEND_API_KEY) throw new Error('RESEND_API_KEY is not configured')
+  const readUrl = `${PUBLIC_SITE_URL}/newsletter/${issue.slug}?token=${encodeURIComponent(subscriber.accessToken)}`
+  const unsubUrl = `${PUBLIC_SITE_URL}/newsletter/unsubscribe?token=${encodeURIComponent(subscriber.accessToken)}`
+  const first = subscriber.firstName || 'there'
+  const plain = [
+    `Hi ${first},`,
+    '',
+    `School → Industry Weekly — Issue ${issue.issueNumber}`,
+    issue.title,
+    '',
+    issue.summary || '',
+    '',
+    `Read this week's edition: ${readUrl}`,
+    '',
+    `Opportunities hub: ${PUBLIC_SITE_URL}/programmes-for-work`,
+    '',
+    `Unsubscribe: ${unsubUrl}`,
+    '',
+    '— Apply Once',
+  ].join('\n')
+  await sendResendEmail(
+    subscriber.email,
+    `School → Industry #${issue.issueNumber}: ${issue.title}`,
+    plain,
+  )
+}
+
+app.post('/api/newsletter/subscribe', async (req, res) => {
+  const firstName = String(req.body?.firstName || '').trim()
+  const lastName = String(req.body?.lastName || '').trim()
+  const email = String(req.body?.email || '').trim().toLowerCase()
+  if (firstName.length < 1) return res.status(400).json({ error: 'First name is required.' })
+  if (lastName.length < 1) return res.status(400).json({ error: 'Surname is required.' })
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ error: 'Enter a valid email address.' })
+  }
+
+  const existing = await prisma.newsletterSubscriber.findUnique({ where: { email } })
+  if (existing) {
+    if (existing.unsubscribedAt) {
+      const restored = await prisma.newsletterSubscriber.update({
+        where: { id: existing.id },
+        data: {
+          firstName,
+          lastName,
+          unsubscribedAt: null,
+          accessToken: crypto.randomBytes(24).toString('hex'),
+        },
+      })
+      return res.json({
+        ok: true,
+        accessToken: restored.accessToken,
+        subscriber: {
+          firstName: restored.firstName,
+          lastName: restored.lastName,
+          email: restored.email,
+        },
+        restored: true,
+      })
+    }
+    return res.json({
+      ok: true,
+      accessToken: existing.accessToken,
+      subscriber: {
+        firstName: existing.firstName,
+        lastName: existing.lastName,
+        email: existing.email,
+      },
+      alreadySubscribed: true,
+    })
+  }
+
+  const accessToken = crypto.randomBytes(24).toString('hex')
+  const row = await prisma.newsletterSubscriber.create({
+    data: { firstName, lastName, email, accessToken },
+  })
+  res.status(201).json({
+    ok: true,
+    accessToken: row.accessToken,
+    subscriber: { firstName: row.firstName, lastName: row.lastName, email: row.email },
+  })
+})
+
+app.get('/api/newsletter/me', async (req, res) => {
+  const sub = await findActiveSubscriberByToken(req.query.token || req.get('x-newsletter-token'))
+  if (!sub) return res.json({ subscriber: null })
+  res.json({
+    subscriber: { firstName: sub.firstName, lastName: sub.lastName, email: sub.email },
+  })
+})
+
+app.get('/api/newsletter/issues', async (req, res) => {
+  const sub = await findActiveSubscriberByToken(req.query.token || req.get('x-newsletter-token'))
+  const unlocked = Boolean(sub)
+  const issues = await prisma.newsletterIssue.findMany({
+    where: { published: true },
+    orderBy: [{ publishedAt: 'desc' }, { issueNumber: 'desc' }],
+  })
+  res.json({
+    unlocked,
+    brand: {
+      name: 'School → Industry Weekly',
+      tagline: 'The free SA brief from high school to varsity, work, and industry.',
+    },
+    issues: issues.map((issue) => issuePublicJson(issue, { fullBody: false })),
+    subscriber: sub
+      ? { firstName: sub.firstName, lastName: sub.lastName, email: sub.email }
+      : null,
+  })
+})
+
+app.get('/api/newsletter/issues/:slug', async (req, res) => {
+  const sub = await findActiveSubscriberByToken(req.query.token || req.get('x-newsletter-token'))
+  const issue = await prisma.newsletterIssue.findUnique({ where: { slug: String(req.params.slug) } })
+  if (!issue || !issue.published) {
+    return res.status(404).json({ error: 'Issue not found.' })
+  }
+  if (!sub) {
+    return res.status(403).json({
+      error: 'Subscribe with your name and email to read full issues.',
+      locked: true,
+      teaser: issuePublicJson(issue, { fullBody: false }),
+    })
+  }
+  res.json({
+    unlocked: true,
+    issue: issuePublicJson(issue, { fullBody: true }),
+    subscriber: { firstName: sub.firstName, lastName: sub.lastName, email: sub.email },
+  })
+})
+
+app.post('/api/newsletter/unsubscribe', async (req, res) => {
+  const token = String(req.body?.token || req.query.token || '').trim()
+  const sub = await prisma.newsletterSubscriber.findUnique({ where: { accessToken: token } })
+  if (!sub) return res.status(404).json({ error: 'Subscription not found.' })
+  await prisma.newsletterSubscriber.update({
+    where: { id: sub.id },
+    data: { unsubscribedAt: new Date() },
+  })
+  res.json({ ok: true })
+})
+
+app.get('/api/admin/newsletter/subscribers', attachSupabaseEmailIfPresent, adminMiddleware, async (_req, res) => {
+  const rows = await prisma.newsletterSubscriber.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: 500,
+  })
+  res.json({
+    subscribers: rows.map((r) => ({
+      id: r.id,
+      email: r.email,
+      firstName: r.firstName,
+      lastName: r.lastName,
+      createdAt: r.createdAt,
+      unsubscribedAt: r.unsubscribedAt,
+      active: !r.unsubscribedAt,
+    })),
+    activeCount: rows.filter((r) => !r.unsubscribedAt).length,
+    total: rows.length,
+  })
+})
+
+app.get('/api/admin/newsletter/issues', attachSupabaseEmailIfPresent, adminMiddleware, async (_req, res) => {
+  const issues = await prisma.newsletterIssue.findMany({
+    orderBy: [{ issueNumber: 'desc' }],
+  })
+  res.json({
+    issues: issues.map((issue) => ({
+      ...issuePublicJson(issue, { fullBody: true }),
+      createdAt: issue.createdAt,
+      updatedAt: issue.updatedAt,
+    })),
+  })
+})
+
+app.post('/api/admin/newsletter/issues', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res) => {
+  const title = String(req.body?.title || '').trim()
+  if (title.length < 3) return res.status(400).json({ error: 'Title is required.' })
+  const kicker = String(req.body?.kicker || '').trim()
+  const summary = String(req.body?.summary || '').trim()
+  const body = String(req.body?.body || '').trim()
+  const publishNow = Boolean(req.body?.publish)
+
+  const max = await prisma.newsletterIssue.aggregate({ _max: { issueNumber: true } })
+  const issueNumber = (max._max.issueNumber || 0) + 1
+  let slug = slugifyNewsletter(req.body?.slug || title) || `issue-${issueNumber}`
+  const clash = await prisma.newsletterIssue.findUnique({ where: { slug } })
+  if (clash) slug = `${slug}-${issueNumber}`
+
+  const issue = await prisma.newsletterIssue.create({
+    data: {
+      title,
+      kicker,
+      summary,
+      body,
+      slug,
+      issueNumber,
+      published: publishNow,
+      publishedAt: publishNow ? new Date() : null,
+    },
+  })
+  res.status(201).json({ issue: issuePublicJson(issue, { fullBody: true }) })
+})
+
+app.put('/api/admin/newsletter/issues/:id', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res) => {
+  const id = String(req.params.id)
+  const existing = await prisma.newsletterIssue.findUnique({ where: { id } })
+  if (!existing) return res.status(404).json({ error: 'Issue not found.' })
+
+  const data = {}
+  if (typeof req.body?.title === 'string') data.title = req.body.title.trim()
+  if (typeof req.body?.kicker === 'string') data.kicker = req.body.kicker.trim()
+  if (typeof req.body?.summary === 'string') data.summary = req.body.summary.trim()
+  if (typeof req.body?.body === 'string') data.body = req.body.body
+  if (typeof req.body?.slug === 'string' && req.body.slug.trim()) {
+    data.slug = slugifyNewsletter(req.body.slug)
+  }
+  if (typeof req.body?.published === 'boolean') {
+    data.published = req.body.published
+    if (req.body.published && !existing.publishedAt) data.publishedAt = new Date()
+    if (!req.body.published) data.publishedAt = null
+  }
+
+  try {
+    const issue = await prisma.newsletterIssue.update({ where: { id }, data })
+    res.json({ issue: issuePublicJson(issue, { fullBody: true }) })
+  } catch (e) {
+    if (e && e.code === 'P2002') {
+      return res.status(400).json({ error: 'That URL slug is already used by another issue.' })
+    }
+    throw e
+  }
+})
+
+app.post('/api/admin/newsletter/issues/:id/send', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res) => {
+  if (!RESEND_API_KEY) {
+    return res.status(500).json({ error: 'RESEND_API_KEY is not configured on the server.' })
+  }
+  const id = String(req.params.id)
+  const issue = await prisma.newsletterIssue.findUnique({ where: { id } })
+  if (!issue) return res.status(404).json({ error: 'Issue not found.' })
+  if (!issue.published) {
+    return res.status(400).json({ error: 'Publish the issue before emailing subscribers.' })
+  }
+
+  const subscribers = await prisma.newsletterSubscriber.findMany({
+    where: { unsubscribedAt: null },
+  })
+  let sent = 0
+  let failed = 0
+  const errors = []
+  for (const sub of subscribers) {
+    try {
+      await sendNewsletterIssueEmail(sub, issue)
+      sent += 1
+      // Soft rate limit for Resend free tiers
+      await new Promise((r) => setTimeout(r, 120))
+    } catch (e) {
+      failed += 1
+      if (errors.length < 5) {
+        errors.push(`${sub.email}: ${e instanceof Error ? e.message : 'send failed'}`)
+      }
+    }
+  }
+  await prisma.newsletterIssue.update({
+    where: { id },
+    data: { emailSentAt: new Date() },
+  })
+  res.json({ sent, failed, total: subscribers.length, errors })
+})
 
 app.use((err, _req, res, _next) => {
   console.error(err)

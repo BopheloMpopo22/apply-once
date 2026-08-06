@@ -10,6 +10,7 @@ export function SiteFooter(props: {
 }) {
   const legalLinks = props.legalLinks ?? [
     { label: 'About', to: '/about' },
+    { label: 'Newsletter', to: '/newsletter' },
     { label: 'Terms & conditions', to: '/terms' },
     { label: 'Contact', to: '/contact' },
   ]
