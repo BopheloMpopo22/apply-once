@@ -40,7 +40,7 @@ function formatDate(iso: string | null): string {
   if (!iso) return ''
   return new Date(iso).toLocaleDateString('en-ZA', {
     day: 'numeric',
-    month: 'short',
+    month: 'long',
     year: 'numeric',
   })
 }
@@ -68,19 +68,18 @@ function SubscribeGate(props: {
     <div className="nlGate" role="dialog" aria-modal="true" aria-labelledby="nl-gate-title">
       <div className="nlGateBackdrop" aria-hidden />
       <div className="nlGateCard">
-        <div className="nlGateBadge">Free · weekly</div>
+        <p className="nlGateSection">School → Industry Weekly</p>
         <h1 id="nl-gate-title" className="nlGateTitle">
-          School → Industry Weekly
+          Free weekly industry news for learners
         </h1>
         <p className="nlGateLead">
-          Get the weekly magazine of industry and opportunity news for learners in South Africa —
-          and across Africa. What&apos;s moving in banking, mining, tech, healthcare, and more; what
-          schools and skills open doors; and where to apply next.
+          What&apos;s moving in South Africa and across Africa — industries, school pathways, and where to
+          apply. One brief each week, plus deeper stories by career.
         </p>
         <ul className="nlGateBullets">
-          <li>Main weekly brief covering industries, school, and opportunities</li>
-          <li>Career rails for mining, banking, engineering, tech, and more</li>
-          <li>Free to read online · same email for the weekly send</li>
+          <li>Main weekly briefing across industries and opportunities</li>
+          <li>Career sections: mining, banking, tech, health, and more</li>
+          <li>Free to read online · emailed to the same address</li>
         </ul>
         <form className="nlGateForm" onSubmit={onSubmit}>
           <label className="nlGateField">
@@ -116,11 +115,11 @@ function SubscribeGate(props: {
           </label>
           {error ? <p className="nlGateError">{error}</p> : null}
           <button type="submit" className="nlGateSubmit" disabled={busy}>
-            {busy ? 'Unlocking…' : 'Unlock the magazine'}
+            {busy ? 'Opening…' : 'Continue reading'}
           </button>
         </form>
         <p className="nlGateFoot">
-          We only use your details for this free brief. No spam.{' '}
+          We only use your details for this free brief.{' '}
           <Link to="/">Back to Apply Once</Link>
         </p>
       </div>
@@ -245,18 +244,53 @@ export function NewsletterPage() {
     setExpanded(false)
   }
 
-  const carouselItems = useMemo(() => {
-    const rest = issues.filter((i) => i.id !== featured?.id)
-    return rest.length ? rest : issues
+  function openBrief() {
+    setActiveIndustry(null)
+    if (mainArticles[0]) openArticle(mainArticles[0])
+    else {
+      setSelectedSlug(null)
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev)
+          next.delete('article')
+          return next
+        },
+        { replace: true },
+      )
+    }
+  }
+
+  function selectIndustry(id: string) {
+    setActiveIndustry(id)
+    const hit = industryArticles.find((a) => a.industry === id)
+    if (hit) openArticle(hit)
+    else {
+      setSelectedSlug(null)
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev)
+          next.delete('article')
+          return next
+        },
+        { replace: true },
+      )
+    }
+  }
+
+  const moreStories = useMemo(() => {
+    return issues.filter((i) => i.id !== featured?.id)
   }, [issues, featured?.id])
 
   const teaser = featured ? articleTeaser(featured) : ''
-  const industryHasArticle = useMemo(() => {
-    const set = new Set(industryArticles.map((i) => i.industry))
-    return set
-  }, [industryArticles])
-
   const showGate = !unlocked && (!token || !loading)
+
+  const sectionLabel = featured
+    ? featured.articleType === 'industry'
+      ? industryLabel(featured.industry)
+      : 'This week'
+    : activeIndustry
+      ? industryLabel(activeIndustry)
+      : 'Briefing'
 
   return (
     <div className={`appShell nlShell ${showGate ? 'nlShellLocked' : ''}`}>
@@ -284,192 +318,182 @@ export function NewsletterPage() {
         />
       ) : null}
 
-      <header className="nlMagHero">
-        <div className="container nlMagHeroInner">
-          <p className="nlMagKicker">Online magazine · SA & Africa</p>
-          <h1 className="nlMagTitle">{NEWSLETTER_BRAND.name}</h1>
-          <p className="nlMagLead">{NEWSLETTER_BRAND.tagline}</p>
-          {unlocked && data?.subscriber ? (
-            <div className="nlMagReader">
-              <span>
-                Reading as <strong>{data.subscriber.firstName}</strong>
-              </span>
-              <button type="button" className="nlMagLinkBtn" onClick={onSignOut}>
-                Use another email
-              </button>
-            </div>
-          ) : null}
-        </div>
-      </header>
-
-      <main className="container nlMagLayout">
-        {loading ? <p className="formLead">Loading magazine…</p> : null}
+      <main className="container nlNews">
+        {loading ? <p className="nlNewsLoading">Loading edition…</p> : null}
         {!loading && unlocked && error ? <div className="formError">{error}</div> : null}
 
         {!loading && unlocked ? (
-          <>
-            <aside className="nlMagRail" aria-label="Industries">
-              <p className="nlMagRailTitle">Careers & industries</p>
-              <button
-                type="button"
-                className={`nlMagRailItem ${!activeIndustry ? 'nlMagRailItemActive' : ''}`}
-                onClick={() => {
-                  setActiveIndustry(null)
-                  if (mainArticles[0]) openArticle(mainArticles[0])
-                  else {
-                    setSelectedSlug(null)
-                    setSearchParams(
-                      (prev) => {
-                        const next = new URLSearchParams(prev)
-                        next.delete('article')
-                        return next
-                      },
-                      { replace: true },
-                    )
-                  }
-                }}
-              >
-                This week&apos;s brief
-              </button>
-              {NEWSLETTER_INDUSTRIES.map((ind) => (
-                <button
-                  key={ind.id}
-                  type="button"
-                  className={`nlMagRailItem ${activeIndustry === ind.id ? 'nlMagRailItemActive' : ''}`}
-                  onClick={() => {
-                    setActiveIndustry(ind.id)
-                    const hit = industryArticles.find((a) => a.industry === ind.id)
-                    if (hit) openArticle(hit)
-                    else {
-                      setSelectedSlug(null)
-                      setSearchParams(
-                        (prev) => {
-                          const next = new URLSearchParams(prev)
-                          next.delete('article')
-                          return next
-                        },
-                        { replace: true },
-                      )
-                    }
-                  }}
-                >
-                  {ind.label}
-                  {industryHasArticle.has(ind.id) ? (
-                    <span className="nlMagRailDot" aria-label="Has articles" />
-                  ) : null}
-                </button>
-              ))}
-            </aside>
-
-            <section className="nlMagMain" aria-label="Featured article">
-              {featured ? (
-                <article className="nlMagArticle">
-                  <div className="nlMagArticleMeta">
-                    <span className="nlMagChip">
-                      {featured.articleType === 'industry'
-                        ? industryLabel(featured.industry)
-                        : 'Main brief'}
+          <div className="nlNewsGrid">
+            <div className="nlNewsStoryCol">
+              <div className="nlNewsMasthead">
+                <span className="nlNewsBrand">{NEWSLETTER_BRAND.name}</span>
+                <span className="nlNewsMastDot" aria-hidden>
+                  ·
+                </span>
+                <span className="nlNewsMastMeta">SA &amp; Africa</span>
+                {data?.subscriber ? (
+                  <>
+                    <span className="nlNewsMastDot" aria-hidden>
+                      ·
                     </span>
+                    <button type="button" className="nlNewsTextBtn" onClick={onSignOut}>
+                      Signed in as {data.subscriber.firstName}
+                    </button>
+                  </>
+                ) : null}
+              </div>
+
+              {featured ? (
+                <article className="nlNewsArticle">
+                  <p className="nlNewsSection">{sectionLabel}</p>
+                  <h1 className="nlNewsHeadline">{featured.title}</h1>
+                  <p className="nlNewsByline">
+                    By Apply Once
                     {featured.publishedAt ? (
-                      <time dateTime={featured.publishedAt}>{formatDate(featured.publishedAt)}</time>
+                      <>
+                        <span aria-hidden> · </span>
+                        <time dateTime={featured.publishedAt}>{formatDate(featured.publishedAt)}</time>
+                      </>
                     ) : null}
-                  </div>
-                  {featured.kicker ? <p className="nlMagArticleKicker">{featured.kicker}</p> : null}
-                  <h2 className="nlMagArticleTitle">{featured.title}</h2>
-                  {teaser ? <p className="nlMagArticleTeaser">{teaser}</p> : null}
+                    {featured.kicker ? (
+                      <>
+                        <span aria-hidden> · </span>
+                        <span>{featured.kicker}</span>
+                      </>
+                    ) : null}
+                  </p>
+
+                  {teaser ? <p className="nlNewsStandfirst">{teaser}</p> : null}
 
                   {expanded && featured.body ? (
-                    <div className="nlMagArticleBody">{renderNewsletterBody(featured.body)}</div>
+                    <div className="nlNewsBody">{renderNewsletterBody(featured.body)}</div>
                   ) : null}
 
                   {featured.body ? (
                     <button
                       type="button"
-                      className="nlReadMore"
+                      className="nlNewsContinue"
                       aria-expanded={expanded}
                       onClick={() => setExpanded((v) => !v)}
                     >
-                      <span>{expanded ? 'Show less' : 'Read more'}</span>
-                      <span className={`nlReadMoreArrow ${expanded ? 'nlReadMoreArrowUp' : ''}`} aria-hidden>
-                        ↓
-                      </span>
+                      {expanded ? 'Show less ▲' : 'Continue reading ▼'}
                     </button>
-                  ) : (
-                    <p className="muted">Full story is loading…</p>
-                  )}
+                  ) : null}
                 </article>
               ) : activeIndustry ? (
-                <div className="nlMagEmpty">
-                  <h2>More coming on {industryLabel(activeIndustry)}</h2>
-                  <p>
-                    We&apos;re building industry deep-dives each week. Check the main brief, or pick
-                    another career on the left.
+                <article className="nlNewsArticle">
+                  <p className="nlNewsSection">{industryLabel(activeIndustry)}</p>
+                  <h1 className="nlNewsHeadline">Story coming soon</h1>
+                  <p className="nlNewsStandfirst">
+                    We&apos;re building industry deep-dives each week. Read this week&apos;s main brief, or
+                    choose another career on the right.
                   </p>
-                  <button
-                    type="button"
-                    className="nlReadMore"
-                    onClick={() => {
-                      setActiveIndustry(null)
-                      if (mainArticles[0]) openArticle(mainArticles[0])
-                    }}
-                  >
+                  <button type="button" className="nlNewsContinue" onClick={openBrief}>
                     Back to this week&apos;s brief
                   </button>
-                </div>
+                </article>
               ) : (
-                <div className="nlMagEmpty">
-                  <h2>First edition coming soon</h2>
-                  <p>You&apos;re unlocked — the next weekly magazine drops here.</p>
-                </div>
+                <article className="nlNewsArticle">
+                  <p className="nlNewsSection">Briefing</p>
+                  <h1 className="nlNewsHeadline">First edition coming soon</h1>
+                  <p className="nlNewsStandfirst">
+                    You&apos;re unlocked. The next weekly brief will land here — headline first, full story
+                    below.
+                  </p>
+                </article>
               )}
 
-              {carouselItems.length > 0 ? (
-                <section className="nlCarousel" aria-label="More stories">
-                  <div className="nlCarouselHead">
-                    <h3 className="nlCarouselTitle">Past briefs & industry stories</h3>
-                    <p className="nlCarouselHint">Slide through older main pieces and career deep-dives</p>
-                  </div>
-                  <div className="nlCarouselTrackWrap">
-                    <div className="nlCarouselTrack">
-                      {[...carouselItems, ...carouselItems].map((item, idx) => (
-                        <button
-                          key={`${item.id}-${idx}`}
-                          type="button"
-                          className="nlCarouselCard"
-                          onClick={() => openArticle(item)}
-                        >
-                          <span className="nlCarouselCardTag">
+              {moreStories.length > 0 ? (
+                <section className="nlNewsList" aria-label="More stories">
+                  <h2 className="nlNewsListTitle">More stories</h2>
+                  <ul className="nlNewsListItems">
+                    {moreStories.map((item) => (
+                      <li key={item.id}>
+                        <button type="button" className="nlNewsListLink" onClick={() => openArticle(item)}>
+                          <span className="nlNewsListLabel">
                             {item.articleType === 'industry'
                               ? industryLabel(item.industry)
-                              : 'Main brief'}
+                              : 'This week'}
                           </span>
-                          <strong className="nlCarouselCardTitle">{item.title}</strong>
-                          <span className="nlCarouselCardDate">{formatDate(item.publishedAt)}</span>
+                          <span className="nlNewsListHeadline">{item.title}</span>
+                          {item.publishedAt ? (
+                            <time className="nlNewsListDate" dateTime={item.publishedAt}>
+                              {formatDate(item.publishedAt)}
+                            </time>
+                          ) : null}
                         </button>
-                      ))}
-                    </div>
-                  </div>
+                      </li>
+                    ))}
+                  </ul>
                 </section>
               ) : null}
 
-              <section className="nlCta nlMagCta">
-                <h2 className="nlMagCtaTitle">Turn reading into applying</h2>
-                <p>Opportunities we mention live on Apply Once — programmes, learnerships, and more.</p>
-                <div className="nlCtaActions">
-                  <Link className="nlMagBtn" to="/programmes-for-work">
-                    Programmes for work
-                  </Link>
-                  <Link className="nlMagBtn nlMagBtnGhost" to="/application">
-                    Application form
-                  </Link>
-                </div>
+              <section className="nlNewsFooterLinks">
+                <p>
+                  Turn reading into applying —{' '}
+                  <Link to="/programmes-for-work">programmes for work</Link>
+                  {' · '}
+                  <Link to="/application">application form</Link>
+                </p>
               </section>
-            </section>
-          </>
+            </div>
+
+            <aside className="nlNewsAside" aria-label="Sections and industries">
+              <p className="nlNewsAsideTitle">Sections</p>
+              <ul className="nlNewsAsideLinks">
+                <li>
+                  <button
+                    type="button"
+                    className={`nlNewsAsideLink ${!activeIndustry ? 'nlNewsAsideLinkActive' : ''}`}
+                    onClick={openBrief}
+                  >
+                    This week&apos;s brief
+                  </button>
+                </li>
+              </ul>
+
+              <p className="nlNewsAsideTitle">Industries</p>
+              <ul className="nlNewsAsideLinks">
+                {NEWSLETTER_INDUSTRIES.map((ind) => (
+                  <li key={ind.id}>
+                    <button
+                      type="button"
+                      className={`nlNewsAsideLink ${activeIndustry === ind.id ? 'nlNewsAsideLinkActive' : ''}`}
+                      onClick={() => selectIndustry(ind.id)}
+                    >
+                      {ind.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+
+              {mainArticles.length > 1 ? (
+                <>
+                  <p className="nlNewsAsideTitle">From the archive</p>
+                  <ul className="nlNewsAsideLinks">
+                    {mainArticles.slice(1, 6).map((item) => (
+                      <li key={item.id}>
+                        <button
+                          type="button"
+                          className="nlNewsAsideLink"
+                          onClick={() => openArticle(item)}
+                        >
+                          {item.title}
+                          {item.publishedAt ? (
+                            <span className="nlNewsAsideDate">{formatDate(item.publishedAt)}</span>
+                          ) : null}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : null}
+            </aside>
+          </div>
         ) : null}
 
         {!loading && !unlocked ? (
-          <p className="nlLockedHint muted">Subscribe above to open this week&apos;s magazine.</p>
+          <p className="nlNewsLoading">Subscribe to open this week&apos;s edition.</p>
         ) : null}
       </main>
 
@@ -502,9 +526,7 @@ export function NewsletterIssuePage() {
 
   return (
     <div className="appShell nlShell">
-      <p className="formLead" style={{ padding: '2rem' }}>
-        Opening magazine…
-      </p>
+      <p className="nlNewsLoading">Opening story…</p>
     </div>
   )
 }
@@ -544,14 +566,17 @@ export function NewsletterUnsubscribePage() {
           { label: 'Newsletter', to: '/newsletter', accent: 'purple' },
         ]}
       />
-      <main className="container nlMagLayout">
-        <section className="nlMagEmpty" style={{ gridColumn: '1 / -1' }}>
-          <h1 className="nlMagArticleTitle">Newsletter</h1>
-          <p>{status === 'idle' ? 'Updating your preference…' : message}</p>
-          <Link className="nlMagBtn nlMagBtnGhost" to="/newsletter">
-            Back to newsletter
+      <main className="container nlNews">
+        <article className="nlNewsArticle">
+          <p className="nlNewsSection">Newsletter</p>
+          <h1 className="nlNewsHeadline">Subscription</h1>
+          <p className="nlNewsStandfirst">
+            {status === 'idle' ? 'Updating your preference…' : message}
+          </p>
+          <Link className="nlNewsContinue" to="/newsletter">
+            Back to the brief
           </Link>
-        </section>
+        </article>
       </main>
     </div>
   )

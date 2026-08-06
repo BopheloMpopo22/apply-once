@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -2038,7 +2038,7 @@ body {
   color: rgba(15, 23, 42, 0.6);
 }
 
-/* —— Auth navbar & forms —— */
+/* â€”â€” Auth navbar & forms â€”â€” */
 .navAuth {
   display: flex;
   align-items: center;
@@ -2501,7 +2501,7 @@ body {
   color: rgba(15, 23, 42, 0.92);
 }
 
-/* Application form — HFC styling, marquee, vertical layout */
+/* Application form â€” HFC styling, marquee, vertical layout */
 .formShell.appFormShell {
   font-family: var(--font-sans);
 }
@@ -3640,7 +3640,7 @@ body {
   color: rgba(15, 23, 42, 0.82);
 }
 
-/* Profile hub — wide layout, progress + chat grid */
+/* Profile hub â€” wide layout, progress + chat grid */
 .profileShell {
   background: radial-gradient(900px 520px at 10% 0%, rgba(33, 50, 230, 0.1), transparent 55%),
     radial-gradient(700px 480px at 95% 8%, rgba(0, 157, 254, 0.08), transparent 52%),
@@ -3835,7 +3835,7 @@ body {
   background: linear-gradient(135deg, rgba(33, 50, 230, 0.06), rgba(0, 157, 254, 0.04));
 }
 
-/* Auth pages — sign in */
+/* Auth pages â€” sign in */
 .loginShell {
   position: relative;
   min-height: 100vh;
@@ -4389,7 +4389,7 @@ body {
   backdrop-filter: blur(10px);
 }
 
-/* Profile payment card — not sticky, stays out of Yoco popup stacking */
+/* Profile payment card â€” not sticky, stays out of Yoco popup stacking */
 .payPanel {
   position: relative;
   z-index: auto;
@@ -5107,7 +5107,7 @@ body {
   }
 }
 
-/* --- Varsity calculator (student) — fresher layout --- */
+/* --- Varsity calculator (student) â€” fresher layout --- */
 .vcPageModern .vcCalcTitle,
 .vcPageModern .vcResults .sectionTitle {
   font-family: 'Nunito', var(--font-display);
@@ -5267,7 +5267,7 @@ body {
   filter: brightness(1.05);
 }
 
-/* Varsity calculator — mobile containment */
+/* Varsity calculator â€” mobile containment */
 @media (max-width: 768px) {
   .vcPageModern .main .container {
     max-width: 100%;
@@ -5362,7 +5362,7 @@ body {
   }
 }
 
-/* —— Home (HFC-inspired) —— */
+/* â€”â€” Home (HFC-inspired) â€”â€” */
 .homeShell {
   background: linear-gradient(180deg, #ffffff 0%, var(--bg) 42%, #f0f4ff 100%);
 }
@@ -5528,7 +5528,7 @@ body {
   font-size: 15px;
 }
 
-/* Hero right: custom floating artwork only — sized inside its column so text is never covered */
+/* Hero right: custom floating artwork only â€” sized inside its column so text is never covered */
 .homeHeroVisual {
   position: relative;
   z-index: 0;
@@ -5656,7 +5656,7 @@ body {
   margin: 0 auto;
 }
 
-/* Primary entry cards — full-card link, centered art, hover fill */
+/* Primary entry cards â€” full-card link, centered art, hover fill */
 .homePrimaryCard {
   display: flex;
   flex-direction: column;
@@ -6836,7 +6836,7 @@ body {
   text-align: center;
 }
 
-/* Hub rich layout — wider cards, category sections, university tints */
+/* Hub rich layout â€” wider cards, category sections, university tints */
 .hubListingStack {
   display: flex;
   flex-direction: column;
@@ -7342,7 +7342,7 @@ body {
   }
 }
 
-/* Past papers — Phase 1 matric hub */
+/* Past papers â€” Phase 1 matric hub */
 .pastPapersHero {
   margin-bottom: var(--space-5);
 }
@@ -7510,7 +7510,7 @@ body {
   font-weight: 650;
 }
 
-/* Info pages — About, Terms, Contact */
+/* Info pages â€” About, Terms, Contact */
 .infoPageShell {
   min-height: 100vh;
   display: flex;
@@ -7604,7 +7604,7 @@ body {
   text-decoration: underline;
 }
 
-/* —— Mobile polish —— */
+/* â€”â€” Mobile polish â€”â€” */
 .navRight {
   display: flex;
   align-items: center;
@@ -8284,7 +8284,7 @@ body.navMenuOpen {
   }
 }
 
-/* ——— Career programmes hub (SA work opportunities) ——— */
+/* â€”â€”â€” Career programmes hub (SA work opportunities) â€”â€”â€” */
 .careerHubShell {
   background:
     radial-gradient(ellipse 80% 50% at 10% 0%, rgba(33, 50, 230, 0.1), transparent 55%),
@@ -8985,21 +8985,16 @@ body.navMenuOpen {
   }
 }
 
-/* ——— School → Industry magazine ——— */
+
+/* ——— School → Industry news (black + news red) ——— */
 .nlShell {
-  --nl-ink: #0f172a;
-  --nl-muted: #475569;
-  --nl-paper: #f8fafc;
-  --nl-blue: #38bdf8;
-  --nl-blue-deep: #2132e6;
-  --nl-purple: #a855f7;
-  --nl-purple-deep: #7c3aed;
-  --nl-grad: linear-gradient(120deg, #38bdf8 0%, #6366f1 48%, #a855f7 100%);
-  --nl-grad-soft: linear-gradient(135deg, rgba(56, 189, 248, 0.18) 0%, rgba(168, 85, 247, 0.22) 100%);
-  background:
-    radial-gradient(ellipse 70% 45% at 85% 0%, rgba(168, 85, 247, 0.14), transparent 55%),
-    radial-gradient(ellipse 55% 40% at 0% 20%, rgba(56, 189, 248, 0.14), transparent 50%),
-    linear-gradient(180deg, #eef6ff 0%, var(--nl-paper) 32%, #f5f3ff 100%);
+  --nl-ink: #111111;
+  --nl-muted: #5a5a5a;
+  --nl-rule: #e4e4e4;
+  --nl-accent: #b80000;
+  --nl-accent-hover: #8f0000;
+  --nl-bg: #ffffff;
+  background: var(--nl-bg);
   color: var(--nl-ink);
   min-height: 100vh;
 }
@@ -9008,7 +9003,7 @@ body.navMenuOpen {
   overflow: hidden;
 }
 
-/* Subscribe gate (full-screen popup) */
+/* Subscribe gate */
 .nlGate {
   position: fixed;
   inset: 0;
@@ -9021,71 +9016,43 @@ body.navMenuOpen {
 .nlGateBackdrop {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.35), transparent 40%),
-    radial-gradient(circle at 80% 30%, rgba(168, 85, 247, 0.4), transparent 42%),
-    linear-gradient(160deg, rgba(15, 23, 42, 0.72), rgba(49, 46, 129, 0.78));
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.55);
 }
 
 .nlGateCard {
   position: relative;
-  width: min(520px, 100%);
+  width: min(480px, 100%);
   max-height: min(92vh, 900px);
   overflow: auto;
-  border-radius: 28px;
-  padding: 1.75rem 1.6rem 1.4rem;
-  background:
-    linear-gradient(#fff, #fff) padding-box,
-    var(--nl-grad) border-box;
-  border: 2px solid transparent;
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.4) inset,
-    0 24px 80px rgba(88, 28, 135, 0.35);
-  animation: nlGateIn 0.45s ease both;
+  background: #fff;
+  border-top: 4px solid var(--nl-accent);
+  padding: 1.75rem 1.5rem 1.4rem;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
 }
 
-@keyframes nlGateIn {
-  from {
-    opacity: 0;
-    transform: translateY(16px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-.nlGateBadge {
-  display: inline-flex;
+.nlGateSection {
+  margin: 0 0 0.5rem;
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #fff;
-  background: var(--nl-grad);
-  padding: 0.35rem 0.75rem;
-  border-radius: 999px;
-  margin-bottom: 0.85rem;
-  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.35);
+  color: var(--nl-accent);
 }
 
 .nlGateTitle {
-  font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
-  font-size: clamp(1.7rem, 4.5vw, 2.15rem);
-  line-height: 1.15;
-  margin: 0 0 0.65rem;
-  background: var(--nl-grad);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  font-family: "Source Serif 4", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  font-size: clamp(1.55rem, 4vw, 1.9rem);
+  line-height: 1.2;
+  margin: 0 0 0.75rem;
+  color: var(--nl-ink);
+  font-weight: 700;
 }
 
 .nlGateLead {
   margin: 0 0 0.85rem;
   color: var(--nl-muted);
   line-height: 1.55;
-  font-size: 1.02rem;
+  font-size: 1rem;
 }
 
 .nlGateBullets {
@@ -9097,7 +9064,7 @@ body.navMenuOpen {
 }
 
 .nlGateBullets li {
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.3rem;
 }
 
 .nlGateForm {
@@ -9109,10 +9076,10 @@ body.navMenuOpen {
 .nlGateField {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  font-size: 0.86rem;
+  gap: 0.35rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  color: #334155;
+  color: var(--nl-ink);
 }
 
 .nlGateFieldFull {
@@ -9121,49 +9088,44 @@ body.navMenuOpen {
 
 .nlGateField input {
   appearance: none;
-  border: 1.5px solid rgba(99, 102, 241, 0.25);
-  background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
-  border-radius: 999px;
-  padding: 0.95rem 1.15rem;
-  font-size: 1.05rem;
-  font-weight: 500;
+  border: 1px solid #c8c8c8;
+  background: #fff;
+  border-radius: 2px;
+  padding: 0.85rem 0.95rem;
+  font-size: 1rem;
+  font-weight: 400;
   color: var(--nl-ink);
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .nlGateField input:focus {
-  border-color: #a855f7;
-  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.18);
-  transform: translateY(-1px);
+  border-color: var(--nl-ink);
+  box-shadow: 0 0 0 1px var(--nl-ink);
 }
 
 .nlGateError {
   grid-column: 1 / -1;
   margin: 0;
-  color: #b91c1c;
+  color: var(--nl-accent);
   font-size: 0.92rem;
 }
 
 .nlGateSubmit {
   grid-column: 1 / -1;
-  margin-top: 0.25rem;
+  margin-top: 0.15rem;
   appearance: none;
   border: 0;
   cursor: pointer;
-  border-radius: 999px;
-  padding: 1rem 1.25rem;
-  font-size: 1.05rem;
-  font-weight: 800;
+  border-radius: 2px;
+  padding: 0.9rem 1.1rem;
+  font-size: 0.98rem;
+  font-weight: 700;
   color: #fff;
-  background: var(--nl-grad);
-  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.4);
-  transition: transform 0.15s ease, filter 0.15s ease;
+  background: var(--nl-accent);
 }
 
 .nlGateSubmit:hover:not(:disabled) {
-  transform: translateY(-1px);
-  filter: brightness(1.05);
+  background: var(--nl-accent-hover);
 }
 
 .nlGateSubmit:disabled {
@@ -9173,14 +9135,15 @@ body.navMenuOpen {
 
 .nlGateFoot {
   margin: 1rem 0 0;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   color: var(--nl-muted);
-  text-align: center;
+  text-align: left;
 }
 
 .nlGateFoot a {
-  color: var(--nl-purple-deep);
-  font-weight: 700;
+  color: var(--nl-accent);
+  font-weight: 600;
+  text-decoration: underline;
 }
 
 @media (max-width: 560px) {
@@ -9189,258 +9152,143 @@ body.navMenuOpen {
   }
 }
 
-/* Magazine hero */
-.nlMagHero {
-  background: var(--nl-grad);
-  color: #fff;
-  padding: clamp(1.75rem, 4vw, 2.75rem) 0 1.85rem;
-  position: relative;
-  overflow: hidden;
+/* News layout */
+.nlNews {
+  max-width: 1080px;
+  padding: 1.25rem 0 3.5rem;
 }
 
-.nlMagHero::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 15% 80%, rgba(255, 255, 255, 0.22), transparent 35%),
-    radial-gradient(circle at 90% 10%, rgba(255, 255, 255, 0.18), transparent 30%);
-  pointer-events: none;
+.nlNewsLoading {
+  padding: 2.5rem 0;
+  color: var(--nl-muted);
+  text-align: center;
 }
 
-.nlMagHeroInner {
-  position: relative;
-  z-index: 1;
-  max-width: 54rem;
+.nlNewsGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 220px);
+  gap: 2.25rem 2.75rem;
+  align-items: start;
 }
 
-.nlMagKicker {
-  margin: 0 0 0.45rem;
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  font-weight: 800;
-  opacity: 0.92;
+.nlNewsStoryCol {
+  min-width: 0;
+  max-width: 40rem;
 }
 
-.nlMagTitle {
-  font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
-  font-size: clamp(1.9rem, 5vw, 2.75rem);
-  line-height: 1.1;
-  margin: 0 0 0.55rem;
-  text-shadow: 0 8px 30px rgba(15, 23, 42, 0.2);
-}
-
-.nlMagLead {
-  margin: 0;
-  max-width: 38rem;
-  font-size: 1.05rem;
-  line-height: 1.55;
-  opacity: 0.95;
-}
-
-.nlMagReader {
-  margin-top: 0.95rem;
+.nlNewsMasthead {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.65rem 1rem;
-  align-items: center;
-  font-size: 0.92rem;
+  align-items: baseline;
+  gap: 0.35rem 0.45rem;
+  padding-bottom: 0.85rem;
+  margin-bottom: 1.15rem;
+  border-bottom: 1px solid var(--nl-ink);
+  font-size: 0.86rem;
 }
 
-.nlMagLinkBtn {
-  appearance: none;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-  border-radius: 999px;
-  padding: 0.3rem 0.75rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.nlMagLinkBtn:hover {
-  background: rgba(255, 255, 255, 0.22);
-}
-
-/* Magazine grid */
-.nlMagLayout {
-  display: grid;
-  grid-template-columns: minmax(180px, 230px) minmax(0, 1fr);
-  gap: 1.5rem 1.75rem;
-  padding: 1.5rem 0 3.5rem;
-  max-width: 1100px;
-}
-
-.nlMagRail {
-  position: sticky;
-  top: 5.5rem;
-  align-self: start;
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(99, 102, 241, 0.14);
-  border-radius: 18px;
-  padding: 0.85rem 0.65rem;
-  max-height: calc(100vh - 6.5rem);
-  overflow: auto;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
-}
-
-.nlMagRailTitle {
-  margin: 0 0.5rem 0.55rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+.nlNewsBrand {
   font-weight: 800;
-  color: var(--nl-purple-deep);
+  letter-spacing: -0.01em;
+  color: var(--nl-ink);
 }
 
-.nlMagRailItem {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.4rem;
-  text-align: left;
+.nlNewsMastDot {
+  color: var(--nl-muted);
+}
+
+.nlNewsMastMeta {
+  color: var(--nl-muted);
+}
+
+.nlNewsTextBtn {
   appearance: none;
   border: 0;
-  background: transparent;
-  color: var(--nl-ink);
-  border-radius: 12px;
-  padding: 0.55rem 0.65rem;
-  font-size: 0.92rem;
-  font-weight: 600;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: var(--nl-muted);
+  text-decoration: underline;
   cursor: pointer;
-  transition: background 0.12s ease, color 0.12s ease;
 }
 
-.nlMagRailItem:hover {
-  background: var(--nl-grad-soft);
-  color: var(--nl-ink);
+.nlNewsTextBtn:hover {
+  color: var(--nl-accent);
 }
 
-.nlMagRailItemActive {
-  background: var(--nl-grad);
-  color: #fff;
-  box-shadow: 0 8px 18px rgba(99, 102, 241, 0.28);
-}
-
-.nlMagRailItemActive:hover {
-  color: #fff;
-  background: var(--nl-grad);
-}
-
-.nlMagRailDot {
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: #38bdf8;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
-  flex-shrink: 0;
-}
-
-.nlMagRailItemActive .nlMagRailDot {
-  background: #fff;
+.nlNewsArticle {
+  /* flat article surface — no cards */
+  padding: 0;
+  background: transparent;
+  border: 0;
   box-shadow: none;
 }
 
-.nlMagMain {
-  min-width: 0;
-}
-
-.nlMagArticle {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(99, 102, 241, 0.12);
-  border-radius: 22px;
-  padding: clamp(1.25rem, 3vw, 2rem);
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
-}
-
-.nlMagArticleMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem 0.9rem;
-  align-items: center;
-  margin-bottom: 0.55rem;
-  font-size: 0.88rem;
-  color: var(--nl-muted);
-}
-
-.nlMagChip {
-  display: inline-flex;
-  padding: 0.28rem 0.7rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
+.nlNewsSection {
+  margin: 0 0 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #fff;
-  background: var(--nl-grad);
+  color: var(--nl-accent);
 }
 
-.nlMagArticleKicker {
-  margin: 0 0 0.4rem;
-  font-style: italic;
+.nlNewsHeadline {
+  font-family: "Source Serif 4", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  font-size: clamp(1.75rem, 4.2vw, 2.55rem);
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.65rem;
+  color: var(--nl-ink);
+}
+
+.nlNewsByline {
+  margin: 0 0 1.15rem;
+  font-size: 0.9rem;
   color: var(--nl-muted);
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--nl-rule);
 }
 
-.nlMagArticleTitle {
-  font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
-  font-size: clamp(1.55rem, 3.4vw, 2.2rem);
-  line-height: 1.15;
-  margin: 0 0 0.75rem;
-  background: linear-gradient(120deg, #0f172a 0%, #4c1d95 70%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.nlNewsStandfirst {
+  margin: 0 0 1.1rem;
+  font-size: 1.15rem;
+  line-height: 1.55;
+  color: var(--nl-ink);
+  font-weight: 500;
 }
 
-.nlMagArticleTeaser {
-  margin: 0 0 1rem;
+.nlNewsBody {
   font-size: 1.08rem;
-  line-height: 1.65;
-  color: #334155;
-}
-
-.nlMagArticleBody {
-  margin: 0.5rem 0 1rem;
-  font-size: 1.05rem;
   line-height: 1.7;
-  border-top: 1px solid rgba(99, 102, 241, 0.12);
-  padding-top: 1rem;
-  animation: nlExpand 0.35s ease;
-}
-
-@keyframes nlExpand {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  color: var(--nl-ink);
+  margin: 0 0 1rem;
 }
 
 .nlBodyH2 {
-  font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
-  font-size: 1.3rem;
-  margin: 1.5rem 0 0.5rem;
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+  margin: 1.6rem 0 0.5rem;
   line-height: 1.25;
+  color: var(--nl-ink);
 }
 
 .nlBodyH3 {
-  font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
-  font-size: 1.12rem;
-  margin: 1.25rem 0 0.4rem;
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-size: 1.15rem;
+  margin: 1.35rem 0 0.4rem;
+  color: var(--nl-ink);
 }
 
 .nlBodyH4 {
   font-size: 0.95rem;
-  margin: 1.1rem 0 0.35rem;
+  margin: 1.15rem 0 0.35rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   color: var(--nl-muted);
+  font-weight: 700;
 }
 
 .nlBodyP {
@@ -9456,233 +9304,201 @@ body.navMenuOpen {
   margin-bottom: 0.35rem;
 }
 
-.nlMagArticleBody a {
-  color: var(--nl-purple-deep);
-  font-weight: 600;
+.nlNewsBody a {
+  color: var(--nl-accent);
+  text-decoration: underline;
 }
 
-.nlReadMore {
+.nlNewsContinue {
   appearance: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
+  display: inline;
   border: 0;
+  background: none;
+  padding: 0;
+  margin: 0.35rem 0 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--nl-accent);
   cursor: pointer;
-  border-radius: 999px;
-  padding: 0.75rem 1.2rem;
-  font-size: 0.98rem;
+  text-decoration: none;
+  border-bottom: 1px solid var(--nl-accent);
+}
+
+.nlNewsContinue:hover {
+  color: var(--nl-accent-hover);
+  border-bottom-color: var(--nl-accent-hover);
+}
+
+/* More stories list */
+.nlNewsList {
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 2px solid var(--nl-ink);
+}
+
+.nlNewsListTitle {
+  margin: 0 0 0.75rem;
+  font-size: 0.78rem;
   font-weight: 800;
-  color: #fff;
-  background: var(--nl-grad);
-  box-shadow: 0 10px 28px rgba(99, 102, 241, 0.35);
-  transition: transform 0.15s ease;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.nlReadMore:hover {
-  transform: translateY(-1px);
-}
-
-.nlReadMoreArrow {
-  display: inline-block;
-  transition: transform 0.2s ease;
-  font-size: 1.1rem;
-  line-height: 1;
-}
-
-.nlReadMoreArrowUp {
-  transform: rotate(180deg);
-}
-
-.nlMagEmpty {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 20px;
-  padding: 1.75rem;
-  border: 1px dashed rgba(99, 102, 241, 0.3);
-}
-
-.nlMagEmpty h2 {
-  margin: 0 0 0.5rem;
-  font-family: "Source Serif 4", Georgia, serif;
-}
-
-.nlMagEmpty p {
-  margin: 0 0 1rem;
-  color: var(--nl-muted);
-}
-
-/* Carousel */
-.nlCarousel {
-  margin-top: 1.75rem;
-}
-
-.nlCarouselHead {
-  margin-bottom: 0.75rem;
-}
-
-.nlCarouselTitle {
-  margin: 0 0 0.2rem;
-  font-size: 1.05rem;
-  font-weight: 800;
-}
-
-.nlCarouselHint {
+.nlNewsListItems {
+  list-style: none;
   margin: 0;
-  font-size: 0.9rem;
-  color: var(--nl-muted);
+  padding: 0;
 }
 
-.nlCarouselTrackWrap {
-  overflow: hidden;
-  mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
-  border-radius: 16px;
+.nlNewsListItems li {
+  border-top: 1px solid var(--nl-rule);
 }
 
-.nlCarouselTrack {
-  display: flex;
-  gap: 0.85rem;
-  width: max-content;
-  animation: nlMarquee 42s linear infinite;
-  padding: 0.35rem 0;
-}
-
-.nlCarouselTrack:hover {
-  animation-play-state: paused;
-}
-
-@keyframes nlMarquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-.nlCarouselCard {
-  flex: 0 0 220px;
-  width: 220px;
-  text-align: left;
+.nlNewsListLink {
+  width: 100%;
   appearance: none;
-  border: 1px solid rgba(99, 102, 241, 0.16);
-  background: #fff;
-  border-radius: 16px;
-  padding: 0.9rem;
+  border: 0;
+  background: none;
+  text-align: left;
+  padding: 0.9rem 0;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  gap: 0.2rem;
+  color: inherit;
+  font: inherit;
 }
 
-.nlCarouselCard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 14px 28px rgba(124, 58, 237, 0.15);
+.nlNewsListLink:hover .nlNewsListHeadline {
+  color: var(--nl-accent);
 }
 
-.nlCarouselCardTag {
-  font-size: 0.7rem;
-  font-weight: 800;
+.nlNewsListLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--nl-purple-deep);
+  color: var(--nl-accent);
 }
 
-.nlCarouselCardTitle {
-  font-size: 0.95rem;
+.nlNewsListHeadline {
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-size: 1.1rem;
+  font-weight: 700;
   line-height: 1.3;
   color: var(--nl-ink);
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
-.nlCarouselCardDate {
-  margin-top: auto;
-  font-size: 0.82rem;
+.nlNewsListDate {
+  font-size: 0.86rem;
   color: var(--nl-muted);
 }
 
-.nlMagCta {
+.nlNewsFooterLinks {
   margin-top: 2rem;
-  padding: 1.35rem 0 0;
-  border-top: 2px solid transparent;
-  border-image: var(--nl-grad) 1;
-}
-
-.nlMagCtaTitle {
-  margin: 0 0 0.35rem;
-  font-family: "Source Serif 4", Georgia, serif;
-  font-size: 1.35rem;
-}
-
-.nlMagCta p {
-  margin: 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--nl-rule);
+  font-size: 0.95rem;
   color: var(--nl-muted);
 }
 
-.nlCtaActions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem;
-  margin-top: 0.9rem;
+.nlNewsFooterLinks a {
+  color: var(--nl-accent);
+  font-weight: 600;
 }
 
-.nlMagBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  border-radius: 999px;
-  padding: 0.7rem 1.15rem;
+/* Right rail — text links only */
+.nlNewsAside {
+  padding-top: 0.15rem;
+  border-left: 1px solid var(--nl-rule);
+  padding-left: 1.35rem;
+}
+
+.nlNewsAsideTitle {
+  margin: 1.15rem 0 0.45rem;
+  font-size: 0.72rem;
   font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nl-ink);
+}
+
+.nlNewsAsideTitle:first-child {
+  margin-top: 0;
+}
+
+.nlNewsAsideLinks {
+  list-style: none;
+  margin: 0 0 0.35rem;
+  padding: 0;
+}
+
+.nlNewsAsideLinks li {
+  margin: 0;
+}
+
+.nlNewsAsideLink {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0.28rem 0;
+  margin: 0;
+  width: 100%;
+  text-align: left;
+  font: inherit;
   font-size: 0.95rem;
-  color: #fff;
-  background: var(--nl-grad);
-  box-shadow: 0 10px 24px rgba(99, 102, 241, 0.3);
+  line-height: 1.35;
+  color: var(--nl-ink);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 2px;
 }
 
-.nlMagBtnGhost {
-  color: var(--nl-purple-deep);
-  background: #fff;
-  border: 1.5px solid rgba(168, 85, 247, 0.35);
-  box-shadow: none;
+.nlNewsAsideLink:hover {
+  color: var(--nl-accent);
+  text-decoration-color: var(--nl-accent);
 }
 
-.nlLockedHint {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 2rem 0;
+.nlNewsAsideLinkActive {
+  color: var(--nl-accent);
+  font-weight: 700;
+  text-decoration-color: var(--nl-accent);
+}
+
+.nlNewsAsideDate {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--nl-muted);
+  margin-top: 0.1rem;
+  text-decoration: none;
 }
 
 @media (max-width: 860px) {
-  .nlMagLayout {
+  .nlNewsGrid {
     grid-template-columns: 1fr;
+    gap: 2rem;
   }
 
-  .nlMagRail {
-    position: static;
-    max-height: none;
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 0.35rem;
-    overflow-x: auto;
-    padding: 0.65rem;
-    -webkit-overflow-scrolling: touch;
+  .nlNewsStoryCol {
+    max-width: none;
   }
 
-  .nlMagRailTitle {
-    display: none;
+  .nlNewsAside {
+    border-left: 0;
+    border-top: 1px solid var(--nl-rule);
+    padding-left: 0;
+    padding-top: 1.25rem;
+    order: 2;
   }
 
-  .nlMagRailItem {
-    flex: 0 0 auto;
-    white-space: nowrap;
+  .nlNewsStoryCol {
+    order: 1;
   }
 }
 
+/* Admin newsletter (unchanged structure) */
 .adminNewsletterCard {
   grid-column: 1 / -1;
 }
