@@ -2575,6 +2575,7 @@ function slugifyNewsletter(title) {
 }
 
 function issuePublicJson(issue, { fullBody = false } = {}) {
+  const articleType = issue.articleType === 'industry' ? 'industry' : 'main'
   return {
     id: issue.id,
     slug: issue.slug,
@@ -2582,6 +2583,8 @@ function issuePublicJson(issue, { fullBody = false } = {}) {
     kicker: issue.kicker || '',
     summary: issue.summary || '',
     body: fullBody ? issue.body || '' : undefined,
+    articleType,
+    industry: articleType === 'industry' ? String(issue.industry || '') : '',
     issueNumber: issue.issueNumber,
     published: issue.published,
     publishedAt: issue.publishedAt,
@@ -2700,9 +2703,9 @@ app.get('/api/newsletter/issues', async (req, res) => {
     unlocked,
     brand: {
       name: 'School → Industry Weekly',
-      tagline: 'The free SA brief from high school to varsity, work, and industry.',
+      tagline: 'The free SA & Africa brief from school to industry.',
     },
-    issues: issues.map((issue) => issuePublicJson(issue, { fullBody: false })),
+    issues: issues.map((issue) => issuePublicJson(issue, { fullBody: unlocked })),
     subscriber: sub
       ? { firstName: sub.firstName, lastName: sub.lastName, email: sub.email }
       : null,
@@ -2780,6 +2783,12 @@ app.post('/api/admin/newsletter/issues', attachSupabaseEmailIfPresent, adminMidd
   const summary = String(req.body?.summary || '').trim()
   const body = String(req.body?.body || '').trim()
   const publishNow = Boolean(req.body?.publish)
+  const articleType = req.body?.articleType === 'industry' ? 'industry' : 'main'
+  const industry =
+    articleType === 'industry' ? String(req.body?.industry || '').trim().toLowerCase() : ''
+  if (articleType === 'industry' && !industry) {
+    return res.status(400).json({ error: 'Pick an industry for industry articles.' })
+  }
 
   const max = await prisma.newsletterIssue.aggregate({ _max: { issueNumber: true } })
   const issueNumber = (max._max.issueNumber || 0) + 1
@@ -2795,6 +2804,8 @@ app.post('/api/admin/newsletter/issues', attachSupabaseEmailIfPresent, adminMidd
       body,
       slug,
       issueNumber,
+      articleType,
+      industry,
       published: publishNow,
       publishedAt: publishNow ? new Date() : null,
     },
@@ -2814,6 +2825,19 @@ app.put('/api/admin/newsletter/issues/:id', attachSupabaseEmailIfPresent, adminM
   if (typeof req.body?.body === 'string') data.body = req.body.body
   if (typeof req.body?.slug === 'string' && req.body.slug.trim()) {
     data.slug = slugifyNewsletter(req.body.slug)
+  }
+  if (req.body?.articleType === 'main' || req.body?.articleType === 'industry') {
+    data.articleType = req.body.articleType
+  }
+  if (typeof req.body?.industry === 'string') {
+    data.industry = String(req.body.industry || '').trim().toLowerCase()
+  }
+  if (data.articleType === 'main') data.industry = ''
+  if (data.articleType === 'industry' || (data.articleType == null && existing.articleType === 'industry')) {
+    const industryVal = data.industry != null ? data.industry : existing.industry
+    if (!industryVal) {
+      return res.status(400).json({ error: 'Pick an industry for industry articles.' })
+    }
   }
   if (typeof req.body?.published === 'boolean') {
     data.published = req.body.published

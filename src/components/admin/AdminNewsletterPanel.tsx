@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { adminApi } from '../../api/adminClient'
+import { NEWSLETTER_INDUSTRIES } from '../../data/newsletterIndustries'
 import { ISSUE_0_TEMPLATE } from '../../utils/newsletterContent'
 
 type AdminIssue = {
@@ -9,6 +10,8 @@ type AdminIssue = {
   kicker: string
   summary: string
   body: string
+  articleType: 'main' | 'industry'
+  industry: string
   issueNumber: number
   published: boolean
   publishedAt: string | null
@@ -27,6 +30,8 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
   const [summary, setSummary] = useState('')
   const [body, setBody] = useState('')
   const [slug, setSlug] = useState('')
+  const [articleType, setArticleType] = useState<'main' | 'industry'>('main')
+  const [industry, setIndustry] = useState('')
 
   const refresh = useCallback(async () => {
     setBusy(true)
@@ -56,6 +61,8 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
     setSummary('')
     setBody('')
     setSlug('')
+    setArticleType('main')
+    setIndustry('')
     setMessage(null)
   }
 
@@ -66,16 +73,20 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
     setSummary(issue.summary)
     setBody(issue.body)
     setSlug(issue.slug)
+    setArticleType(issue.articleType === 'industry' ? 'industry' : 'main')
+    setIndustry(issue.industry || '')
     setMessage(null)
   }
 
   function loadTemplate() {
+    setArticleType('main')
+    setIndustry('')
     setTitle(ISSUE_0_TEMPLATE.title)
     setKicker(ISSUE_0_TEMPLATE.kicker)
     setSummary(ISSUE_0_TEMPLATE.summary)
     setBody(ISSUE_0_TEMPLATE.body)
     setSlug('welcome-school-to-industry')
-    setMessage('Loaded welcome template — edit, then save & publish.')
+    setMessage('Loaded welcome main brief — edit, then save & publish.')
   }
 
   async function onSave(e: FormEvent, publish: boolean) {
@@ -84,20 +95,31 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
     onError(null)
     setMessage(null)
     try {
+      const payload = {
+        title,
+        kicker,
+        summary,
+        body,
+        slug,
+        articleType,
+        industry: articleType === 'industry' ? industry : '',
+        published: publish,
+        publish,
+      }
       if (editingId) {
         await adminApi(`/api/admin/newsletter/issues/${encodeURIComponent(editingId)}`, {
           method: 'PUT',
-          json: { title, kicker, summary, body, slug, published: publish },
+          json: payload,
         })
-        setMessage(publish ? 'Issue updated and published.' : 'Issue saved as draft.')
+        setMessage(publish ? 'Article updated and published.' : 'Article saved as draft.')
       } else {
         const res = await adminApi<{ issue: AdminIssue }>('/api/admin/newsletter/issues', {
           method: 'POST',
-          json: { title, kicker, summary, body, slug, publish },
+          json: payload,
         })
         setEditingId(res.issue.id)
         setSlug(res.issue.slug)
-        setMessage(publish ? 'Issue created and published.' : 'Draft created.')
+        setMessage(publish ? 'Article created and published.' : 'Draft created.')
       }
       await refresh()
     } catch (err) {
@@ -133,10 +155,11 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
     <section className="adminCard adminNewsletterCard">
       <div className="adminCardHeadRow">
         <div>
-          <h2 className="adminCardTitle">School → Industry newsletter</h2>
+          <h2 className="adminCardTitle">School → Industry magazine</h2>
           <p className="adminCardLead">
             Public at <code className="adminMono">/newsletter</code> · {activeCount} active subscriber
-            {activeCount === 1 ? '' : 's'}
+            {activeCount === 1 ? '' : 's'}. Publish a <strong>main</strong> weekly brief and optional{' '}
+            <strong>industry</strong> deep-dives.
           </p>
         </div>
         <div className="adminNewsletterActions">
@@ -144,7 +167,7 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
             Refresh
           </button>
           <button type="button" className="btn btnOutline btnSmall" onClick={startNew}>
-            New issue
+            New article
           </button>
           <button type="button" className="btn btnGhost btnSmall" onClick={loadTemplate}>
             Load welcome template
@@ -155,21 +178,46 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
       {message ? <p className="adminOkMessage">{message}</p> : null}
 
       <form className="adminNewsletterForm" onSubmit={(e) => void onSave(e, false)}>
+        <div className="adminNewsletterRow2">
+          <label className="field">
+            <span>Article type</span>
+            <select
+              value={articleType}
+              onChange={(e) => setArticleType(e.target.value === 'industry' ? 'industry' : 'main')}
+            >
+              <option value="main">Main weekly brief</option>
+              <option value="industry">Industry / career deep-dive</option>
+            </select>
+          </label>
+          {articleType === 'industry' ? (
+            <label className="field">
+              <span>Industry</span>
+              <select value={industry} onChange={(e) => setIndustry(e.target.value)} required>
+                <option value="">Select industry…</option>
+                {NEWSLETTER_INDUSTRIES.map((ind) => (
+                  <option key={ind.id} value={ind.id}>
+                    {ind.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+        </div>
         <label className="field">
           <span>Title</span>
-          <input value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="Issue title" />
+          <input value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="Article title" />
         </label>
         <label className="field">
-          <span>Kicker (week / industry line)</span>
+          <span>Kicker (week line)</span>
           <input
             value={kicker}
             onChange={(e) => setKicker(e.target.value)}
-            placeholder="Week of 10 Aug · Banking"
+            placeholder="Week of 10 Aug · SA & Africa"
           />
         </label>
         <label className="field">
-          <span>Summary (teaser on landing)</span>
-          <input value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="One sentence" />
+          <span>Summary (teaser under title)</span>
+          <input value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="One or two sentences" />
         </label>
         <label className="field">
           <span>URL slug (optional)</span>
@@ -203,7 +251,7 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
 
       <h3 className="adminSubhead">Published & drafts</h3>
       {issues.length === 0 ? (
-        <p className="adminMuted">No issues yet — load the welcome template and publish Issue 1.</p>
+        <p className="adminMuted">No articles yet — load the welcome template and publish the main brief.</p>
       ) : (
         <ul className="adminNewsletterIssueList">
           {issues.map((issue) => (
@@ -213,18 +261,24 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
                   #{issue.issueNumber} · {issue.title}
                 </strong>
                 <p className="adminMuted">
+                  {issue.articleType === 'industry'
+                    ? `Industry · ${issue.industry || '—'}`
+                    : 'Main brief'}
+                  {' · '}
                   {issue.published ? 'Published' : 'Draft'}
                   {issue.emailSentAt
                     ? ` · emailed ${new Date(issue.emailSentAt).toLocaleString()}`
-                    : ' · not emailed yet'}{' '}
-                  · /newsletter/{issue.slug}
+                    : issue.articleType === 'main'
+                      ? ' · not emailed yet'
+                      : ''}{' '}
+                  · /newsletter?article={issue.slug}
                 </p>
               </div>
               <div className="adminNewsletterRowActions">
                 <button type="button" className="btn btnGhost btnSmall" onClick={() => startEdit(issue)}>
                   Edit
                 </button>
-                {issue.published ? (
+                {issue.published && issue.articleType === 'main' ? (
                   <button
                     type="button"
                     className="btn btnBrand btnSmall"

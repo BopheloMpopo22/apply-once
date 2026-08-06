@@ -1046,6 +1046,47 @@ h4 {
   color: rgba(255, 255, 255, 1);
 }
 
+.navLinkPurple {
+  background: linear-gradient(115deg, #7c5cff 0%, #a855f7 45%, #c084fc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+  position: relative;
+  filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.45));
+}
+
+.navLinkPurple::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #60a5fa, #a855f7, #e9d5ff);
+  opacity: 0.85;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.65);
+}
+
+.navLinkPurple:hover {
+  filter: drop-shadow(0 0 14px rgba(192, 132, 252, 0.7));
+  color: transparent;
+}
+
+.navShellLight .navLinkPurple {
+  filter: drop-shadow(0 0 8px rgba(147, 51, 234, 0.28));
+}
+
+.navMobileLinkPurple {
+  background: linear-gradient(115deg, #7c5cff 0%, #a855f7 45%, #c084fc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 800;
+  filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.35));
+}
+
 .navRight {
   display: flex;
   align-items: center;
@@ -5349,6 +5390,15 @@ body {
   color: var(--text);
 }
 
+.navShellLight .navLinkPurple,
+.navShellLight .navLinkPurple:hover {
+  background: linear-gradient(115deg, #7c5cff 0%, #a855f7 45%, #c084fc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 10px rgba(147, 51, 234, 0.35));
+}
+
 .navShellLight .navAuth .btnPrimary {
   background: linear-gradient(95deg, var(--hfc-blue) 0%, var(--hfc-blue-bright) 100%);
   color: #fff;
@@ -8935,275 +8985,461 @@ body.navMenuOpen {
   }
 }
 
-/* ——— School → Industry newsletter ——— */
+/* ——— School → Industry magazine ——— */
 .nlShell {
-  --nl-ink: #1a1714;
-  --nl-muted: #5c574f;
-  --nl-paper: #f7f3eb;
-  --nl-rule: rgba(26, 23, 20, 0.14);
-  --nl-accent: #0b5f4b;
+  --nl-ink: #0f172a;
+  --nl-muted: #475569;
+  --nl-paper: #f8fafc;
+  --nl-blue: #38bdf8;
+  --nl-blue-deep: #2132e6;
+  --nl-purple: #a855f7;
+  --nl-purple-deep: #7c3aed;
+  --nl-grad: linear-gradient(120deg, #38bdf8 0%, #6366f1 48%, #a855f7 100%);
+  --nl-grad-soft: linear-gradient(135deg, rgba(56, 189, 248, 0.18) 0%, rgba(168, 85, 247, 0.22) 100%);
   background:
-    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(11, 95, 75, 0.08), transparent 55%),
-    linear-gradient(180deg, #ebe4d6 0%, var(--nl-paper) 28%, #f3efe6 100%);
+    radial-gradient(ellipse 70% 45% at 85% 0%, rgba(168, 85, 247, 0.14), transparent 55%),
+    radial-gradient(ellipse 55% 40% at 0% 20%, rgba(56, 189, 248, 0.14), transparent 50%),
+    linear-gradient(180deg, #eef6ff 0%, var(--nl-paper) 32%, #f5f3ff 100%);
   color: var(--nl-ink);
   min-height: 100vh;
 }
 
-.nlHero {
-  border-bottom: 1px solid var(--nl-rule);
-  padding: clamp(2rem, 5vw, 3.25rem) 0 1.75rem;
+.nlShellLocked {
+  overflow: hidden;
 }
 
-.nlHeroInner {
-  max-width: 46rem;
-}
-
-.nlKicker {
-  font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, serif;
-  font-size: 0.85rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--nl-accent);
-  margin: 0 0 0.65rem;
-}
-
-.nlTitle {
-  font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, serif;
-  font-size: clamp(2rem, 5.5vw, 3.1rem);
-  font-weight: 700;
-  line-height: 1.12;
-  letter-spacing: -0.02em;
-  margin: 0 0 0.75rem;
-}
-
-.nlLead {
-  font-size: 1.1rem;
-  line-height: 1.55;
-  color: var(--nl-muted);
-  margin: 0 0 0.5rem;
-  max-width: 36rem;
-}
-
-.nlHeroMeta {
-  margin: 0.75rem 0 0;
-  font-size: 0.95rem;
-}
-
-.nlMain,
-.nlIssueMain {
-  padding: 1.75rem 0 3.5rem;
-  max-width: 46rem;
-}
-
-.nlSectionTitle {
-  font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, serif;
-  font-size: 1.45rem;
-  margin: 0 0 0.4rem;
-}
-
-.nlSectionLead {
-  margin: 0 0 1.1rem;
-  line-height: 1.5;
-}
-
-.nlSubscribeCard,
-.nlLatestCard,
-.nlWelcomeBar {
-  background: rgba(255, 252, 246, 0.92);
-  border: 1px solid var(--nl-rule);
-  border-radius: 2px;
-  padding: 1.35rem 1.4rem;
-  margin-bottom: 1.25rem;
-}
-
-.nlSubscribeForm {
+/* Subscribe gate (full-screen popup) */
+.nlGate {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.85rem 1rem;
+  place-items: center;
+  padding: 1.25rem;
 }
 
-.nlField {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  font-size: 0.88rem;
-  font-weight: 600;
+.nlGateBackdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.35), transparent 40%),
+    radial-gradient(circle at 80% 30%, rgba(168, 85, 247, 0.4), transparent 42%),
+    linear-gradient(160deg, rgba(15, 23, 42, 0.72), rgba(49, 46, 129, 0.78));
+  backdrop-filter: blur(8px);
 }
 
-.nlField .input {
-  font-weight: 400;
-  border-radius: 2px;
-  border-color: var(--nl-rule);
-  background: #fffef9;
+.nlGateCard {
+  position: relative;
+  width: min(520px, 100%);
+  max-height: min(92vh, 900px);
+  overflow: auto;
+  border-radius: 28px;
+  padding: 1.75rem 1.6rem 1.4rem;
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    var(--nl-grad) border-box;
+  border: 2px solid transparent;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.4) inset,
+    0 24px 80px rgba(88, 28, 135, 0.35);
+  animation: nlGateIn 0.45s ease both;
 }
 
-.nlFieldFull {
-  grid-column: 1 / -1;
+@keyframes nlGateIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-.nlSubscribeBtn {
-  grid-column: 1 / -1;
-  justify-self: start;
-  margin-top: 0.25rem;
-}
-
-.nlFormOk {
-  margin: 0.85rem 0 0;
-  color: var(--nl-accent);
-  font-size: 0.95rem;
-}
-
-.nlWelcomeBar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.nlWelcomeBar p {
-  margin: 0;
-}
-
-.nlIssueBadge {
+.nlGateBadge {
+  display: inline-flex;
   font-size: 0.78rem;
+  font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--nl-accent);
-  font-weight: 700;
-  margin: 0 0 0.5rem;
+  color: #fff;
+  background: var(--nl-grad);
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  margin-bottom: 0.85rem;
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.35);
 }
 
-.nlLatestTitle,
-.nlPaperTitle {
-  font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, serif;
-  font-size: clamp(1.45rem, 3.2vw, 2rem);
-  line-height: 1.2;
-  margin: 0 0 0.45rem;
-}
-
-.nlIssueKicker {
+.nlGateTitle {
+  font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+  font-size: clamp(1.7rem, 4.5vw, 2.15rem);
+  line-height: 1.15;
   margin: 0 0 0.65rem;
-  font-style: italic;
+  background: var(--nl-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-.nlLatestSummary {
-  margin: 0 0 1rem;
+.nlGateLead {
+  margin: 0 0 0.85rem;
+  color: var(--nl-muted);
   line-height: 1.55;
-  color: var(--nl-muted);
+  font-size: 1.02rem;
 }
 
-.nlArchive {
-  margin: 1.75rem 0;
+.nlGateBullets {
+  margin: 0 0 1.15rem;
+  padding-left: 1.15rem;
+  color: var(--nl-ink);
+  line-height: 1.5;
+  font-size: 0.95rem;
 }
 
-.nlArchiveList {
-  list-style: none;
-  margin: 0.85rem 0 0;
-  padding: 0;
-  border-top: 1px solid var(--nl-rule);
+.nlGateBullets li {
+  margin-bottom: 0.35rem;
 }
 
-.nlArchiveList li {
-  border-bottom: 1px solid var(--nl-rule);
+.nlGateForm {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem 0.75rem;
 }
 
-.nlArchiveLink {
+.nlGateField {
   display: flex;
-  gap: 0.85rem;
-  align-items: flex-start;
-  padding: 0.85rem 0.15rem;
-  text-decoration: none;
-  color: inherit;
-}
-
-a.nlArchiveLink:hover strong {
-  color: var(--nl-accent);
-}
-
-.nlArchiveLocked {
-  opacity: 0.72;
-}
-
-.nlArchiveNum {
-  font-variant-numeric: tabular-nums;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.86rem;
   font-weight: 700;
+  color: #334155;
+}
+
+.nlGateFieldFull {
+  grid-column: 1 / -1;
+}
+
+.nlGateField input {
+  appearance: none;
+  border: 1.5px solid rgba(99, 102, 241, 0.25);
+  background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+  border-radius: 999px;
+  padding: 0.95rem 1.15rem;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--nl-ink);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.nlGateField input:focus {
+  border-color: #a855f7;
+  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.18);
+  transform: translateY(-1px);
+}
+
+.nlGateError {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #b91c1c;
+  font-size: 0.92rem;
+}
+
+.nlGateSubmit {
+  grid-column: 1 / -1;
+  margin-top: 0.25rem;
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 1rem 1.25rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fff;
+  background: var(--nl-grad);
+  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.4);
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.nlGateSubmit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.nlGateSubmit:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.nlGateFoot {
+  margin: 1rem 0 0;
+  font-size: 0.88rem;
   color: var(--nl-muted);
-  min-width: 2.25rem;
+  text-align: center;
 }
 
-.nlArchiveMeta {
-  display: block;
-  font-size: 0.9rem;
-  margin-top: 0.15rem;
+.nlGateFoot a {
+  color: var(--nl-purple-deep);
+  font-weight: 700;
 }
 
-.nlCta {
-  margin-top: 2rem;
-  padding-top: 1.25rem;
-  border-top: 2px solid var(--nl-ink);
+@media (max-width: 560px) {
+  .nlGateForm {
+    grid-template-columns: 1fr;
+  }
 }
 
-.nlCtaActions {
+/* Magazine hero */
+.nlMagHero {
+  background: var(--nl-grad);
+  color: #fff;
+  padding: clamp(1.75rem, 4vw, 2.75rem) 0 1.85rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.nlMagHero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 15% 80%, rgba(255, 255, 255, 0.22), transparent 35%),
+    radial-gradient(circle at 90% 10%, rgba(255, 255, 255, 0.18), transparent 30%);
+  pointer-events: none;
+}
+
+.nlMagHeroInner {
+  position: relative;
+  z-index: 1;
+  max-width: 54rem;
+}
+
+.nlMagKicker {
+  margin: 0 0 0.45rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 800;
+  opacity: 0.92;
+}
+
+.nlMagTitle {
+  font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+  font-size: clamp(1.9rem, 5vw, 2.75rem);
+  line-height: 1.1;
+  margin: 0 0 0.55rem;
+  text-shadow: 0 8px 30px rgba(15, 23, 42, 0.2);
+}
+
+.nlMagLead {
+  margin: 0;
+  max-width: 38rem;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  opacity: 0.95;
+}
+
+.nlMagReader {
+  margin-top: 0.95rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.65rem;
-  margin-top: 0.9rem;
+  gap: 0.65rem 1rem;
+  align-items: center;
+  font-size: 0.92rem;
 }
 
-.nlBack {
-  display: inline-block;
-  margin-bottom: 1rem;
-  font-size: 0.95rem;
-  color: var(--nl-accent);
-  text-decoration: none;
+.nlMagLinkBtn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.85rem;
   font-weight: 600;
+  cursor: pointer;
 }
 
-.nlBack:hover {
-  text-decoration: underline;
+.nlMagLinkBtn:hover {
+  background: rgba(255, 255, 255, 0.22);
 }
 
-.nlPaper {
-  background: #fffef9;
-  border: 1px solid var(--nl-rule);
-  box-shadow: 0 12px 40px rgba(26, 23, 20, 0.06);
-  padding: clamp(1.25rem, 4vw, 2.25rem);
-  margin-top: 0.5rem;
+/* Magazine grid */
+.nlMagLayout {
+  display: grid;
+  grid-template-columns: minmax(180px, 230px) minmax(0, 1fr);
+  gap: 1.5rem 1.75rem;
+  padding: 1.5rem 0 3.5rem;
+  max-width: 1100px;
 }
 
-.nlPaperDeck {
-  font-size: 1.08rem;
-  line-height: 1.5;
+.nlMagRail {
+  position: sticky;
+  top: 5.5rem;
+  align-self: start;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(99, 102, 241, 0.14);
+  border-radius: 18px;
+  padding: 0.85rem 0.65rem;
+  max-height: calc(100vh - 6.5rem);
+  overflow: auto;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+.nlMagRailTitle {
+  margin: 0 0.5rem 0.55rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--nl-purple-deep);
+}
+
+.nlMagRailItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  text-align: left;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--nl-ink);
+  border-radius: 12px;
+  padding: 0.55rem 0.65rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.nlMagRailItem:hover {
+  background: var(--nl-grad-soft);
+  color: var(--nl-ink);
+}
+
+.nlMagRailItemActive {
+  background: var(--nl-grad);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(99, 102, 241, 0.28);
+}
+
+.nlMagRailItemActive:hover {
+  color: #fff;
+  background: var(--nl-grad);
+}
+
+.nlMagRailDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+  flex-shrink: 0;
+}
+
+.nlMagRailItemActive .nlMagRailDot {
+  background: #fff;
+  box-shadow: none;
+}
+
+.nlMagMain {
+  min-width: 0;
+}
+
+.nlMagArticle {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  border-radius: 22px;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
+}
+
+.nlMagArticleMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 0.9rem;
+  align-items: center;
+  margin-bottom: 0.55rem;
+  font-size: 0.88rem;
   color: var(--nl-muted);
-  margin: 0 0 1.5rem;
-  padding-bottom: 1.15rem;
-  border-bottom: 1px solid var(--nl-rule);
 }
 
-.nlPaperBody {
+.nlMagChip {
+  display: inline-flex;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--nl-grad);
+}
+
+.nlMagArticleKicker {
+  margin: 0 0 0.4rem;
+  font-style: italic;
+  color: var(--nl-muted);
+}
+
+.nlMagArticleTitle {
+  font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+  font-size: clamp(1.55rem, 3.4vw, 2.2rem);
+  line-height: 1.15;
+  margin: 0 0 0.75rem;
+  background: linear-gradient(120deg, #0f172a 0%, #4c1d95 70%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.nlMagArticleTeaser {
+  margin: 0 0 1rem;
+  font-size: 1.08rem;
+  line-height: 1.65;
+  color: #334155;
+}
+
+.nlMagArticleBody {
+  margin: 0.5rem 0 1rem;
   font-size: 1.05rem;
   line-height: 1.7;
+  border-top: 1px solid rgba(99, 102, 241, 0.12);
+  padding-top: 1rem;
+  animation: nlExpand 0.35s ease;
+}
+
+@keyframes nlExpand {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .nlBodyH2 {
-  font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, serif;
-  font-size: 1.35rem;
-  margin: 1.6rem 0 0.55rem;
+  font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+  font-size: 1.3rem;
+  margin: 1.5rem 0 0.5rem;
   line-height: 1.25;
 }
 
 .nlBodyH3 {
-  font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, serif;
-  font-size: 1.15rem;
-  margin: 1.35rem 0 0.45rem;
+  font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+  font-size: 1.12rem;
+  margin: 1.25rem 0 0.4rem;
 }
 
 .nlBodyH4 {
-  font-size: 1rem;
-  margin: 1.15rem 0 0.4rem;
+  font-size: 0.95rem;
+  margin: 1.1rem 0 0.35rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   color: var(--nl-muted);
 }
 
@@ -9220,28 +9456,230 @@ a.nlArchiveLink:hover strong {
   margin-bottom: 0.35rem;
 }
 
-.nlPaperBody a {
-  color: var(--nl-accent);
+.nlMagArticleBody a {
+  color: var(--nl-purple-deep);
+  font-weight: 600;
 }
 
-.nlPaperFoot {
+.nlReadMore {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 0;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 0.75rem 1.2rem;
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #fff;
+  background: var(--nl-grad);
+  box-shadow: 0 10px 28px rgba(99, 102, 241, 0.35);
+  transition: transform 0.15s ease;
+}
+
+.nlReadMore:hover {
+  transform: translateY(-1px);
+}
+
+.nlReadMoreArrow {
+  display: inline-block;
+  transition: transform 0.2s ease;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.nlReadMoreArrowUp {
+  transform: rotate(180deg);
+}
+
+.nlMagEmpty {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 1.75rem;
+  border: 1px dashed rgba(99, 102, 241, 0.3);
+}
+
+.nlMagEmpty h2 {
+  margin: 0 0 0.5rem;
+  font-family: "Source Serif 4", Georgia, serif;
+}
+
+.nlMagEmpty p {
+  margin: 0 0 1rem;
+  color: var(--nl-muted);
+}
+
+/* Carousel */
+.nlCarousel {
+  margin-top: 1.75rem;
+}
+
+.nlCarouselHead {
+  margin-bottom: 0.75rem;
+}
+
+.nlCarouselTitle {
+  margin: 0 0 0.2rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.nlCarouselHint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--nl-muted);
+}
+
+.nlCarouselTrackWrap {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  border-radius: 16px;
+}
+
+.nlCarouselTrack {
+  display: flex;
+  gap: 0.85rem;
+  width: max-content;
+  animation: nlMarquee 42s linear infinite;
+  padding: 0.35rem 0;
+}
+
+.nlCarouselTrack:hover {
+  animation-play-state: paused;
+}
+
+@keyframes nlMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.nlCarouselCard {
+  flex: 0 0 220px;
+  width: 220px;
+  text-align: left;
+  appearance: none;
+  border: 1px solid rgba(99, 102, 241, 0.16);
+  background: #fff;
+  border-radius: 16px;
+  padding: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.nlCarouselCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px rgba(124, 58, 237, 0.15);
+}
+
+.nlCarouselCardTag {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nl-purple-deep);
+}
+
+.nlCarouselCardTitle {
+  font-size: 0.95rem;
+  line-height: 1.3;
+  color: var(--nl-ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.nlCarouselCardDate {
+  margin-top: auto;
+  font-size: 0.82rem;
+  color: var(--nl-muted);
+}
+
+.nlMagCta {
   margin-top: 2rem;
-  padding-top: 1.15rem;
-  border-top: 1px solid var(--nl-rule);
+  padding: 1.35rem 0 0;
+  border-top: 2px solid transparent;
+  border-image: var(--nl-grad) 1;
 }
 
-.nlPaperFoot a {
-  color: var(--nl-accent);
+.nlMagCtaTitle {
+  margin: 0 0 0.35rem;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 1.35rem;
 }
 
-@media (max-width: 560px) {
-  .nlSubscribeForm {
+.nlMagCta p {
+  margin: 0;
+  color: var(--nl-muted);
+}
+
+.nlCtaActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 0.9rem;
+}
+
+.nlMagBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 0.7rem 1.15rem;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #fff;
+  background: var(--nl-grad);
+  box-shadow: 0 10px 24px rgba(99, 102, 241, 0.3);
+}
+
+.nlMagBtnGhost {
+  color: var(--nl-purple-deep);
+  background: #fff;
+  border: 1.5px solid rgba(168, 85, 247, 0.35);
+  box-shadow: none;
+}
+
+.nlLockedHint {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem 0;
+}
+
+@media (max-width: 860px) {
+  .nlMagLayout {
     grid-template-columns: 1fr;
   }
 
-  .nlSubscribeBtn {
-    width: 100%;
-    justify-self: stretch;
+  .nlMagRail {
+    position: static;
+    max-height: none;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.35rem;
+    overflow-x: auto;
+    padding: 0.65rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nlMagRailTitle {
+    display: none;
+  }
+
+  .nlMagRailItem {
+    flex: 0 0 auto;
+    white-space: nowrap;
   }
 }
 
@@ -9271,6 +9709,18 @@ a.nlArchiveLink:hover strong {
   display: grid;
   gap: 0.75rem;
   margin-bottom: 1.5rem;
+}
+
+.adminNewsletterRow2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 700px) {
+  .adminNewsletterRow2 {
+    grid-template-columns: 1fr;
+  }
 }
 
 .adminNewsletterBody {

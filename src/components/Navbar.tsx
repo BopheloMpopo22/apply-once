@@ -2,7 +2,7 @@ import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { NavAuth } from './NavAuth'
 
-type NavLink = { label: string; to: string }
+type NavLink = { label: string; to: string; accent?: 'purple' }
 
 export function Navbar(props: { logo: ReactNode; links: NavLink[]; variant?: 'brand' | 'light' }) {
   const variant = props.variant ?? 'brand'
@@ -85,7 +85,11 @@ export function Navbar(props: { logo: ReactNode; links: NavLink[]; variant?: 'br
 
           <nav className="navLinks" aria-label="Primary navigation">
             {props.links.map((l) => (
-              <Link key={l.to} className="navLink" to={l.to}>
+              <Link
+                key={l.to}
+                className={l.accent === 'purple' ? 'navLink navLinkPurple' : 'navLink'}
+                to={l.to}
+              >
                 {l.label}
               </Link>
             ))}
@@ -138,7 +142,12 @@ export function Navbar(props: { logo: ReactNode; links: NavLink[]; variant?: 'br
             Home
           </Link>
           {props.links.map((l) => (
-            <Link key={l.to} className="navMobileLink" to={l.to} onClick={closeMenuForNav}>
+            <Link
+              key={l.to}
+              className={l.accent === 'purple' ? 'navMobileLink navMobileLinkPurple' : 'navMobileLink'}
+              to={l.to}
+              onClick={closeMenuForNav}
+            >
               {l.label}
             </Link>
           ))}

@@ -27,6 +27,8 @@ CREATE TABLE IF NOT EXISTS "NewsletterIssue" (
   "kicker" TEXT NOT NULL DEFAULT '',
   "summary" TEXT NOT NULL DEFAULT '',
   "body" TEXT NOT NULL DEFAULT '',
+  "articleType" TEXT NOT NULL DEFAULT 'main',
+  "industry" TEXT NOT NULL DEFAULT '',
   "issueNumber" INTEGER NOT NULL,
   "published" BOOLEAN NOT NULL DEFAULT false,
   "publishedAt" TIMESTAMP(3),
@@ -45,3 +47,6 @@ CREATE INDEX IF NOT EXISTS "NewsletterIssue_published_publishedAt_idx"
 
 CREATE INDEX IF NOT EXISTS "NewsletterIssue_issueNumber_idx"
   ON "NewsletterIssue"("issueNumber");
+
+CREATE INDEX IF NOT EXISTS "NewsletterIssue_articleType_industry_idx"
+  ON "NewsletterIssue"("articleType", "industry");

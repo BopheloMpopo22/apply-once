@@ -78,19 +78,37 @@ function inlineFormat(text: string): ReactNode {
 
 export const NEWSLETTER_BRAND = {
   name: 'School → Industry Weekly',
-  tagline: 'The free SA brief from high school to varsity, work, and industry.',
+  tagline: 'Weekly industry news for learners across South Africa and Africa — school to career.',
+}
+
+/** First readable prose paragraph from magazine body (skips headings). */
+export function firstBodyParagraph(body: string): string {
+  const blocks = body.replace(/\r\n/g, '\n').trim().split(/\n{2,}/)
+  for (const block of blocks) {
+    const t = block.trim()
+    if (!t) continue
+    if (/^#{1,3}\s/.test(t)) continue
+    if (t.startsWith('- ') || t.startsWith('* ')) continue
+    if (t === '---') continue
+    return t.replace(/\*\*/g, '').replace(/\n+/g, ' ').trim()
+  }
+  return ''
 }
 
 export const ISSUE_0_TEMPLATE = {
   title: 'Welcome: School → Industry starts here',
-  kicker: 'Issue 0 · Getting started',
+  kicker: 'This week · Getting started',
   summary:
-    'Why SA students miss opportunities, how this weekly brief works, and five pathways after matric.',
+    'Why SA students miss opportunities, how this weekly magazine works, and five pathways after matric.',
   body: `# Welcome to School → Industry Weekly
 
-South Africa has many opportunities — bursaries, learnerships, vacation work, graduate programmes, TVET routes, and short courses. The hard part is often **knowing what exists** and **what to do next**.
+South Africa and the rest of the continent have more pathways than most learners hear about in class — bursaries, learnerships, vacation work, graduate programmes, TVET routes, and short courses. The hard part is often **knowing what exists**, **what industries are hiring**, and **what to do next**.
 
-This free brief is Apply Once’s map: industry stories, what jobs actually need, what to study, and where to apply — every week.
+This free magazine from Apply Once is your weekly map: what’s moving in business and public life, what school subjects and skills open doors, and where to apply — in South Africa and across Africa.
+
+## Across industries this week
+
+Banking and finance keep recruiting for client-facing and digital roles. Mining and energy still talk scarce skills — artisans, engineers, and ESG-aware operators. Technology demands people who can learn tools fast. Education and healthcare remain high-purpose careers with long training roads. Logistics, marketing, and hospitality reward reliability and communication.
 
 ## Five pathways after matric
 
@@ -103,8 +121,8 @@ This free brief is Apply Once’s map: industry stories, what jobs actually need
 ## This week’s action
 
 1. Open **Programmes for work** on Apply Once and set your stage (matric, finished matric, university…).
-2. Bookmark **SA Youth** and one job board from the job-search links panel.
-3. Reply to this brief (or message us) with the industry you want next week — banking, nursing, mining, digital, teaching, and more.
+2. Browse the industry rail on the left — pick the career you care about most.
+3. Bookmark **SA Youth** and one job board from the job-search links on the programmes hub.
 
 ## Opportunities to explore
 
@@ -116,9 +134,7 @@ This free brief is Apply Once’s map: industry stories, what jobs actually need
 
 Employers look for proof you can learn, show up, and communicate. Matric subjects matter for some careers — but **profiles, CVs, short courses, and applying on time** matter for almost all of them.
 
----
-
-You’re in. Next week we go deep on one industry. Share this brief with a friend in Grade 11–12.
+You’re in. Tap an industry on the left for sector deep-dives, and share this brief with a friend in Grade 11–12.
 
 **— Apply Once**
 `,
