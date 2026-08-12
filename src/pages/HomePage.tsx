@@ -23,7 +23,7 @@ export function HomePage() {
         links={[
           { label: 'Features', to: '/#features' },
           { label: 'Resources', to: '/#resources' },
-          { label: 'Newsletter', to: '/newsletter', accent: 'purple' },
+          { label: 'Newsletter', to: '/newsletter', accent: 'red' },
         ]}
       />
 

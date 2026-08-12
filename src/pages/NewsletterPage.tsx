@@ -300,7 +300,7 @@ export function NewsletterPage() {
         links={[
           { label: 'Home', to: '/' },
           { label: 'Programmes', to: '/programmes-for-work' },
-          { label: 'Newsletter', to: '/newsletter', accent: 'purple' },
+          { label: 'Newsletter', to: '/newsletter', accent: 'red' },
         ]}
       />
 
@@ -501,7 +501,7 @@ export function NewsletterPage() {
         brand={{ name: 'Apply Once', description: 'School to industry — one profile, clearer options.' }}
         legalLinks={[
           { label: 'About', to: '/about' },
-          { label: 'Newsletter', to: '/newsletter' },
+          { label: 'Newsletter', to: '/newsletter', accent: 'red' },
           { label: 'Terms', to: '/terms' },
           { label: 'Contact', to: '/contact' },
         ]}
@@ -563,7 +563,7 @@ export function NewsletterUnsubscribePage() {
         logo={<ApplyOnceLogo />}
         links={[
           { label: 'Home', to: '/' },
-          { label: 'Newsletter', to: '/newsletter', accent: 'purple' },
+          { label: 'Newsletter', to: '/newsletter', accent: 'red' },
         ]}
       />
       <main className="container nlNews">

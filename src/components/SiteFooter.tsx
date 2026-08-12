@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 
 type FooterLegalLink =
-  | { label: string; to: string }
-  | { label: string; href: string; external?: boolean }
+  | { label: string; to: string; accent?: 'red' }
+  | { label: string; href: string; external?: boolean; accent?: 'red' }
 
 export function SiteFooter(props: {
   brand: { name: string; description: string }
@@ -10,10 +10,14 @@ export function SiteFooter(props: {
 }) {
   const legalLinks = props.legalLinks ?? [
     { label: 'About', to: '/about' },
-    { label: 'Newsletter', to: '/newsletter' },
+    { label: 'Newsletter', to: '/newsletter', accent: 'red' },
     { label: 'Terms & conditions', to: '/terms' },
     { label: 'Contact', to: '/contact' },
   ]
+
+  function linkClass(accent?: 'red') {
+    return accent === 'red' ? 'footerLink footerLinkRed' : 'footerLink'
+  }
 
   return (
     <footer className="footer">
@@ -37,12 +41,12 @@ export function SiteFooter(props: {
                   <span key={'to' in link ? link.to : link.href} className="footerLegalItem">
                     {index > 0 ? <span className="footerDot footerDotInline">•</span> : null}
                     {'to' in link ? (
-                      <Link className="footerLink" to={link.to}>
+                      <Link className={linkClass(link.accent)} to={link.to}>
                         {link.label}
                       </Link>
                     ) : (
                       <a
-                        className="footerLink"
+                        className={linkClass(link.accent)}
                         href={link.href}
                         {...(link.external ? { target: '_blank', rel: 'noreferrer' } : {})}
                       >
