@@ -5,6 +5,7 @@ export type ChatMessage = {
   sender: string
   body: string
   createdAt: string
+  readAt?: string | null
 }
 
 function senderLabel(sender: string, role: 'student' | 'admin') {
@@ -46,7 +47,14 @@ export function ChatThread(props: {
             >
               <div className="chatSender">{senderLabel(m.sender, props.role)}</div>
               <div className="chatBody">{m.body}</div>
-              <div className="chatMeta">{new Date(m.createdAt).toLocaleString()}</div>
+              <div className="chatMeta">
+                <span>{new Date(m.createdAt).toLocaleString()}</span>
+                {isSelf ? (
+                  <span className={m.readAt ? 'chatReceiptRead' : 'chatReceiptSent'}>
+                    {m.readAt ? ' · Read' : ' · Sent'}
+                  </span>
+                ) : null}
+              </div>
             </div>
           )
         })

@@ -168,6 +168,34 @@ export function ProfilePage() {
     void load()
   }, [load])
 
+  // Keep presence online while the student is on their profile; refresh chat for read receipts.
+  useEffect(() => {
+    let cancelled = false
+    async function beat() {
+      try {
+        await api('/api/presence/heartbeat', { method: 'POST', json: {} })
+      } catch {
+        // ignore
+      }
+    }
+    async function refreshChat() {
+      try {
+        const list = await api<ChatMessage[]>('/api/chat')
+        if (!cancelled) setChat(list)
+      } catch {
+        // ignore
+      }
+    }
+    void beat()
+    const presenceTimer = window.setInterval(() => void beat(), 30_000)
+    const chatTimer = window.setInterval(() => void refreshChat(), 20_000)
+    return () => {
+      cancelled = true
+      window.clearInterval(presenceTimer)
+      window.clearInterval(chatTimer)
+    }
+  }, [])
+
   useEffect(() => {
     let cancelled = false
     async function loadPhoto() {

@@ -47,6 +47,32 @@ const ADMIN_EMAILS = String(process.env.ADMIN_EMAILS || '')
   .map((s) => s.trim().toLowerCase())
   .filter(Boolean)
 
+/** Student counts as online if heartbeat within this window. */
+const PRESENCE_ONLINE_MS = 2 * 60 * 1000
+
+function isUserOnline(lastSeenAt) {
+  if (!lastSeenAt) return false
+  return Date.now() - new Date(lastSeenAt).getTime() <= PRESENCE_ONLINE_MS
+}
+
+const chatMessageSelect = { id: true, sender: true, body: true, createdAt: true, readAt: true }
+
+async function touchUserPresence(userId) {
+  await prisma.user.update({
+    where: { id: userId },
+    data: { lastSeenAt: new Date() },
+  })
+}
+
+/** Mark the other party's unread messages as read when this side opens the chat. */
+async function markChatMessagesRead(userId, readerRole) {
+  const other = readerRole === 'student' ? 'admin' : 'student'
+  await prisma.chatMessage.updateMany({
+    where: { userId, sender: other, readAt: null },
+    data: { readAt: new Date() },
+  })
+}
+
 /** If set, POST /api/admin/varsity/seed-from-json must send matching X-Varsity-Seed-Token or JSON seedToken. */
 const VARSITY_SEED_TOKEN = String(process.env.VARSITY_SEED_TOKEN || '').trim()
 
@@ -639,7 +665,6 @@ app.get('/api/profile/bootstrap', authMiddleware, async (req, res) => {
   const [
     inboxItems,
     draft,
-    chatMessages,
     questionnaireRow,
     paidRows,
     pendingEft,
@@ -664,11 +689,6 @@ app.get('/api/profile/bootstrap', authMiddleware, async (req, res) => {
       where: { userId },
       update: {},
       create: { userId, payload: '{}', stepIndex: 0 },
-    }),
-    prisma.chatMessage.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'asc' },
-      select: { id: true, sender: true, body: true, createdAt: true },
     }),
     prisma.careerQuestionnaire.findUnique({ where: { userId } }),
     prisma.payment.findMany({
@@ -716,6 +736,14 @@ app.get('/api/profile/bootstrap', authMiddleware, async (req, res) => {
   })
   const totalPaidCents = sumPaidCents(paidRows)
 
+  // Presence + mark admin DMs as read when the student opens their profile.
+  await Promise.all([touchUserPresence(userId), markChatMessagesRead(userId, 'student')])
+  const chatFresh = await prisma.chatMessage.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'asc' },
+    select: chatMessageSelect,
+  })
+
   res.json({
     inbox: inboxItems,
     application: {
@@ -723,7 +751,7 @@ app.get('/api/profile/bootstrap', authMiddleware, async (req, res) => {
       payload: applicationPayload,
       updatedAt: draft.updatedAt,
     },
-    chat: chatMessages,
+    chat: chatFresh,
     questionnaire: questionnaireRow
       ? {
           answers: questionnaireAnswers,
@@ -1673,10 +1701,11 @@ app.get('/api/inbox', authMiddleware, async (req, res) => {
 })
 
 app.get('/api/chat', authMiddleware, async (req, res) => {
+  await Promise.all([touchUserPresence(req.userId), markChatMessagesRead(req.userId, 'student')])
   const rows = await prisma.chatMessage.findMany({
     where: { userId: req.userId },
     orderBy: { createdAt: 'asc' },
-    select: { id: true, sender: true, body: true, createdAt: true },
+    select: chatMessageSelect,
   })
   res.json(rows)
 })
@@ -1684,11 +1713,17 @@ app.get('/api/chat', authMiddleware, async (req, res) => {
 app.post('/api/chat', authMiddleware, async (req, res) => {
   const body = String(req.body?.body ?? '').trim()
   if (!body) return res.status(400).json({ error: 'Message text required' })
+  await touchUserPresence(req.userId)
   const row = await prisma.chatMessage.create({
     data: { userId: req.userId, sender: 'student', body },
-    select: { id: true, sender: true, body: true, createdAt: true },
+    select: chatMessageSelect,
   })
   res.status(201).json(row)
+})
+
+app.post('/api/presence/heartbeat', authMiddleware, async (req, res) => {
+  await touchUserPresence(req.userId)
+  res.json({ ok: true, at: new Date().toISOString() })
 })
 
 app.put('/api/inbox/:id/reply', authMiddleware, async (req, res) => {
@@ -1789,6 +1824,7 @@ app.get('/api/admin/students', adminMiddleware, async (_req, res) => {
       email: true,
       createdAt: true,
       avatarStoragePath: true,
+      lastSeenAt: true,
       profile: {
         select: { firstName: true, lastName: true, phone: true },
       },
@@ -1824,6 +1860,8 @@ app.get('/api/admin/students', adminMiddleware, async (_req, res) => {
       inboxCount: u._count.inboxItems,
       documentCount: u._count.documents,
       eftPending: u._count.payments > 0,
+      lastSeenAt: u.lastSeenAt,
+      online: isUserOnline(u.lastSeenAt),
     })),
   )
 })
@@ -2090,14 +2128,22 @@ app.get('/api/admin/students/:id', adminMiddleware, async (req, res) => {
 
 app.get('/api/admin/students/:id/chat', adminMiddleware, async (req, res) => {
   const id = String(req.params.id || '')
-  const exists = await prisma.user.findUnique({ where: { id }, select: { id: true } })
+  const exists = await prisma.user.findUnique({
+    where: { id },
+    select: { id: true, lastSeenAt: true },
+  })
   if (!exists) return res.status(404).json({ error: 'Student not found' })
+  await markChatMessagesRead(id, 'admin')
   const rows = await prisma.chatMessage.findMany({
     where: { userId: id },
     orderBy: { createdAt: 'asc' },
-    select: { id: true, sender: true, body: true, createdAt: true },
+    select: chatMessageSelect,
   })
-  res.json(rows)
+  res.json({
+    messages: rows,
+    online: isUserOnline(exists.lastSeenAt),
+    lastSeenAt: exists.lastSeenAt,
+  })
 })
 
 app.get('/api/admin/students/:id/application/snapshot', authMiddleware, adminMiddleware, async (req, res, next) => {
@@ -2136,7 +2182,7 @@ app.post('/api/admin/students/:id/chat', adminMiddleware, async (req, res) => {
   if (!exists) return res.status(404).json({ error: 'Student not found' })
   const row = await prisma.chatMessage.create({
     data: { userId: id, sender: 'admin', body },
-    select: { id: true, sender: true, body: true, createdAt: true },
+    select: chatMessageSelect,
   })
   res.status(201).json(row)
 })

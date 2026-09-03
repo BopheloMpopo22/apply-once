@@ -25,6 +25,8 @@ type StudentRow = {
   documentCount: number
   paidCents?: number
   eftPending?: boolean
+  online?: boolean
+  lastSeenAt?: string | null
 }
 
 type InboxRow = {
@@ -224,10 +226,15 @@ export function AdminPage() {
     try {
       const d = await adminApi<StudentDetail>(`/api/admin/students/${encodeURIComponent(id)}`)
       setDetail(d)
-      const msgs = await adminApi<ChatMessage[]>(
+      const chatRes = await adminApi<{ messages: ChatMessage[]; online?: boolean }>(
         `/api/admin/students/${encodeURIComponent(id)}/chat`,
       )
-      setChat(msgs)
+      setChat(chatRes.messages)
+      if (typeof chatRes.online === 'boolean') {
+        setStudents((prev) =>
+          prev.map((row) => (row.id === id ? { ...row, online: chatRes.online } : row)),
+        )
+      }
     } catch (e) {
       setDetail(null)
       setChat([])
@@ -240,6 +247,42 @@ export function AdminPage() {
   useEffect(() => {
     refreshList().catch(() => {})
   }, [refreshList])
+
+  // Refresh online status while admin is on the page.
+  useEffect(() => {
+    if (!unlocked) return
+    const timer = window.setInterval(() => {
+      void refreshList()
+    }, 30_000)
+    return () => window.clearInterval(timer)
+  }, [unlocked, refreshList])
+
+  // Poll open chat for new messages + read receipts.
+  useEffect(() => {
+    if (!unlocked || !selectedId) return
+    let cancelled = false
+    async function pollChat() {
+      try {
+        const chatRes = await adminApi<{ messages: ChatMessage[]; online?: boolean }>(
+          `/api/admin/students/${encodeURIComponent(selectedId!)}/chat`,
+        )
+        if (cancelled) return
+        setChat(chatRes.messages)
+        if (typeof chatRes.online === 'boolean') {
+          setStudents((prev) =>
+            prev.map((row) => (row.id === selectedId ? { ...row, online: chatRes.online } : row)),
+          )
+        }
+      } catch {
+        // ignore poll errors
+      }
+    }
+    const timer = window.setInterval(() => void pollChat(), 15_000)
+    return () => {
+      cancelled = true
+      window.clearInterval(timer)
+    }
+  }, [unlocked, selectedId])
 
   const refreshBursaries = useCallback(async () => {
     setBursaryBusy(true)
@@ -374,10 +417,10 @@ export function AdminPage() {
         json: { body: text },
       })
       setChatDraft('')
-      const msgs = await adminApi<ChatMessage[]>(
+      const chatRes = await adminApi<{ messages: ChatMessage[] }>(
         `/api/admin/students/${encodeURIComponent(selectedId)}/chat`,
       )
-      setChat(msgs)
+      setChat(chatRes.messages)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not send message')
     } finally {
@@ -744,7 +787,14 @@ export function AdminPage() {
                               className="adminSelectBtn"
                               onClick={() => setSelectedId(row.id)}
                             >
-                              {displayName(row)}
+                              <span className="adminSelectName">{displayName(row)}</span>
+                              <span
+                                className={
+                                  row.online ? 'adminPresenceOnline' : 'adminPresenceOffline'
+                                }
+                              >
+                                {row.online ? 'Online' : 'Offline'}
+                              </span>
                             </button>
                           </td>
                           <td className="adminTableEmail">{row.email}</td>
@@ -1269,7 +1319,18 @@ export function AdminPage() {
                       </div>
                     </form>
 
-                    <h3 className="adminSubheading">Private chat</h3>
+                    <h3 className="adminSubheading">
+                      Private chat
+                      {students.find((s) => s.id === selectedId)?.online ? (
+                        <span className="adminPresenceOnline adminPresenceInline"> · Online</span>
+                      ) : (
+                        <span className="adminPresenceOffline adminPresenceInline"> · Offline</span>
+                      )}
+                    </h3>
+                    <p className="adminMuted">
+                      Your messages show <strong>Sent</strong> until the student opens their profile
+                      chat, then <strong>Read</strong>.
+                    </p>
                     <ChatThread messages={chat} role="admin" />
                     <form className="adminCompose" onSubmit={(ev) => void onChatSend(ev)}>
                       <label className="field">

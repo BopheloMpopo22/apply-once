@@ -17,6 +17,8 @@ model User {
   /// Matches auth.users.id — enables Supabase Dashboard → Authentication users.
   supabaseAuthId    String?  @unique @db.Uuid
   avatarStoragePath String?
+  /// Last time the student hit the site (profile heartbeat) — used for online/offline in admin.
+  lastSeenAt        DateTime?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   profile           Profile?
@@ -169,14 +171,17 @@ model Document {
 }
 
 model ChatMessage {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sender    String   // 'student' | 'admin'
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sender    String // 'student' | 'admin'
   body      String
-  createdAt DateTime @default(now())
+  /// When the other party opened the chat and saw this message.
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
 
   @@index([userId, createdAt])
+  @@index([userId, sender, readAt])
 }
 
 model VarsityUniversity {

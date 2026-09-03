@@ -2344,6 +2344,15 @@ body {
   color: rgba(15, 23, 42, 0.55);
 }
 
+.chatReceiptSent {
+  color: rgba(15, 23, 42, 0.45);
+}
+
+.chatReceiptRead {
+  color: #15803d;
+  font-weight: 600;
+}
+
 .chatComposer {
   margin-top: var(--space-3);
   display: grid;
@@ -4995,12 +5004,38 @@ body {
   color: var(--blue);
   cursor: pointer;
   text-align: left;
+  text-decoration: none;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.adminSelectName {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
 .adminSelectBtn:hover {
   color: var(--blue2);
+}
+
+.adminPresenceOnline {
+  font-size: 11px;
+  font-weight: 700;
+  color: #15803d;
+  letter-spacing: 0.02em;
+}
+
+.adminPresenceOffline {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.02em;
+}
+
+.adminPresenceInline {
+  font-weight: 700;
 }
 
 .adminMuted {
