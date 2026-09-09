@@ -10,7 +10,7 @@ export function SiteFooter(props: {
 }) {
   const legalLinks = props.legalLinks ?? [
     { label: 'About', to: '/about' },
-    { label: 'Bursary track', to: '/bursary-track' },
+    { label: 'Bursaries', to: '/bursary-track' },
     { label: 'Newsletter', to: '/newsletter', accent: 'red' },
     { label: 'Terms & conditions', to: '/terms' },
     { label: 'Contact', to: '/contact' },

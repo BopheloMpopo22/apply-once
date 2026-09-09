@@ -84,9 +84,9 @@ export function shouldProbeLink(row, now, opts = {}) {
 }
 
 /**
- * Daily desk pass: expired dates + dead apply URLs.
- * Expired listings are switched off so they drop off the public track page and student match counts.
- * Dead links are flagged for review — we do not guess a new close date from a down page.
+ * Daily desk pass: probe apply URLs and flag dead/missing links.
+ * Status (open / upcoming / closed) is calculated from dates on read — we never invent
+ * opening dates, and we do not unpublish a listing just because it closed.
  * @param {import('@prisma/client').PrismaClient} prisma
  * @param {{ force?: boolean, limit?: number }} [opts]
  */
@@ -117,10 +117,9 @@ export async function runBursaryHealthCheck(prisma, opts = {}) {
         if (probe) {
           link = await checkApplyUrl(row.applyUrl)
         }
-        const needsReview =
-          !datePassed &&
-          row.active &&
-          Boolean(link.dead || link.linkStatus === 'no_url' || link.linkStatus === 'error')
+        const needsReview = Boolean(
+          row.active && (link.dead || link.linkStatus === 'no_url' || link.linkStatus === 'error'),
+        )
         return { row, probe, link, needsReview, datePassed }
       }),
     )
@@ -128,7 +127,7 @@ export async function runBursaryHealthCheck(prisma, opts = {}) {
     for (const item of results) {
       if (item.probe) probed += 1
       if (item.needsReview) flagged += 1
-      if (item.datePassed && item.row.active) closedByDate += 1
+      if (item.datePassed) closedByDate += 1
       await prisma.bursaryOpportunity.update({
         where: { id: item.row.id },
         data: {
@@ -136,7 +135,6 @@ export async function runBursaryHealthCheck(prisma, opts = {}) {
           linkStatus: item.link.linkStatus,
           linkStatusDetail: item.link.linkStatusDetail,
           needsReview: item.needsReview,
-          active: item.datePassed ? false : item.row.active,
         },
       })
       checked += 1

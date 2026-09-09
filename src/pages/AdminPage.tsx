@@ -558,7 +558,7 @@ export function AdminPage() {
               <div>
                 <h2 className="adminCardTitle">Bursary track</h2>
                 <p className="adminCardLead" style={{ marginTop: 8 }}>
-                  Public live list of open and closed SA bursaries. Same list the questionnaire uses.
+                  Public bursary calendar: open now, closing soon, upcoming, and closed. Status comes from dates.
                 </p>
               </div>
               <Link className="btn btnDark" to="/bursary-track">

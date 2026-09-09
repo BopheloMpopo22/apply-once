@@ -1,27 +1,112 @@
-import { useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { Navbar } from '../components/Navbar'
 import { SiteFooter } from '../components/SiteFooter'
 
+type CalendarStatus = 'open' | 'upcoming' | 'closed'
+type StatusFilter = 'open' | 'closing_soon' | 'upcoming' | 'closed' | 'all'
+
 type TrackItem = {
   slug: string
   name: string
   provider: string
   type: string
-  applicationCloses: string
-  applyUrl: string | null
-  isOpen: boolean
   studyFields: string[]
+  studyLevels: string[]
+  coverage: string
+  region: string
+  eligibility: string | null
+  requiredDocs: string | null
+  notes: string | null
+  applicationOpens: string | null
+  applicationCloses: string
+  nextExpectedOpens: string | null
+  opensPublished: boolean
+  calendarStatus: CalendarStatus
+  closingSoon: boolean
+  upcoming: boolean
+  isOpen: boolean
+  applyUrl: string | null
+  lastVerifiedAt: string | null
 }
 
 type TrackResponse = {
   asOf: string
   lastCheckedAt: string | null
+  lastVerifiedAt: string | null
   openCount: number
+  closingSoonCount: number
+  upcomingCount: number
   closedCount: number
   items: TrackItem[]
+}
+
+const FIELD_LABELS: Record<string, string> = {
+  engineering: 'Engineering',
+  health: 'Health',
+  commerce: 'Accounting / Commerce',
+  law: 'Law',
+  education: 'Education',
+  it: 'Computer Science / IT',
+  science: 'Science',
+  arts: 'Arts & media',
+  agriculture: 'Agriculture',
+  hospitality: 'Hospitality',
+  all: 'All fields',
+}
+
+const LEVEL_LABELS: Record<string, string> = {
+  undergraduate: 'Undergraduate',
+  honours: 'Honours',
+  masters: 'Masters',
+  phd: 'PhD',
+  tvet: 'TVET',
+}
+
+const COVERAGE_LABELS: Record<string, string> = {
+  full: 'Full funding',
+  partial: 'Partial funding',
+  unknown: 'Coverage not listed',
+}
+
+function formatDate(iso: string | null | undefined) {
+  if (!iso) return 'Not published'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return 'Not published'
+  return d.toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+function fieldLabel(slug: string) {
+  return FIELD_LABELS[slug] || slug
+}
+
+function fieldsLabel(fields: string[]) {
+  if (!fields?.length || fields.includes('all')) return 'All fields'
+  return fields.map(fieldLabel).join(', ')
+}
+
+function levelsLabel(levels: string[]) {
+  if (!levels?.length) return 'Not listed'
+  return levels.map((l) => LEVEL_LABELS[l] || l).join(', ')
+}
+
+function StatusBadge(props: { item: TrackItem }) {
+  const { item } = props
+  if (item.closingSoon) return <span className="bursaryStatusChip bursaryStatusClosing">Closing soon</span>
+  if (item.calendarStatus === 'open') return <span className="bursaryStatusChip bursaryStatusOpen">Open</span>
+  if (item.calendarStatus === 'upcoming') {
+    return <span className="bursaryStatusChip bursaryStatusUpcoming">Upcoming</span>
+  }
+  return <span className="bursaryStatusChip bursaryStatusClosed">Closed</span>
+}
+
+function applyLabel(item: TrackItem) {
+  if (!item.applyUrl) return null
+  if (item.calendarStatus === 'open') return 'Apply'
+  if (item.calendarStatus === 'upcoming' || item.upcoming) return 'Prepare'
+  return 'View details'
 }
 
 export function BursaryTrackPage() {
@@ -29,7 +114,9 @@ export function BursaryTrackPage() {
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(true)
   const [query, setQuery] = useState('')
-  const [filter, setFilter] = useState<'open' | 'closed' | 'all'>('open')
+  const [filter, setFilter] = useState<StatusFilter>('open')
+  const [field, setField] = useState('all')
+  const [openSlug, setOpenSlug] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -50,20 +137,51 @@ export function BursaryTrackPage() {
     }
   }, [])
 
+  const fieldOptions = useMemo(() => {
+    const set = new Set<string>()
+    for (const item of data?.items ?? []) {
+      for (const f of item.studyFields || []) set.add(f)
+    }
+    return [...set].sort()
+  }, [data])
+
   const visible = useMemo(() => {
     const items = data?.items ?? []
     const q = query.trim().toLowerCase()
     return items.filter((item) => {
-      if (filter === 'open' && !item.isOpen) return false
-      if (filter === 'closed' && item.isOpen) return false
+      if (filter === 'open' && item.calendarStatus !== 'open') return false
+      if (filter === 'closing_soon' && !item.closingSoon) return false
+      if (filter === 'upcoming' && !item.upcoming) return false
+      if (filter === 'closed' && item.calendarStatus !== 'closed') return false
+      if (field !== 'all' && !(item.studyFields || []).includes(field) && !(item.studyFields || []).includes('all')) {
+        return false
+      }
       if (!q) return true
-      return (
-        item.name.toLowerCase().includes(q) ||
-        item.provider.toLowerCase().includes(q) ||
-        item.type.toLowerCase().includes(q)
-      )
+      const hay = [
+        item.name,
+        item.provider,
+        item.type,
+        item.region,
+        fieldsLabel(item.studyFields),
+        levelsLabel(item.studyLevels),
+        item.eligibility || '',
+      ]
+        .join(' ')
+        .toLowerCase()
+      return hay.includes(q)
     })
-  }, [data, filter, query])
+  }, [data, field, filter, query])
+
+  const heading =
+    filter === 'open'
+      ? 'Open now'
+      : filter === 'closing_soon'
+        ? 'Closing soon'
+        : filter === 'upcoming'
+          ? 'Upcoming'
+          : filter === 'closed'
+            ? 'Closed'
+            : 'All bursaries'
 
   return (
     <div className="formShell hubShell bursaryTrackShell">
@@ -82,66 +200,89 @@ export function BursaryTrackPage() {
             <nav className="hubBreadcrumb" aria-label="Breadcrumb">
               <Link to="/">Home</Link>
               <span aria-hidden>/</span>
-              <span>Bursary track</span>
+              <span>Bursaries</span>
             </nav>
 
             <header className="hubHero">
               <div className="hubHeroText">
-                <p className="hubHeroKicker">South Africa · live list</p>
-                <h1 className="hubHeroTitle">Bursary & scholarship track</h1>
+                <p className="hubHeroKicker">South Africa · bursary calendar</p>
+                <h1 className="hubHeroTitle">Bursaries</h1>
                 <p className="hubHeroIntro">
-                  Major South African bursaries and scholarships we track for Apply Once students — NSFAS, Funza
-                  Lushaka, all 21 SETAs, provincial schemes, public universities, and large employers. Every morning
-                  this list is re-checked: still open stays open; if the close date has passed, it moves to closed.
-                  The career questionnaire counts matches from this same list.
+                  A live directory of South African bursaries and scholarships we track for Apply Once students —
+                  what is open now, what is closing soon, and what you can prepare for later. Status is calculated
+                  from dates, not typed in by hand. Opening dates are only shown when the funder has published one.
                 </p>
                 <p className="hubDisclaimer">
-                  This is the national and major-scheme list, not every bursary in the country. Small municipal,
-                  church, and one-off company schemes are too many and change too fast to list completely. Always
-                  confirm dates on the provider’s own apply page.
+                  Other public directories are useful starting points, but none of them is a complete official list.
+                  Always confirm dates, eligibility, and how to apply on the funder’s own page. We do not invent
+                  opening dates. This is a national and major-scheme calendar, not every bursary in the country.
                 </p>
               </div>
             </header>
 
             {error ? <div className="formError">{error}</div> : null}
-            {busy ? <p className="formLead">Loading the live list…</p> : null}
+            {busy ? <p className="formLead">Loading the live directory…</p> : null}
 
             {data ? (
               <>
                 <p className="adminMuted bursaryTrackMeta">
-                  {data.openCount} open · {data.closedCount} closed
+                  {data.openCount} open now · {data.closingSoonCount} closing soon · {data.upcomingCount} upcoming ·{' '}
+                  {data.closedCount} closed
                   {data.lastCheckedAt ? (
-                    <> · last automatic check {new Date(data.lastCheckedAt).toLocaleString()}</>
+                    <> · links last checked {new Date(data.lastCheckedAt).toLocaleString()}</>
                   ) : (
-                    <> · first automatic check runs around 06:00 SAST</>
+                    <> · automatic link check runs around 06:00 SAST</>
                   )}
                 </p>
 
                 <section className="hubSection" aria-labelledby="bursary-track-filters">
                   <h2 id="bursary-track-filters" className="hubSectionTitle">
-                    Find a listing
+                    Find a bursary
                   </h2>
+                  <div className="bursaryTrackChips" role="tablist" aria-label="Application status">
+                    {(
+                      [
+                        ['open', `Open now (${data.openCount})`],
+                        ['closing_soon', `Closing soon (${data.closingSoonCount})`],
+                        ['upcoming', `Upcoming (${data.upcomingCount})`],
+                        ['closed', `Closed (${data.closedCount})`],
+                        ['all', `All (${data.items.length})`],
+                      ] as const
+                    ).map(([id, label]) => (
+                      <button
+                        key={id}
+                        type="button"
+                        role="tab"
+                        aria-selected={filter === id}
+                        className={filter === id ? 'bursaryTrackChip bursaryTrackChipActive' : 'bursaryTrackChip'}
+                        onClick={() => setFilter(id)}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
                   <div className="hubToolbar bursaryTrackToolbar">
                     <label className="hubFilterField">
                       <span className="hubFilterLabel">Search</span>
                       <input
                         type="search"
                         className="hubFilterInput"
-                        placeholder="e.g. NSFAS, Sasol, Funza…"
+                        placeholder="e.g. NSFAS, Sasol, Funza, engineering…"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                       />
                     </label>
                     <label className="hubFilterField">
-                      <span className="hubFilterLabel">Show</span>
-                      <select
-                        className="hubFilterInput"
-                        value={filter}
-                        onChange={(e) => setFilter(e.target.value as 'open' | 'closed' | 'all')}
-                      >
-                        <option value="open">Open now</option>
-                        <option value="closed">Closed</option>
-                        <option value="all">All</option>
+                      <span className="hubFilterLabel">Study field</span>
+                      <select className="hubFilterInput" value={field} onChange={(e) => setField(e.target.value)}>
+                        <option value="all">All fields</option>
+                        {fieldOptions
+                          .filter((f) => f !== 'all')
+                          .map((f) => (
+                            <option key={f} value={f}>
+                              {fieldLabel(f)}
+                            </option>
+                          ))}
                       </select>
                     </label>
                   </div>
@@ -149,7 +290,7 @@ export function BursaryTrackPage() {
 
                 <section className="hubSection" aria-labelledby="bursary-track-list">
                   <h2 id="bursary-track-list" className="hubSectionTitle">
-                    {filter === 'open' ? 'Open now' : filter === 'closed' ? 'Closed' : 'All listings'}
+                    {heading}
                   </h2>
                   {visible.length === 0 ? (
                     <p className="formLead">No listings match that search.</p>
@@ -158,39 +299,95 @@ export function BursaryTrackPage() {
                       <table className="adminTable bursaryTrackTable">
                         <thead>
                           <tr>
-                            <th>Name</th>
-                            <th>Provider</th>
-                            <th>Type</th>
+                            <th>Bursary</th>
+                            <th>Study field</th>
+                            <th>Level</th>
+                            <th>Opens</th>
                             <th>Closes</th>
                             <th>Status</th>
-                            <th>Apply</th>
+                            <th>Official site</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {visible.map((item) => (
-                            <tr key={item.slug}>
-                              <td>{item.name}</td>
-                              <td>{item.provider}</td>
-                              <td>{item.type}</td>
-                              <td>{new Date(item.applicationCloses).toLocaleDateString()}</td>
-                              <td>
-                                {item.isOpen ? (
-                                  <span className="adminBursaryBadgeOpen">Open</span>
-                                ) : (
-                                  <span className="adminBursaryBadgeClosed">Closed</span>
-                                )}
-                              </td>
-                              <td>
-                                {item.applyUrl ? (
-                                  <a href={item.applyUrl} target="_blank" rel="noreferrer">
-                                    Provider site
-                                  </a>
-                                ) : (
-                                  <span className="adminMuted">—</span>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
+                          {visible.map((item) => {
+                            const expanded = openSlug === item.slug
+                            const cta = applyLabel(item)
+                            return (
+                              <Fragment key={item.slug}>
+                                <tr className={expanded ? 'bursaryTrackRowOpen' : undefined}>
+                                  <td>
+                                    <button
+                                      type="button"
+                                      className="bursaryTrackNameBtn"
+                                      aria-expanded={expanded}
+                                      onClick={() => setOpenSlug(expanded ? null : item.slug)}
+                                    >
+                                      {item.name}
+                                    </button>
+                                    <div className="adminMuted">{item.provider}</div>
+                                  </td>
+                                  <td>{fieldsLabel(item.studyFields)}</td>
+                                  <td>{levelsLabel(item.studyLevels)}</td>
+                                  <td>{item.opensPublished ? formatDate(item.applicationOpens) : 'Not published'}</td>
+                                  <td>{formatDate(item.applicationCloses)}</td>
+                                  <td>
+                                    <StatusBadge item={item} />
+                                  </td>
+                                  <td>
+                                    {item.applyUrl && cta ? (
+                                      <a href={item.applyUrl} target="_blank" rel="noreferrer">
+                                        {cta}
+                                      </a>
+                                    ) : (
+                                      <span className="adminMuted">—</span>
+                                    )}
+                                  </td>
+                                </tr>
+                                {expanded ? (
+                                  <tr className="bursaryTrackDetailRow">
+                                    <td colSpan={7}>
+                                      <div className="bursaryTrackDetail">
+                                        <p>
+                                          <strong>Funder:</strong> {item.provider}
+                                          {' · '}
+                                          <strong>Coverage:</strong> {COVERAGE_LABELS[item.coverage] || item.coverage}
+                                          {' · '}
+                                          <strong>Region:</strong> {item.region === 'nationwide' ? 'Nationwide' : item.region}
+                                        </p>
+                                        {item.eligibility ? (
+                                          <p>
+                                            <strong>Eligibility:</strong> {item.eligibility}
+                                          </p>
+                                        ) : (
+                                          <p className="adminMuted">Eligibility: confirm on the official apply page.</p>
+                                        )}
+                                        {item.requiredDocs ? (
+                                          <p>
+                                            <strong>Required documents:</strong> {item.requiredDocs}
+                                          </p>
+                                        ) : null}
+                                        {item.nextExpectedOpens ? (
+                                          <p>
+                                            <strong>Next expected opening:</strong> {formatDate(item.nextExpectedOpens)}
+                                          </p>
+                                        ) : null}
+                                        {item.notes ? (
+                                          <p>
+                                            <strong>Notes:</strong> {item.notes}
+                                          </p>
+                                        ) : null}
+                                        <p className="adminMuted">
+                                          Last verified:{' '}
+                                          {item.lastVerifiedAt ? new Date(item.lastVerifiedAt).toLocaleDateString('en-ZA') : 'Not yet verified by Apply Once'}
+                                          . Always check the official page before you apply — dates can change.
+                                        </p>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ) : null}
+                              </Fragment>
+                            )
+                          })}
                         </tbody>
                       </table>
                     </div>

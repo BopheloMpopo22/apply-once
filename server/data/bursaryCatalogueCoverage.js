@@ -558,7 +558,8 @@ export const BURSARY_CATALOGUE_COVERAGE = [
     type: 'scholarship',
     studyFields: ['science', 'engineering', 'it', 'health'],
     workSectors: ['research'],
-    applyUrl: 'https://www.nrf.ac.za',
+    applicationCloses: '2026-11-23T23:59:59Z',
+    applyUrl: 'https://nrfconnect.nrf.ac.za/',
   }),
   row({
     slug: 'samrc',

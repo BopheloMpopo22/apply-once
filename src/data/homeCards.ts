@@ -50,8 +50,8 @@ export const HOME_FEATURE_CARDS = HUB_REGISTRY.map((hub) => ({
 export const HOME_RESOURCE_CARDS = [
   {
     id: 'bursary-track',
-    title: 'Bursary track',
-    description: 'Live SA bursaries and scholarships — open stays, closed drops off each morning.',
+    title: 'Bursaries',
+    description: 'Open now, closing soon, upcoming, and closed — dates checked on the official funder page.',
     image: u('photo-1454165804606-c3d57bc86b40', 600),
     imageAlt: 'Student reviewing opportunities on a laptop',
     accent: 'blue' as const,

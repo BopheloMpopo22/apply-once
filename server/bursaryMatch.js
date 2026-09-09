@@ -1,3 +1,11 @@
+import {
+  bursaryCalendarStatus,
+  isClosingSoon,
+  isUpcomingListing,
+  parseCoverage,
+  parseStudyLevels,
+} from './bursaryCalendar.js'
+
 /**
  * @typedef {object} BursaryRow
  * @property {string} slug
@@ -8,6 +16,13 @@
  * @property {string[]} workSectors
  * @property {boolean} offersJobAfterGrad
  * @property {Date} applicationCloses
+ * @property {Date | null} [applicationOpens]
+ * @property {Date | null} [nextExpectedOpens]
+ * @property {string[]} [studyLevels]
+ * @property {string} [coverage]
+ * @property {string} [region]
+ * @property {string | null} [eligibility]
+ * @property {string | null} [requiredDocs]
  * @property {boolean} [active]
  * @property {string} [applyUrl]
  * @property {string} [notes]
@@ -110,6 +125,13 @@ export function rowToBursary(row) {
     workSectors: parseJsonArray(row.workSectors, ['any']),
     offersJobAfterGrad: row.offersJobAfterGrad,
     applicationCloses: row.applicationCloses,
+    applicationOpens: row.applicationOpens ?? null,
+    nextExpectedOpens: row.nextExpectedOpens ?? null,
+    studyLevels: parseStudyLevels(row.studyLevels),
+    coverage: parseCoverage(row.coverage),
+    region: row.region || 'nationwide',
+    eligibility: row.eligibility ?? null,
+    requiredDocs: row.requiredDocs ?? null,
     active: row.active,
     applyUrl: row.applyUrl ?? undefined,
     notes: row.notes ?? undefined,
@@ -121,10 +143,10 @@ export function rowToBursary(row) {
   }
 }
 
-/** @param {BursaryRow} b */
+/** Currently accepting applications. Upcoming and closed listings are not counted. */
 export function isOpportunityOpen(b, now = new Date()) {
   if (b.active === false) return false
-  return new Date(b.applicationCloses) >= now
+  return bursaryCalendarStatus(b, now) === 'open'
 }
 
 export function slugifyBursaryName(s) {
@@ -155,8 +177,18 @@ export function toAdminBursaryItem(row, now = new Date()) {
     workSectors: b.workSectors,
     offersJobAfterGrad: b.offersJobAfterGrad,
     applicationCloses: b.applicationCloses,
+    applicationOpens: b.applicationOpens,
+    nextExpectedOpens: b.nextExpectedOpens,
+    studyLevels: b.studyLevels,
+    coverage: b.coverage,
+    region: b.region,
+    eligibility: b.eligibility,
+    requiredDocs: b.requiredDocs,
     applyUrl: b.applyUrl ?? null,
     active: Boolean(b.active),
+    calendarStatus: bursaryCalendarStatus(b, now),
+    closingSoon: isClosingSoon(b, now),
+    upcoming: isUpcomingListing(b, now),
     isOpen: isOpportunityOpen(b, now),
     notes: b.notes ?? null,
     lastCheckedAt: b.lastCheckedAt,

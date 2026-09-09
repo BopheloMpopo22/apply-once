@@ -2966,6 +2966,18 @@ body {
   font-size: 12px;
 }
 
+.adminBursaryBadgeUpcoming {
+  color: #334155;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.adminBursaryBadgeClosing {
+  color: #b45309;
+  font-weight: 700;
+  font-size: 12px;
+}
+
 .adminBursaryReviewPill {
   display: inline-block;
   margin-left: 8px;
@@ -3110,6 +3122,91 @@ body {
 .bursaryTrackTable {
   width: 100%;
   font-size: 14px;
+}
+
+.bursaryTrackChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: var(--space-3) 0 var(--space-2);
+}
+
+.bursaryTrackChip {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bursaryTrackChipActive {
+  background: #0f172a;
+  color: #fff;
+  border-color: #0f172a;
+}
+
+.bursaryTrackNameBtn {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.bursaryTrackRowOpen td {
+  border-bottom: none;
+}
+
+.bursaryTrackDetailRow td {
+  padding-top: 0;
+  background: rgba(15, 23, 42, 0.03);
+}
+
+.bursaryTrackDetail {
+  padding: 4px 0 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.bursaryTrackDetail p {
+  margin: 0 0 8px;
+}
+
+.bursaryStatusChip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.bursaryStatusOpen {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.bursaryStatusClosing {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.bursaryStatusUpcoming {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.bursaryStatusClosed {
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
 .adminStudentBursaryList {

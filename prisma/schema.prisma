@@ -137,6 +137,18 @@ model BursaryOpportunity {
   workSectors        String   @default("[\"any\"]")
   offersJobAfterGrad Boolean  @default(false)
   applicationCloses  DateTime
+  /// When applications open. Null = not published (do not invent a date).
+  applicationOpens   DateTime?
+  /// Next cycle if this intake has closed. Null = unknown.
+  nextExpectedOpens  DateTime?
+  /// JSON: undergraduate, honours, masters, phd, tvet
+  studyLevels        String    @default("[\"undergraduate\"]")
+  /// full | partial | unknown
+  coverage           String    @default("unknown")
+  /// nationwide, or a province name
+  region             String    @default("nationwide")
+  eligibility        String?
+  requiredDocs       String?
   /// Official application or careers page URL.
   applyUrl           String?
   active             Boolean  @default(true)

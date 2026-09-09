@@ -12,6 +12,7 @@
     "build": "prisma generate && tsc -b && vite build",
     "seed:varsity": "node scripts/seedVarsityCatalogue.js",
     "seed:bursaries": "node scripts/seedBursaryCatalogue.js",
+    "bursaries:verify": "node scripts/applyBursaryVerified.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },

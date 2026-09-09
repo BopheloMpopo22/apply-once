@@ -9,8 +9,18 @@ export type BursaryAdminRow = {
   provider: string
   type: string
   applicationCloses: string
+  applicationOpens?: string | null
+  nextExpectedOpens?: string | null
+  studyLevels?: string[]
+  coverage?: string
+  region?: string
+  eligibility?: string | null
+  requiredDocs?: string | null
   applyUrl: string | null
   isOpen: boolean
+  calendarStatus?: 'open' | 'upcoming' | 'closed'
+  closingSoon?: boolean
+  upcoming?: boolean
   active: boolean
   offersJobAfterGrad: boolean
   studyFields: string[]
@@ -23,9 +33,10 @@ export type BursaryAdminRow = {
   needsReview?: boolean
 }
 
-type Filter = 'open' | 'closed' | 'review' | 'all'
+type Filter = 'open' | 'closing_soon' | 'upcoming' | 'closed' | 'review' | 'all'
 
-function toDateInput(iso: string) {
+function toDateInput(iso: string | null | undefined) {
+  if (!iso) return ''
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ''
   const y = d.getFullYear()
@@ -38,9 +49,16 @@ function emptyDraft(): {
   name: string
   provider: string
   type: 'bursary' | 'scholarship'
+  applicationOpens: string
   applicationCloses: string
+  nextExpectedOpens: string
   applyUrl: string
   studyFields: string
+  studyLevels: string
+  coverage: string
+  region: string
+  eligibility: string
+  requiredDocs: string
   active: boolean
   offersJobAfterGrad: boolean
   notes: string
@@ -49,9 +67,16 @@ function emptyDraft(): {
     name: '',
     provider: '',
     type: 'bursary',
+    applicationOpens: '',
     applicationCloses: '',
+    nextExpectedOpens: '',
     applyUrl: '',
     studyFields: 'all',
+    studyLevels: 'undergraduate',
+    coverage: 'unknown',
+    region: 'nationwide',
+    eligibility: '',
+    requiredDocs: '',
     active: true,
     offersJobAfterGrad: false,
     notes: '',
@@ -63,9 +88,16 @@ function draftFromRow(row: BursaryAdminRow) {
     name: row.name,
     provider: row.provider,
     type: (row.type === 'scholarship' ? 'scholarship' : 'bursary') as 'bursary' | 'scholarship',
+    applicationOpens: toDateInput(row.applicationOpens),
     applicationCloses: toDateInput(row.applicationCloses),
+    nextExpectedOpens: toDateInput(row.nextExpectedOpens),
     applyUrl: row.applyUrl || '',
     studyFields: (row.studyFields || []).join(', '),
+    studyLevels: (row.studyLevels || ['undergraduate']).join(', '),
+    coverage: row.coverage || 'unknown',
+    region: row.region || 'nationwide',
+    eligibility: row.eligibility || '',
+    requiredDocs: row.requiredDocs || '',
     active: row.active,
     offersJobAfterGrad: row.offersJobAfterGrad,
     notes: row.notes || '',
@@ -85,7 +117,14 @@ export function AdminBursaryCataloguePanel(props: { onError: (msg: string | null
   const { onError } = props
   const [filter, setFilter] = useState<Filter>('open')
   const [bursaries, setBursaries] = useState<BursaryAdminRow[]>([])
-  const [meta, setMeta] = useState({ openCount: 0, closedCount: 0, reviewCount: 0, total: 0 })
+  const [meta, setMeta] = useState({
+    openCount: 0,
+    closingSoonCount: 0,
+    upcomingCount: 0,
+    closedCount: 0,
+    reviewCount: 0,
+    total: 0,
+  })
   const [busy, setBusy] = useState(false)
   const [syncBusy, setSyncBusy] = useState(false)
   const [healthBusy, setHealthBusy] = useState(false)
@@ -102,6 +141,8 @@ export function AdminBursaryCataloguePanel(props: { onError: (msg: string | null
       const res = await adminApi<{
         items: BursaryAdminRow[]
         openCount: number
+        closingSoonCount?: number
+        upcomingCount?: number
         closedCount: number
         reviewCount?: number
         total: number
@@ -109,6 +150,8 @@ export function AdminBursaryCataloguePanel(props: { onError: (msg: string | null
       setBursaries(res.items)
       setMeta({
         openCount: res.openCount,
+        closingSoonCount: res.closingSoonCount ?? 0,
+        upcomingCount: res.upcomingCount ?? 0,
         closedCount: res.closedCount,
         reviewCount: res.reviewCount ?? 0,
         total: res.total,
@@ -149,9 +192,16 @@ export function AdminBursaryCataloguePanel(props: { onError: (msg: string | null
         name: draft.name,
         provider: draft.provider,
         type: draft.type,
+        applicationOpens: draft.applicationOpens,
         applicationCloses: draft.applicationCloses,
+        nextExpectedOpens: draft.nextExpectedOpens,
         applyUrl: draft.applyUrl,
         studyFields: draft.studyFields,
+        studyLevels: draft.studyLevels,
+        coverage: draft.coverage,
+        region: draft.region,
+        eligibility: draft.eligibility,
+        requiredDocs: draft.requiredDocs,
         active: draft.active,
         offersJobAfterGrad: draft.offersJobAfterGrad,
         notes: draft.notes,
@@ -210,9 +260,11 @@ export function AdminBursaryCataloguePanel(props: { onError: (msg: string | null
         <label className="field" style={{ maxWidth: 180, marginLeft: 'auto' }}>
           <span>Show</span>
           <select value={filter} onChange={(e) => setFilter(e.target.value as Filter)}>
-            <option value="open">Open only</option>
+            <option value="open">Open now</option>
+            <option value="closing_soon">Closing soon</option>
+            <option value="upcoming">Upcoming</option>
             <option value="review">Needs review</option>
-            <option value="closed">Closed / inactive</option>
+            <option value="closed">Closed / unpublished</option>
             <option value="all">All</option>
           </select>
         </label>
@@ -234,7 +286,7 @@ export function AdminBursaryCataloguePanel(props: { onError: (msg: string | null
                 closedByDate?: number
               }>('/api/admin/bursaries/health-check', { method: 'POST', json: { force: true } })
               setMessage(
-                `Checked ${res.checked} listings (${res.probed} links). ${res.closedByDate ?? 0} closed because the date passed. ${res.flagged} need a look (dead or missing link).`,
+                `Checked ${res.checked} listings (${res.probed} links). ${res.closedByDate ?? 0} have a close date in the past (they stay on the directory as Closed). ${res.flagged} need a look (dead or missing link).`,
               )
               await refresh()
             } catch (e) {
@@ -246,7 +298,7 @@ export function AdminBursaryCataloguePanel(props: { onError: (msg: string | null
             }
           }}
         >
-          {healthBusy ? 'Checking links…' : 'Check dates & links'}
+          {healthBusy ? 'Checking links…' : 'Check links'}
         </button>
         <button
           type="button"
@@ -280,15 +332,15 @@ export function AdminBursaryCataloguePanel(props: { onError: (msg: string | null
         </button>
       </div>
       <p className="adminCardLead">
-        This is the official live list. The public <strong>Bursary track</strong> page and student match counts
-        both read from here. Each morning around 06:00 SAST we re-check: if the close date has passed, the
-        listing is switched off automatically. Dead apply links are flagged for you — they are not guessed
-        closed from a down page. Import from code only adds missing names.
+        This is the official live directory. Status is calculated from dates: before the opening date → Upcoming;
+        between opening and closing → Open; after closing → Closed. Leave opening date blank if the funder has
+        not published one — never invent it. Closed listings stay on the public calendar. Student match counts
+        only use listings that are currently open. Import from code only adds missing names.
       </p>
       {message ? <p className="adminMuted">{message}</p> : null}
       <p className="adminMuted">
-        {meta.openCount} open · {meta.closedCount} closed/inactive · {meta.reviewCount} need review · showing{' '}
-        {bursaries.length}
+        {meta.openCount} open · {meta.closingSoonCount} closing soon · {meta.upcomingCount} upcoming · {meta.closedCount}{' '}
+        closed · {meta.reviewCount} need review · showing {bursaries.length}
       </p>
 
       {formOpen ? (
@@ -316,11 +368,43 @@ export function AdminBursaryCataloguePanel(props: { onError: (msg: string | null
               </select>
             </label>
             <label className="field">
+              <span>Opens (leave blank if not published)</span>
+              <input
+                type="date"
+                value={draft.applicationOpens}
+                onChange={(e) => setDraft((d) => ({ ...d, applicationOpens: e.target.value }))}
+              />
+            </label>
+            <label className="field">
               <span>Closes</span>
               <input
                 type="date"
                 value={draft.applicationCloses}
                 onChange={(e) => setDraft((d) => ({ ...d, applicationCloses: e.target.value }))}
+              />
+            </label>
+            <label className="field">
+              <span>Next expected opening</span>
+              <input
+                type="date"
+                value={draft.nextExpectedOpens}
+                onChange={(e) => setDraft((d) => ({ ...d, nextExpectedOpens: e.target.value }))}
+              />
+            </label>
+            <label className="field">
+              <span>Coverage</span>
+              <select value={draft.coverage} onChange={(e) => setDraft((d) => ({ ...d, coverage: e.target.value }))}>
+                <option value="unknown">Unknown</option>
+                <option value="full">Full funding</option>
+                <option value="partial">Partial funding</option>
+              </select>
+            </label>
+            <label className="field">
+              <span>Region</span>
+              <input
+                value={draft.region}
+                onChange={(e) => setDraft((d) => ({ ...d, region: e.target.value }))}
+                placeholder="nationwide, Gauteng…"
               />
             </label>
             <label className="field adminBursaryEditWide">
@@ -340,6 +424,28 @@ export function AdminBursaryCataloguePanel(props: { onError: (msg: string | null
               />
             </label>
             <label className="field adminBursaryEditWide">
+              <span>Study levels (undergraduate, honours, masters, phd, tvet)</span>
+              <input
+                value={draft.studyLevels}
+                onChange={(e) => setDraft((d) => ({ ...d, studyLevels: e.target.value }))}
+                placeholder="undergraduate"
+              />
+            </label>
+            <label className="field adminBursaryEditWide">
+              <span>Eligibility (from the official page — do not guess)</span>
+              <input
+                value={draft.eligibility}
+                onChange={(e) => setDraft((d) => ({ ...d, eligibility: e.target.value }))}
+              />
+            </label>
+            <label className="field adminBursaryEditWide">
+              <span>Required documents</span>
+              <input
+                value={draft.requiredDocs}
+                onChange={(e) => setDraft((d) => ({ ...d, requiredDocs: e.target.value }))}
+              />
+            </label>
+            <label className="field adminBursaryEditWide">
               <span>Notes</span>
               <input value={draft.notes} onChange={(e) => setDraft((d) => ({ ...d, notes: e.target.value }))} />
             </label>
@@ -349,7 +455,7 @@ export function AdminBursaryCataloguePanel(props: { onError: (msg: string | null
                 checked={draft.active}
                 onChange={(e) => setDraft((d) => ({ ...d, active: e.target.checked }))}
               />
-              Active (counts toward matches if still open)
+              Active (counts toward student matches when the dates say open)
             </label>
             <label className="adminCheckLabel">
               <input
@@ -385,6 +491,7 @@ export function AdminBursaryCataloguePanel(props: { onError: (msg: string | null
               <th>Name</th>
               <th>Provider</th>
               <th>Type</th>
+              <th>Opens</th>
               <th>Closes</th>
               <th>Status</th>
               <th>Link</th>
@@ -402,12 +509,17 @@ export function AdminBursaryCataloguePanel(props: { onError: (msg: string | null
                   </td>
                   <td>{b.provider}</td>
                   <td>{b.type}</td>
+                  <td>{b.applicationOpens ? new Date(b.applicationOpens).toLocaleDateString() : '—'}</td>
                   <td>{new Date(b.applicationCloses).toLocaleDateString()}</td>
                   <td>
-                    {b.isOpen && b.active ? (
+                    {b.closingSoon ? (
+                      <span className="adminBursaryBadgeClosing">Closing soon</span>
+                    ) : b.calendarStatus === 'open' && b.active ? (
                       <span className="adminBursaryBadgeOpen">Open</span>
+                    ) : b.calendarStatus === 'upcoming' || b.upcoming ? (
+                      <span className="adminBursaryBadgeUpcoming">Upcoming</span>
                     ) : (
-                      <span className="adminBursaryBadgeClosed">{b.active ? 'Closed' : 'Inactive'}</span>
+                      <span className="adminBursaryBadgeClosed">{b.active ? 'Closed' : 'Unpublished'}</span>
                     )}
                   </td>
                   <td>

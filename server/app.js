@@ -28,6 +28,7 @@ import {
   syncBursaryCatalogue,
   toAdminBursaryItem,
 } from './bursaryMatch.js'
+import { parseCoverage, parseStudyLevels, toPublicTrackItem } from './bursaryCalendar.js'
 import { runBursaryHealthCheck } from './bursaryHealth.js'
 import { loadApplyPack, normalizeTaskStatus, startApplyPack } from './applyPack.js'
 import {
@@ -1899,37 +1900,47 @@ function parseClosesDate(raw) {
   return Number.isNaN(d.getTime()) ? null : d
 }
 
+/** Start of day. Empty string means "not published" — never invent a date. */
+function parseOpensDate(raw) {
+  const s = String(raw || '').trim()
+  if (!s) return null
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const d = new Date(`${s}T00:00:00.000Z`)
+    return Number.isNaN(d.getTime()) ? null : d
+  }
+  const d = new Date(s)
+  return Number.isNaN(d.getTime()) ? null : d
+}
+
 app.get('/api/bursaries/track', async (_req, res, next) => {
   try {
     await ensureBursaryCatalogueSeeded(prisma)
     const now = new Date()
     const rows = await prisma.bursaryOpportunity.findMany({
+      where: { active: true },
       orderBy: [{ applicationCloses: 'asc' }, { name: 'asc' }],
     })
-    const items = rows.map((row) => {
-      const b = toAdminBursaryItem(row, now)
-      return {
-        slug: b.slug,
-        name: b.name,
-        provider: b.provider,
-        type: b.type,
-        applicationCloses: b.applicationCloses,
-        applyUrl: b.applyUrl,
-        isOpen: b.isOpen,
-        studyFields: b.studyFields,
-      }
-    })
+    const items = rows.map((row) => toPublicTrackItem(toAdminBursaryItem(row, now)))
     let lastCheckedMs = 0
+    let lastVerifiedMs = 0
     for (const row of rows) {
-      if (!row.lastCheckedAt) continue
-      const t = new Date(row.lastCheckedAt).getTime()
-      if (t > lastCheckedMs) lastCheckedMs = t
+      if (row.lastCheckedAt) {
+        const t = new Date(row.lastCheckedAt).getTime()
+        if (t > lastCheckedMs) lastCheckedMs = t
+      }
+      if (row.lastVerifiedAt) {
+        const t = new Date(row.lastVerifiedAt).getTime()
+        if (t > lastVerifiedMs) lastVerifiedMs = t
+      }
     }
     res.json({
       asOf: now.toISOString(),
       lastCheckedAt: lastCheckedMs ? new Date(lastCheckedMs).toISOString() : null,
-      openCount: items.filter((i) => i.isOpen).length,
-      closedCount: items.filter((i) => !i.isOpen).length,
+      lastVerifiedAt: lastVerifiedMs ? new Date(lastVerifiedMs).toISOString() : null,
+      openCount: items.filter((i) => i.calendarStatus === 'open').length,
+      closingSoonCount: items.filter((i) => i.closingSoon).length,
+      upcomingCount: items.filter((i) => i.upcoming).length,
+      closedCount: items.filter((i) => i.calendarStatus === 'closed').length,
       items,
     })
   } catch (e) {
@@ -1945,16 +1956,22 @@ app.get('/api/admin/bursaries', attachSupabaseEmailIfPresent, adminMiddleware, a
   const items = rows.map((row) => toAdminBursaryItem(row, now))
   const filtered =
     filter === 'open'
-      ? items.filter((i) => i.isOpen && i.active)
-      : filter === 'closed'
-        ? items.filter((i) => !i.isOpen || !i.active)
-        : filter === 'review'
-          ? items.filter((i) => i.needsReview)
-          : items
+      ? items.filter((i) => i.calendarStatus === 'open' && i.active)
+      : filter === 'closing_soon'
+        ? items.filter((i) => i.closingSoon && i.active)
+        : filter === 'upcoming'
+          ? items.filter((i) => i.upcoming)
+          : filter === 'closed'
+            ? items.filter((i) => i.calendarStatus === 'closed' || !i.active)
+            : filter === 'review'
+              ? items.filter((i) => i.needsReview)
+              : items
   res.json({
     total: filtered.length,
-    openCount: items.filter((i) => i.isOpen && i.active).length,
-    closedCount: items.filter((i) => !i.isOpen || !i.active).length,
+    openCount: items.filter((i) => i.calendarStatus === 'open' && i.active).length,
+    closingSoonCount: items.filter((i) => i.closingSoon && i.active).length,
+    upcomingCount: items.filter((i) => i.upcoming).length,
+    closedCount: items.filter((i) => i.calendarStatus === 'closed').length,
     reviewCount: items.filter((i) => i.needsReview).length,
     asOf: now.toISOString(),
     items: filtered,
@@ -2009,6 +2026,8 @@ app.post('/api/admin/bursaries', attachSupabaseEmailIfPresent, adminMiddleware, 
   const studyFields = parseStringList(req.body?.studyFields, ['all'])
   const workSectors = parseStringList(req.body?.workSectors, ['any'])
   const applyUrl = String(req.body?.applyUrl || '').trim() || null
+  const opens = parseOpensDate(req.body?.applicationOpens)
+  const nextOpens = parseOpensDate(req.body?.nextExpectedOpens)
   const row = await prisma.bursaryOpportunity.create({
     data: {
       slug,
@@ -2019,6 +2038,13 @@ app.post('/api/admin/bursaries', attachSupabaseEmailIfPresent, adminMiddleware, 
       workSectors: JSON.stringify(workSectors.length ? workSectors : ['any']),
       offersJobAfterGrad: Boolean(req.body?.offersJobAfterGrad),
       applicationCloses: closes,
+      applicationOpens: opens,
+      nextExpectedOpens: nextOpens,
+      studyLevels: JSON.stringify(parseStudyLevels(req.body?.studyLevels)),
+      coverage: parseCoverage(req.body?.coverage),
+      region: String(req.body?.region || 'nationwide').trim() || 'nationwide',
+      eligibility: String(req.body?.eligibility || '').trim() || null,
+      requiredDocs: String(req.body?.requiredDocs || '').trim() || null,
       applyUrl,
       active: req.body?.active === false ? false : true,
       notes: String(req.body?.notes || '').trim() || null,
@@ -2052,6 +2078,35 @@ app.put('/api/admin/bursaries/:id', attachSupabaseEmailIfPresent, adminMiddlewar
     if (!closes) return res.status(400).json({ error: 'Invalid closing date.' })
     data.applicationCloses = closes
   }
+  if (req.body?.applicationOpens !== undefined) {
+    const raw = req.body.applicationOpens
+    if (raw === null || raw === '') data.applicationOpens = null
+    else {
+      const opens = parseOpensDate(raw)
+      if (!opens) {
+        return res.status(400).json({
+          error: 'Invalid opening date. Leave blank if the funder has not published one.',
+        })
+      }
+      data.applicationOpens = opens
+    }
+  }
+  if (req.body?.nextExpectedOpens !== undefined) {
+    const raw = req.body.nextExpectedOpens
+    if (raw === null || raw === '') data.nextExpectedOpens = null
+    else {
+      const nextOpens = parseOpensDate(raw)
+      if (!nextOpens) return res.status(400).json({ error: 'Invalid next expected opening date.' })
+      data.nextExpectedOpens = nextOpens
+    }
+  }
+  if (req.body?.studyLevels !== undefined) {
+    data.studyLevels = JSON.stringify(parseStudyLevels(req.body.studyLevels))
+  }
+  if (req.body?.coverage !== undefined) data.coverage = parseCoverage(req.body.coverage)
+  if (req.body?.region !== undefined) data.region = String(req.body.region || 'nationwide').trim() || 'nationwide'
+  if (req.body?.eligibility !== undefined) data.eligibility = String(req.body.eligibility || '').trim() || null
+  if (req.body?.requiredDocs !== undefined) data.requiredDocs = String(req.body.requiredDocs || '').trim() || null
   if (req.body?.applyUrl !== undefined) {
     data.applyUrl = String(req.body.applyUrl || '').trim() || null
   }
