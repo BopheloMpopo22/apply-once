@@ -1,42 +1,15 @@
 import 'dotenv/config'
 import { PrismaClient } from '@prisma/client'
-import { BURSARY_CATALOGUE } from '../server/data/bursaryCatalogue.js'
+import { syncBursaryCatalogue } from '../server/bursaryMatch.js'
 
 const prisma = new PrismaClient()
 
 async function main() {
-  for (const b of BURSARY_CATALOGUE) {
-    await prisma.bursaryOpportunity.upsert({
-      where: { slug: b.slug },
-      create: {
-        slug: b.slug,
-        name: b.name,
-        provider: b.provider,
-        type: b.type,
-        studyFields: JSON.stringify(b.studyFields),
-        workSectors: JSON.stringify(b.workSectors ?? ['any']),
-        offersJobAfterGrad: b.offersJobAfterGrad,
-        applicationCloses: b.applicationCloses,
-        active: true,
-        notes: b.notes ?? null,
-        applyUrl: b.applyUrl ?? null,
-      },
-      update: {
-        name: b.name,
-        provider: b.provider,
-        type: b.type,
-        studyFields: JSON.stringify(b.studyFields),
-        workSectors: JSON.stringify(b.workSectors ?? ['any']),
-        offersJobAfterGrad: b.offersJobAfterGrad,
-        applicationCloses: b.applicationCloses,
-        active: true,
-        notes: b.notes ?? null,
-        applyUrl: b.applyUrl ?? null,
-      },
-    })
-  }
+  const result = await syncBursaryCatalogue(prisma)
   const count = await prisma.bursaryOpportunity.count()
-  console.log(`Bursary catalogue seeded: ${count} opportunities`)
+  console.log(
+    `Bursary catalogue: ${result.created} new, ${result.skipped} already present (${count} total). Existing dates/URLs were not overwritten.`,
+  )
 }
 
 main()

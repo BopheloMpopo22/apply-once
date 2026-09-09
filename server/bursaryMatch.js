@@ -113,6 +113,11 @@ export function rowToBursary(row) {
     active: row.active,
     applyUrl: row.applyUrl ?? undefined,
     notes: row.notes ?? undefined,
+    lastCheckedAt: row.lastCheckedAt ?? null,
+    lastVerifiedAt: row.lastVerifiedAt ?? null,
+    linkStatus: row.linkStatus || 'unknown',
+    linkStatusDetail: row.linkStatusDetail ?? null,
+    needsReview: Boolean(row.needsReview),
   }
 }
 
@@ -120,6 +125,46 @@ export function rowToBursary(row) {
 export function isOpportunityOpen(b, now = new Date()) {
   if (b.active === false) return false
   return new Date(b.applicationCloses) >= now
+}
+
+export function slugifyBursaryName(s) {
+  return String(s || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 80)
+}
+
+export function parseStringList(raw, fallback = []) {
+  if (Array.isArray(raw)) return raw.map((x) => String(x).trim()).filter(Boolean)
+  if (typeof raw === 'string') return raw.split(/[,]+/).map((x) => x.trim()).filter(Boolean)
+  return fallback
+}
+
+/** Admin catalogue row, including health fields. */
+export function toAdminBursaryItem(row, now = new Date()) {
+  const b = rowToBursary(row)
+  return {
+    id: b.id,
+    slug: b.slug,
+    name: b.name,
+    provider: b.provider,
+    type: b.type,
+    studyFields: b.studyFields,
+    workSectors: b.workSectors,
+    offersJobAfterGrad: b.offersJobAfterGrad,
+    applicationCloses: b.applicationCloses,
+    applyUrl: b.applyUrl ?? null,
+    active: Boolean(b.active),
+    isOpen: isOpportunityOpen(b, now),
+    notes: b.notes ?? null,
+    lastCheckedAt: b.lastCheckedAt,
+    lastVerifiedAt: b.lastVerifiedAt,
+    linkStatus: b.linkStatus,
+    linkStatusDetail: b.linkStatusDetail,
+    needsReview: Boolean(b.needsReview),
+  }
 }
 
 /**
@@ -176,14 +221,20 @@ export function matchOpenOpportunities(answers, catalogue, now = new Date()) {
   }
 }
 
-/** @param {import('@prisma/client').PrismaClient} prisma */
+/**
+ * Insert catalogue slugs that are not in the DB yet.
+ * Existing rows are left alone so admin-edited dates, URLs, and flags are not overwritten.
+ * @param {import('@prisma/client').PrismaClient} prisma
+ */
 export async function syncBursaryCatalogue(prisma) {
   const { BURSARY_CATALOGUE } = await import('./data/bursaryCatalogue.js')
-  let upserted = 0
+  const existing = await prisma.bursaryOpportunity.findMany({ select: { slug: true } })
+  const have = new Set(existing.map((r) => r.slug))
+  let created = 0
   for (const b of BURSARY_CATALOGUE) {
-    await prisma.bursaryOpportunity.upsert({
-      where: { slug: b.slug },
-      create: {
+    if (have.has(b.slug)) continue
+    await prisma.bursaryOpportunity.create({
+      data: {
         slug: b.slug,
         name: b.name,
         provider: b.provider,
@@ -195,22 +246,13 @@ export async function syncBursaryCatalogue(prisma) {
         active: true,
         notes: b.notes ?? null,
         applyUrl: b.applyUrl ?? null,
-      },
-      update: {
-        name: b.name,
-        provider: b.provider,
-        type: b.type,
-        studyFields: JSON.stringify(b.studyFields),
-        workSectors: JSON.stringify(b.workSectors ?? ['any']),
-        offersJobAfterGrad: b.offersJobAfterGrad,
-        applicationCloses: b.applicationCloses,
-        notes: b.notes ?? null,
-        applyUrl: b.applyUrl ?? null,
+        needsReview: true,
+        linkStatus: b.applyUrl ? 'unknown' : 'no_url',
       },
     })
-    upserted += 1
+    created += 1
   }
-  return upserted
+  return { created, skipped: BURSARY_CATALOGUE.length - created, totalInFile: BURSARY_CATALOGUE.length }
 }
 
 /** @param {import('@prisma/client').PrismaClient} prisma */
@@ -226,4 +268,37 @@ export async function loadBursaryCatalogue(prisma) {
   await ensureBursaryCatalogueSeeded(prisma)
   const rows = await prisma.bursaryOpportunity.findMany({ orderBy: { name: 'asc' } })
   return rows.map(rowToBursary)
+}
+
+/**
+ * Recalculate open-match counts from the live DB catalogue (not the code file).
+ * Writes the cache only when totals changed.
+ * @param {import('@prisma/client').PrismaClient} prisma
+ * @param {import('@prisma/client').CareerQuestionnaire | null} questionnaire
+ */
+export async function refreshCachedMatchCounts(prisma, questionnaire) {
+  if (!questionnaire || questionnaire.skipped || !questionnaire.completedAt) return questionnaire
+  let answers = {}
+  try {
+    answers = JSON.parse(questionnaire.answers || '{}')
+  } catch {
+    answers = {}
+  }
+  if (!answers || Object.keys(answers).length === 0) return questionnaire
+  const catalogue = await loadBursaryCatalogue(prisma)
+  const match = matchOpenOpportunities(answers, catalogue)
+  if (
+    questionnaire.bursaryCount === match.bursaryCount &&
+    questionnaire.scholarshipCount === match.scholarshipCount
+  ) {
+    return questionnaire
+  }
+  return prisma.careerQuestionnaire.update({
+    where: { id: questionnaire.id },
+    data: {
+      bursaryCount: match.bursaryCount,
+      scholarshipCount: match.scholarshipCount,
+      matchedAt: new Date(),
+    },
+  })
 }

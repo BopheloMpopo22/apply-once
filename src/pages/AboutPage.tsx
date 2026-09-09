@@ -16,7 +16,7 @@ export function AboutPage() {
       <h2>What you can do on {SITE_NAME}</h2>
       <ul>
         <li>Build a single student profile and application</li>
-        <li>Explore bursaries, scholarships, and varsity guides</li>
+        <li>See a live bursary track of SA bursaries and scholarships</li>
         <li>Use tools like the varsity calculator and matric past papers</li>
         <li>Track your application status from your profile</li>
       </ul>

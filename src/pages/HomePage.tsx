@@ -23,6 +23,7 @@ export function HomePage() {
         links={[
           { label: 'Features', to: '/#features' },
           { label: 'Resources', to: '/#resources' },
+          { label: 'Bursaries', to: '/bursary-track' },
           { label: 'Newsletter', to: '/newsletter', accent: 'red' },
         ]}
       />
@@ -128,10 +129,38 @@ export function HomePage() {
                 size="secondary"
                 expanded={openResourceId === card.id}
                 onToggle={() => setOpenResourceId((prev) => (prev === card.id ? null : card.id))}
-                ctaHref={card.id === 'past-papers' ? '/past-papers' : undefined}
-                ctaLabel={card.id === 'past-papers' ? 'Browse all matric papers →' : undefined}
+                ctaHref={
+                  card.id === 'past-papers'
+                    ? '/past-papers'
+                    : card.id === 'bursary-track'
+                      ? '/bursary-track'
+                      : undefined
+                }
+                ctaLabel={
+                  card.id === 'past-papers'
+                    ? 'Browse all matric papers →'
+                    : card.id === 'bursary-track'
+                      ? 'Open bursary track →'
+                      : undefined
+                }
               >
-                {card.id === 'past-papers' ? (
+                {card.id === 'bursary-track' ? (
+                  <div className="homeResourceContent">
+                    <h4>Live SA bursary list</h4>
+                    <ul>
+                      <li>
+                        <strong>Open vs closed</strong> — updated automatically each morning around 06:00.
+                      </li>
+                      <li>
+                        <strong>Same list as matching</strong> — the questionnaire counts bursaries from this
+                        track.
+                      </li>
+                      <li>
+                        Always confirm the closing date on the provider’s own website.
+                      </li>
+                    </ul>
+                  </div>
+                ) : card.id === 'past-papers' ? (
                   <div className="homeResourceContent">
                     <h4>Grade 12 NSC — official papers</h4>
                     <ul>

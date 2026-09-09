@@ -10,6 +10,7 @@ function closes(isoDate) {
 }
 
 import { BURSARY_CATALOGUE_EXTRA } from './bursaryCatalogueExtra.js'
+import { BURSARY_CATALOGUE_COVERAGE } from './bursaryCatalogueCoverage.js'
 
 /** @type {import('../bursaryMatch.js').BursaryRow[]} */
 const BURSARY_CATALOGUE_BASE = [
@@ -23,6 +24,7 @@ const BURSARY_CATALOGUE_BASE = [
     offersJobAfterGrad: false,
     applicationCloses: closes('2026-11-30T23:59:59Z'),
     notes: 'Financial need — undergraduate at public TVET/universities.',
+    applyUrl: 'https://www.nsfas.org.za',
   },
   {
     slug: 'sasol-engineering',
@@ -133,6 +135,7 @@ const BURSARY_CATALOGUE_BASE = [
     workSectors: ['entrepreneurship', 'corporate'],
     offersJobAfterGrad: false,
     applicationCloses: closes('2026-09-30T23:59:59Z'),
+    applyUrl: 'https://www.allangrayorbis.org',
   },
   {
     slug: 'thuthuka-saica',
@@ -143,6 +146,7 @@ const BURSARY_CATALOGUE_BASE = [
     workSectors: ['corporate'],
     offersJobAfterGrad: true,
     applicationCloses: closes('2026-08-31T23:59:59Z'),
+    applyUrl: 'https://www.saica.org.za',
   },
   {
     slug: 'funza-lushaka',
@@ -153,6 +157,7 @@ const BURSARY_CATALOGUE_BASE = [
     workSectors: ['government', 'nonprofit'],
     offersJobAfterGrad: true,
     applicationCloses: closes('2026-10-15T23:59:59Z'),
+    applyUrl: 'https://www.funzalushaka.doe.gov.za',
   },
   {
     slug: 'health-dept',
@@ -378,4 +383,8 @@ const BURSARY_CATALOGUE_BASE = [
 ]
 
 /** Full catalogue: core list + researched additions (synced to DB on admin sync / first API use). */
-export const BURSARY_CATALOGUE = [...BURSARY_CATALOGUE_BASE, ...BURSARY_CATALOGUE_EXTRA]
+export const BURSARY_CATALOGUE = [
+  ...BURSARY_CATALOGUE_BASE,
+  ...BURSARY_CATALOGUE_EXTRA,
+  ...BURSARY_CATALOGUE_COVERAGE,
+]

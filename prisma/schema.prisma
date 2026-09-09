@@ -29,6 +29,7 @@ model User {
   documents         Document[]
   inboxItems        ProfileInboxItem[]
   chatMessages      ChatMessage[]
+  bursaryApplyTasks BursaryApplyTask[]
 }
 
 /// Payment records for application processing fee.
@@ -140,11 +141,42 @@ model BursaryOpportunity {
   applyUrl           String?
   active             Boolean  @default(true)
   notes              String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  /// Last automated link/date check.
+  lastCheckedAt      DateTime?
+  /// Admin confirmed this listing is still open / URL is correct.
+  lastVerifiedAt     DateTime?
+  /// ok | dead | no_url | error | unknown
+  linkStatus         String    @default("unknown")
+  linkStatusDetail   String?
+  needsReview        Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  applyTasks         BursaryApplyTask[]
 
   @@index([active, applicationCloses])
   @@index([type])
+  @@index([needsReview])
+}
+
+/// One bursary to apply for, for one paid student (admin apply pack).
+model BursaryApplyTask {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bursaryId     String
+  bursary       BursaryOpportunity @relation(fields: [bursaryId], references: [id], onDelete: Cascade)
+  /// queued | blocked | in_progress | ready | submitted | skipped
+  status        String    @default("queued")
+  /// JSON string array of missing-field messages.
+  blockReasons  String    @default("[]")
+  notes         String?
+  lastOpenedAt  DateTime?
+  submittedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([userId, bursaryId])
+  @@index([userId, status])
 }
 
 /// Flexible JSON for academics, household, financials, essays — universal application layer.

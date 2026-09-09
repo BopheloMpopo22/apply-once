@@ -2966,6 +2966,152 @@ body {
   font-size: 12px;
 }
 
+.adminBursaryReviewPill {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 11px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.adminBursaryRowActions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.adminBursaryEdit {
+  margin: var(--space-4) 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(33, 50, 230, 0.14);
+  background: rgba(33, 50, 230, 0.04);
+}
+
+.adminBursaryEditGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.adminBursaryEditWide {
+  grid-column: 1 / -1;
+}
+
+.adminCheckLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.adminApplyPackMain {
+  padding-bottom: var(--space-8);
+}
+
+.adminApplyPackGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.adminPackBlocked {
+  margin: var(--space-3) 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  font-size: 14px;
+}
+
+.adminPackBlocked ul {
+  margin: 8px 0 0;
+  padding-left: 1.2em;
+}
+
+.adminPackCopy {
+  width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.adminPackSection {
+  margin-top: var(--space-3);
+  font-size: 13px;
+}
+
+.adminPackSection h4 {
+  margin: 0 0 6px;
+  font-size: 13px;
+}
+
+.adminPackSection dl {
+  margin: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.adminPackSection dt {
+  color: rgba(15, 23, 42, 0.55);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.adminPackSection dd {
+  margin: 0 0 8px;
+}
+
+.adminPackFilters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: var(--space-3) 0;
+}
+
+.adminPackTaskHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.adminPackTaskActions {
+  margin-top: 8px;
+}
+
+.adminPackStatusMid {
+  color: #1d4ed8;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .adminBursaryEditGrid,
+  .adminApplyPackGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bursaryTrackMeta {
+  margin: 0 0 var(--space-4);
+}
+
+.bursaryTrackToolbar {
+  margin-top: var(--space-3);
+}
+
+.bursaryTrackTable {
+  width: 100%;
+  font-size: 14px;
+}
+
 .adminStudentBursaryList {
   list-style: none;
   margin: 0;

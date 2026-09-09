@@ -299,6 +299,7 @@ export function NewsletterPage() {
         logo={<ApplyOnceLogo />}
         links={[
           { label: 'Home', to: '/' },
+          { label: 'Bursaries', to: '/bursary-track' },
           { label: 'Programmes', to: '/programmes-for-work' },
           { label: 'Newsletter', to: '/newsletter', accent: 'red' },
         ]}

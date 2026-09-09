@@ -19,12 +19,17 @@ import { seedVarsityCatalogueFromRepo } from './varsitySeed.js'
 import { sortProgrammesForCatalogue, sortUniversitiesForCatalogue } from './varsityDisplayOrder.js'
 import {
   ensureBursaryCatalogueSeeded,
-  isOpportunityOpen,
   loadBursaryCatalogue,
   matchOpenOpportunities,
+  parseStringList,
+  refreshCachedMatchCounts,
   rowToBursary,
+  slugifyBursaryName,
   syncBursaryCatalogue,
+  toAdminBursaryItem,
 } from './bursaryMatch.js'
+import { runBursaryHealthCheck } from './bursaryHealth.js'
+import { loadApplyPack, normalizeTaskStatus, startApplyPack } from './applyPack.js'
 import {
   PAYMENT_FULLY_PAID_CENTS,
   PAYMENT_INSTALLMENT_CENTS,
@@ -662,7 +667,7 @@ app.get('/api/me', authMiddleware, async (req, res) => {
 
 app.get('/api/profile/bootstrap', authMiddleware, async (req, res) => {
   const userId = req.userId
-  const [
+  let [
     inboxItems,
     draft,
     questionnaireRow,
@@ -719,6 +724,10 @@ app.get('/api/profile/bootstrap', authMiddleware, async (req, res) => {
     applicationPayload = JSON.parse(draft.payload || '{}')
   } catch {
     applicationPayload = {}
+  }
+
+  if (questionnaireRow) {
+    questionnaireRow = await refreshCachedMatchCounts(prisma, questionnaireRow)
   }
 
   let questionnaireAnswers = {}
@@ -1173,7 +1182,7 @@ function parseQuestionnaireAnswers(raw) {
 }
 
 app.get('/api/questionnaire', authMiddleware, async (req, res) => {
-  const row = await prisma.careerQuestionnaire.findUnique({
+  let row = await prisma.careerQuestionnaire.findUnique({
     where: { userId: req.userId },
   })
   if (!row) {
@@ -1186,6 +1195,7 @@ app.get('/api/questionnaire', authMiddleware, async (req, res) => {
       matchedAt: null,
     })
   }
+  row = (await refreshCachedMatchCounts(prisma, row)) || row
   let answers = {}
   try {
     answers = JSON.parse(row.answers || '{}')
@@ -1870,45 +1880,265 @@ app.get('/api/admin/me', authMiddleware, adminMiddleware, async (req, res) => {
   res.json({ ok: true, email: String(req.supabaseEmail || '') })
 })
 
-app.get('/api/admin/bursaries', adminMiddleware, async (req, res) => {
+function cronSecretOk(req) {
+  const secret = String(process.env.CRON_SECRET || '').trim()
+  if (!secret) return false
+  const auth = String(req.get('authorization') || '')
+  const header = String(req.get('x-cron-secret') || '')
+  return auth === `Bearer ${secret}` || header === secret
+}
+
+function parseClosesDate(raw) {
+  const s = String(raw || '').trim()
+  if (!s) return null
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const d = new Date(`${s}T23:59:59.000Z`)
+    return Number.isNaN(d.getTime()) ? null : d
+  }
+  const d = new Date(s)
+  return Number.isNaN(d.getTime()) ? null : d
+}
+
+app.get('/api/bursaries/track', async (_req, res, next) => {
+  try {
+    await ensureBursaryCatalogueSeeded(prisma)
+    const now = new Date()
+    const rows = await prisma.bursaryOpportunity.findMany({
+      orderBy: [{ applicationCloses: 'asc' }, { name: 'asc' }],
+    })
+    const items = rows.map((row) => {
+      const b = toAdminBursaryItem(row, now)
+      return {
+        slug: b.slug,
+        name: b.name,
+        provider: b.provider,
+        type: b.type,
+        applicationCloses: b.applicationCloses,
+        applyUrl: b.applyUrl,
+        isOpen: b.isOpen,
+        studyFields: b.studyFields,
+      }
+    })
+    let lastCheckedMs = 0
+    for (const row of rows) {
+      if (!row.lastCheckedAt) continue
+      const t = new Date(row.lastCheckedAt).getTime()
+      if (t > lastCheckedMs) lastCheckedMs = t
+    }
+    res.json({
+      asOf: now.toISOString(),
+      lastCheckedAt: lastCheckedMs ? new Date(lastCheckedMs).toISOString() : null,
+      openCount: items.filter((i) => i.isOpen).length,
+      closedCount: items.filter((i) => !i.isOpen).length,
+      items,
+    })
+  } catch (e) {
+    next(e)
+  }
+})
+
+app.get('/api/admin/bursaries', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res) => {
   const filter = String(req.query.filter || 'all')
   await ensureBursaryCatalogueSeeded(prisma)
   const rows = await prisma.bursaryOpportunity.findMany({ orderBy: [{ applicationCloses: 'asc' }, { name: 'asc' }] })
   const now = new Date()
-  const items = rows.map((row) => {
-    const b = rowToBursary(row)
-    const open = isOpportunityOpen(b, now)
-    return {
-      id: b.id,
-      slug: b.slug,
-      name: b.name,
-      provider: b.provider,
-      type: b.type,
-      studyFields: b.studyFields,
-      workSectors: b.workSectors,
-      offersJobAfterGrad: b.offersJobAfterGrad,
-      applicationCloses: b.applicationCloses,
-      applyUrl: b.applyUrl ?? null,
-      active: b.active,
-      isOpen: open,
-      notes: b.notes ?? null,
-    }
-  })
+  const items = rows.map((row) => toAdminBursaryItem(row, now))
   const filtered =
-    filter === 'open' ? items.filter((i) => i.isOpen && i.active) : filter === 'closed' ? items.filter((i) => !i.isOpen || !i.active) : items
+    filter === 'open'
+      ? items.filter((i) => i.isOpen && i.active)
+      : filter === 'closed'
+        ? items.filter((i) => !i.isOpen || !i.active)
+        : filter === 'review'
+          ? items.filter((i) => i.needsReview)
+          : items
   res.json({
     total: filtered.length,
     openCount: items.filter((i) => i.isOpen && i.active).length,
     closedCount: items.filter((i) => !i.isOpen || !i.active).length,
+    reviewCount: items.filter((i) => i.needsReview).length,
     asOf: now.toISOString(),
     items: filtered,
   })
 })
 
-app.post('/api/admin/bursaries/sync', adminMiddleware, async (req, res) => {
-  const count = await syncBursaryCatalogue(prisma)
-  res.json({ ok: true, upserted: count })
+app.post('/api/admin/bursaries/sync', attachSupabaseEmailIfPresent, adminMiddleware, async (_req, res) => {
+  const result = await syncBursaryCatalogue(prisma)
+  res.json({
+    ok: true,
+    created: result.created,
+    skipped: result.skipped,
+    totalInFile: result.totalInFile,
+    upserted: result.created,
+  })
 })
+
+app.post('/api/admin/bursaries/health-check', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res, next) => {
+  try {
+    const force = Boolean(req.body?.force)
+    const result = await runBursaryHealthCheck(prisma, { force })
+    res.json({ ok: true, ...result })
+  } catch (e) {
+    next(e)
+  }
+})
+
+app.get('/api/cron/bursary-health', async (req, res, next) => {
+  if (!cronSecretOk(req)) {
+    return res.status(401).json({ error: 'Unauthorized cron request' })
+  }
+  try {
+    const result = await runBursaryHealthCheck(prisma, { force: false })
+    res.json({ ok: true, ...result })
+  } catch (e) {
+    next(e)
+  }
+})
+
+app.post('/api/admin/bursaries', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res) => {
+  const name = String(req.body?.name || '').trim()
+  const provider = String(req.body?.provider || '').trim()
+  const type = String(req.body?.type || 'bursary').trim() === 'scholarship' ? 'scholarship' : 'bursary'
+  const closes = parseClosesDate(req.body?.applicationCloses)
+  if (!name || !provider || !closes) {
+    return res.status(400).json({ error: 'Name, provider, and closing date are required.' })
+  }
+  const slug = slugifyBursaryName(req.body?.slug || name)
+  if (!slug) return res.status(400).json({ error: 'Could not build a slug from the name.' })
+  const exists = await prisma.bursaryOpportunity.findUnique({ where: { slug }, select: { id: true } })
+  if (exists) return res.status(409).json({ error: `Slug "${slug}" already exists.` })
+  const studyFields = parseStringList(req.body?.studyFields, ['all'])
+  const workSectors = parseStringList(req.body?.workSectors, ['any'])
+  const applyUrl = String(req.body?.applyUrl || '').trim() || null
+  const row = await prisma.bursaryOpportunity.create({
+    data: {
+      slug,
+      name,
+      provider,
+      type,
+      studyFields: JSON.stringify(studyFields.length ? studyFields : ['all']),
+      workSectors: JSON.stringify(workSectors.length ? workSectors : ['any']),
+      offersJobAfterGrad: Boolean(req.body?.offersJobAfterGrad),
+      applicationCloses: closes,
+      applyUrl,
+      active: req.body?.active === false ? false : true,
+      notes: String(req.body?.notes || '').trim() || null,
+      needsReview: true,
+      linkStatus: applyUrl ? 'unknown' : 'no_url',
+    },
+  })
+  res.status(201).json(toAdminBursaryItem(row))
+})
+
+app.put('/api/admin/bursaries/:id', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res) => {
+  const id = String(req.params.id || '')
+  const existing = await prisma.bursaryOpportunity.findUnique({ where: { id } })
+  if (!existing) return res.status(404).json({ error: 'Bursary not found' })
+
+  const data = {}
+  if (typeof req.body?.name === 'string' && req.body.name.trim()) data.name = req.body.name.trim()
+  if (typeof req.body?.provider === 'string' && req.body.provider.trim()) data.provider = req.body.provider.trim()
+  if (req.body?.type === 'bursary' || req.body?.type === 'scholarship') data.type = req.body.type
+  if (req.body?.studyFields !== undefined) {
+    const fields = parseStringList(req.body.studyFields, [])
+    data.studyFields = JSON.stringify(fields.length ? fields : ['all'])
+  }
+  if (req.body?.workSectors !== undefined) {
+    const sectors = parseStringList(req.body.workSectors, [])
+    data.workSectors = JSON.stringify(sectors.length ? sectors : ['any'])
+  }
+  if (typeof req.body?.offersJobAfterGrad === 'boolean') data.offersJobAfterGrad = req.body.offersJobAfterGrad
+  if (req.body?.applicationCloses) {
+    const closes = parseClosesDate(req.body.applicationCloses)
+    if (!closes) return res.status(400).json({ error: 'Invalid closing date.' })
+    data.applicationCloses = closes
+  }
+  if (req.body?.applyUrl !== undefined) {
+    data.applyUrl = String(req.body.applyUrl || '').trim() || null
+  }
+  if (typeof req.body?.active === 'boolean') data.active = req.body.active
+  if (req.body?.notes !== undefined) data.notes = String(req.body.notes || '').trim() || null
+  if (typeof req.body?.needsReview === 'boolean') data.needsReview = req.body.needsReview
+
+  const row = await prisma.bursaryOpportunity.update({ where: { id }, data })
+  res.json(toAdminBursaryItem(row))
+})
+
+app.post('/api/admin/bursaries/:id/verify', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res) => {
+  const id = String(req.params.id || '')
+  const existing = await prisma.bursaryOpportunity.findUnique({ where: { id } })
+  if (!existing) return res.status(404).json({ error: 'Bursary not found' })
+  const row = await prisma.bursaryOpportunity.update({
+    where: { id },
+    data: {
+      lastVerifiedAt: new Date(),
+      needsReview: false,
+      linkStatus: existing.applyUrl ? existing.linkStatus || 'ok' : 'no_url',
+    },
+  })
+  res.json(toAdminBursaryItem(row))
+})
+
+app.get('/api/admin/students/:id/apply-pack', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res) => {
+  const id = String(req.params.id || '')
+  const pack = await loadApplyPack(prisma, id, { buildSnapshot: buildApplicationSnapshot })
+  if (!pack) return res.status(404).json({ error: 'Student not found' })
+  res.json(pack)
+})
+
+app.post('/api/admin/students/:id/apply-pack/start', attachSupabaseEmailIfPresent, adminMiddleware, async (req, res) => {
+  const id = String(req.params.id || '')
+  const result = await startApplyPack(prisma, id, { buildSnapshot: buildApplicationSnapshot })
+  if (result?.error) return res.status(result.status || 400).json({ error: result.error })
+  res.json(result)
+})
+
+app.patch(
+  '/api/admin/students/:id/apply-pack/tasks/:taskId',
+  attachSupabaseEmailIfPresent,
+  adminMiddleware,
+  async (req, res) => {
+    const userId = String(req.params.id || '')
+    const taskId = String(req.params.taskId || '')
+    const task = await prisma.bursaryApplyTask.findFirst({
+      where: { id: taskId, userId },
+      include: { bursary: true },
+    })
+    if (!task) return res.status(404).json({ error: 'Task not found' })
+
+    const data = {}
+    if (req.body?.status !== undefined) {
+      const status = normalizeTaskStatus(req.body.status)
+      if (!status) return res.status(400).json({ error: 'Invalid task status.' })
+      data.status = status
+      if (status === 'submitted') data.submittedAt = new Date()
+      if (status === 'in_progress' && !task.lastOpenedAt) data.lastOpenedAt = new Date()
+    }
+    if (req.body?.notes !== undefined) data.notes = String(req.body.notes || '').trim() || null
+
+    await prisma.bursaryApplyTask.update({ where: { id: task.id }, data })
+    const pack = await loadApplyPack(prisma, userId, { buildSnapshot: buildApplicationSnapshot })
+    res.json(pack)
+  },
+)
+
+app.post(
+  '/api/admin/students/:id/apply-pack/tasks/:taskId/opened',
+  attachSupabaseEmailIfPresent,
+  adminMiddleware,
+  async (req, res) => {
+    const userId = String(req.params.id || '')
+    const taskId = String(req.params.taskId || '')
+    const task = await prisma.bursaryApplyTask.findFirst({ where: { id: taskId, userId } })
+    if (!task) return res.status(404).json({ error: 'Task not found' })
+    const nextStatus = task.status === 'submitted' || task.status === 'skipped' ? task.status : 'in_progress'
+    await prisma.bursaryApplyTask.update({
+      where: { id: task.id },
+      data: { lastOpenedAt: new Date(), status: nextStatus },
+    })
+    const pack = await loadApplyPack(prisma, userId, { buildSnapshot: buildApplicationSnapshot })
+    res.json(pack)
+  },
+)
 
 app.get('/api/admin/students/:id/bursary-matches', adminMiddleware, async (req, res) => {
   const id = String(req.params.id || '')

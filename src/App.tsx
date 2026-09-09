@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { ScrollToTop } from './components/ScrollToTop'
 import { ApplicationGate, ApplicationPage } from './pages/ApplicationPage'
 import { AuthCallbackPage } from './pages/AuthCallbackPage'
@@ -6,6 +6,7 @@ import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
 import { ProfileGate, ProfilePage } from './pages/ProfilePage'
 import { AdminPage } from './pages/AdminPage'
+import { AdminApplyPackPage } from './pages/AdminApplyPackPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { VarsityCalculatorPage } from './pages/VarsityCalculatorPage'
 import { VarsityGuidePage } from './pages/VarsityGuidePage'
@@ -14,6 +15,7 @@ import { VarsityProspectusHubPage } from './pages/VarsityProspectusHubPage'
 import { ApplicationPdfPreviewPage } from './pages/ApplicationPdfPreviewPage'
 import { PaymentSuccessPage } from './pages/PaymentSuccessPage'
 import { PastPapersPage } from './pages/PastPapersPage'
+import { BursaryTrackPage } from './pages/BursaryTrackPage'
 import { CareerProgrammesPage } from './pages/CareerProgrammesPage'
 import { AboutPage } from './pages/AboutPage'
 import { TermsPage } from './pages/TermsPage'
@@ -31,6 +33,7 @@ export default function App() {
       <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/admin" element={<AdminPage />} />
+      <Route path="/admin/apply-pack/:studentId" element={<AdminApplyPackPage />} />
       <Route path="/varsity-calculator" element={<VarsityCalculatorPage />} />
       <Route path="/programmes-for-work" element={<CareerProgrammesPage />} />
       <Route path="/hubs/:hubSlug" element={<StudentHubPage />} />
@@ -56,6 +59,8 @@ export default function App() {
         }
       />
       <Route path="/past-papers" element={<PastPapersPage />} />
+      <Route path="/bursary-track" element={<BursaryTrackPage />} />
+      <Route path="/bursary_track" element={<Navigate to="/bursary-track" replace />} />
       <Route path="/newsletter" element={<NewsletterPage />} />
       <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribePage />} />
       <Route path="/newsletter/:slug" element={<NewsletterIssuePage />} />
