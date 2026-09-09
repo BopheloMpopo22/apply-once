@@ -490,6 +490,9 @@ export function AdminPage() {
         <div className="container adminHeaderInner">
           <h1 className="adminTitle">Apply Once — admin</h1>
           <div className="adminHeaderActions">
+            <Link className="adminHomeLink" to="/bursary-track">
+              Bursary track
+            </Link>
             <Link className="adminHomeLink" to="/">
               Student site
             </Link>
@@ -550,6 +553,18 @@ export function AdminPage() {
 
             {error ? <div className="formError adminError">{error}</div> : null}
             {varsityError ? <div className="formError adminError">{varsityError}</div> : null}
+
+            <section className="adminCard adminBursaryTrackBanner">
+              <div>
+                <h2 className="adminCardTitle">Bursary track</h2>
+                <p className="adminCardLead" style={{ marginTop: 8 }}>
+                  Public live list of open and closed SA bursaries. Same list the questionnaire uses.
+                </p>
+              </div>
+              <Link className="btn btnDark" to="/bursary-track">
+                Open bursary track
+              </Link>
+            </section>
 
             <AdminNewsletterPanel onError={setError} />
 

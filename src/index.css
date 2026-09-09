@@ -4996,6 +4996,15 @@ body {
   text-decoration: underline;
 }
 
+.adminBursaryTrackBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-5);
+}
+
 .adminHeaderBtn {
   padding: 8px 14px;
   font-size: 13px;
