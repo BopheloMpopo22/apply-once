@@ -149,8 +149,8 @@ function serializeTask(row) {
   }
 }
 
-function statusForNewTask(packReady) {
-  return packReady ? 'queued' : 'blocked'
+function statusForNewTask() {
+  return 'queued'
 }
 
 /**
@@ -211,10 +211,8 @@ export async function loadApplyPack(prisma, userId, helpers) {
   }
 
   const catalogue = await loadBursaryCatalogue(prisma)
-  const match =
-    q && !q.skipped && q.completedAt && Object.keys(answers).length > 0
-      ? matchOpenOpportunities(answers, catalogue)
-      : { bursaryCount: 0, scholarshipCount: 0, matched: [], asOf: new Date().toISOString() }
+  const match = matchOpenOpportunities(answers, catalogue)
+  const usedAllOpen = Object.keys(answers).length === 0
 
   const snapshot = helpers?.buildSnapshot ? await helpers.buildSnapshot(userId) : null
 
@@ -240,6 +238,7 @@ export async function loadApplyPack(prisma, userId, helpers) {
       scholarshipCount: match.scholarshipCount,
       matchedAt: match.asOf,
       matches: match.matched,
+      usedAllOpen,
     },
     tasks: user.bursaryApplyTasks.map(serializeTask),
   }
@@ -254,17 +253,11 @@ export async function loadApplyPack(prisma, userId, helpers) {
 export async function startApplyPack(prisma, userId, helpers) {
   const pack = await loadApplyPack(prisma, userId, helpers)
   if (!pack) return { error: 'Student not found', status: 404 }
-  if (!pack.paidEnoughToStart) {
-    return { error: 'Student has not paid the application fee yet.', status: 400 }
-  }
-  if (!pack.questionnaireCompleted) {
-    return { error: 'Student has not completed the career questionnaire.', status: 400 }
-  }
 
   const matchedIds = pack.match.matches.map((m) => m.id).filter(Boolean)
   const existingByBursary = new Map(pack.tasks.map((t) => [t.bursary?.id, t]))
   const reasons = pack.completeness.missing
-  const nextStatus = statusForNewTask(pack.completeness.ready)
+  const nextStatus = statusForNewTask()
 
   for (const bursaryId of matchedIds) {
     const existing = existingByBursary.get(bursaryId)
@@ -286,7 +279,7 @@ export async function startApplyPack(prisma, userId, helpers) {
     await prisma.bursaryApplyTask.update({
       where: { id: existing.id },
       data: {
-        status: pack.completeness.ready ? (keepInProgress ? existing.status : 'queued') : 'blocked',
+        status: keepInProgress ? existing.status : 'queued',
         blockReasons: JSON.stringify(reasons),
       },
     })

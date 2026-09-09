@@ -540,6 +540,9 @@ export function AdminPage() {
               >
                 {varsityBusy ? 'Refreshing…' : 'Refresh varsity'}
               </button>
+              <Link className="btn btnOutline btnSmall" to="/bursary-track">
+                Bursary track
+              </Link>
               <p className="adminToolbarMeta">
                 {students.length} student{students.length === 1 ? '' : 's'} — data lives in SQLite (see Prisma schema).
               </p>

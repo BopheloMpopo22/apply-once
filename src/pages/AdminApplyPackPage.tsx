@@ -62,6 +62,7 @@ type ApplyPack = {
     scholarshipCount: number
     matchedAt: string
     matches: Array<{ slug: string; name: string }>
+    usedAllOpen?: boolean
   }
   tasks: PackTask[]
 }
@@ -93,7 +94,10 @@ export function AdminApplyPackPage() {
 
   const load = useCallback(async () => {
     if (!studentId) throw new Error('Missing student id')
-    const next = await adminApi<ApplyPack>(`/api/admin/students/${encodeURIComponent(studentId)}/apply-pack`)
+    const next = await adminApi<ApplyPack>(
+      `/api/admin/students/${encodeURIComponent(studentId)}/apply-pack/start`,
+      { method: 'POST', json: {} },
+    )
     setPack(next)
     setNoteDrafts((prev) => {
       const merged = { ...prev }
@@ -248,11 +252,11 @@ export function AdminApplyPackPage() {
               </p>
               <p>
                 Pack completeness: <strong>{pack.completeness.percent}%</strong>
-                {pack.completeness.ready ? ' — ready to apply' : ' — blocked'}
+                {pack.completeness.ready ? ' — pack looks complete' : ' — still missing answers or docs (you can apply anyway)'}
               </p>
               {!pack.completeness.ready ? (
                 <div className="adminPackBlocked">
-                  <strong>Missing before we submit</strong>
+                  <strong>Still missing (for your reference — start is not locked)</strong>
                   <ul>
                     {pack.completeness.missing.map((m) => (
                       <li key={m}>{m}</li>
@@ -262,13 +266,11 @@ export function AdminApplyPackPage() {
               ) : (
                 <p className="adminOk">Core fields and ID / results / income docs are on file.</p>
               )}
-              {!pack.questionnaireCompleted ? (
-                <p className="adminBursaryBadgeClosed">Career questionnaire not completed — no matches yet.</p>
-              ) : (
-                <p className="adminMuted">
-                  {pack.match.bursaryCount} open bursaries · {pack.match.scholarshipCount} scholarships
-                </p>
-              )}
+              <p className="adminMuted">
+                {pack.match.usedAllOpen
+                  ? `${pack.match.bursaryCount + pack.match.scholarshipCount} open listings (questionnaire not finished — showing all open bursaries and scholarships)`
+                  : `${pack.match.bursaryCount} open bursaries · ${pack.match.scholarshipCount} scholarships`}
+              </p>
               <div className="formActions">
                 <button type="button" className="btn btnDark btnSmall" onClick={() => void onCopyPack()}>
                   {copied ? 'Copied' : 'Copy pack'}
@@ -279,18 +281,10 @@ export function AdminApplyPackPage() {
                 >
                   PDF preview
                 </Link>
-                <button
-                  type="button"
-                  className="btn btnOutline btnSmall"
-                  disabled={actionBusy || !pack.paidEnoughToStart || !pack.questionnaireCompleted}
-                  onClick={() => void onStart()}
-                >
-                  {pack.tasks.length ? 'Refresh matches' : 'Start applications'}
+                <button type="button" className="btn btnOutline btnSmall" disabled={actionBusy} onClick={() => void onStart()}>
+                  Refresh queue
                 </button>
               </div>
-              {!pack.paidEnoughToStart ? (
-                <p className="adminMuted">Start is locked until the student has paid at least the first installment.</p>
-              ) : null}
 
               <h3 className="adminSubheading">Documents</h3>
               {pack.documents.length === 0 ? (
@@ -372,9 +366,7 @@ export function AdminApplyPackPage() {
               </div>
 
               {!pack.tasks.length ? (
-                <p className="adminMuted">
-                  No queue yet. When the student has paid and completed the questionnaire, click Start applications.
-                </p>
+                <p className="adminMuted">No open bursaries on the live list right now.</p>
               ) : null}
 
               <ul className="adminStudentBursaryList">
@@ -414,7 +406,7 @@ export function AdminApplyPackPage() {
                         <button
                           type="button"
                           className="btn btnOutline btnSmall"
-                          disabled={actionBusy || !pack.completeness.ready}
+                          disabled={actionBusy}
                           onClick={() => void patchTask(task.id, { status: 'ready' })}
                         >
                           Mark ready

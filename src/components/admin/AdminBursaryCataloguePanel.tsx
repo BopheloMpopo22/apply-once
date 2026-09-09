@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { adminApi } from '../../api/adminClient'
 
 export type BursaryAdminRow = {
@@ -203,6 +204,9 @@ export function AdminBursaryCataloguePanel(props: { onError: (msg: string | null
         <h2 className="adminCardTitle" style={{ margin: 0 }}>
           Bursaries & scholarships catalogue
         </h2>
+        <Link className="btn btnOutline btnSmall" to="/bursary-track">
+          Open bursary track
+        </Link>
         <label className="field" style={{ maxWidth: 180, marginLeft: 'auto' }}>
           <span>Show</span>
           <select value={filter} onChange={(e) => setFilter(e.target.value as Filter)}>
