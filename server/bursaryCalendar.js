@@ -96,5 +96,6 @@ export function toPublicTrackItem(adminItem) {
     applyUrl: adminItem.applyUrl,
     lastVerifiedAt: adminItem.lastVerifiedAt,
     lastCheckedAt: adminItem.lastCheckedAt,
+    dateConfidence: adminItem.dateConfidence || 'unknown',
   }
 }

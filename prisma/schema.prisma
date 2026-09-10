@@ -161,6 +161,8 @@ model BursaryOpportunity {
   linkStatus         String    @default("unknown")
   linkStatusDetail   String?
   needsReview        Boolean   @default(false)
+  /// official | typical | unknown — typical = last year's published date used as a guide only
+  dateConfidence     String    @default("unknown")
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
   applyTasks         BursaryApplyTask[]

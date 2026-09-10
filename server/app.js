@@ -2113,6 +2113,9 @@ app.put('/api/admin/bursaries/:id', attachSupabaseEmailIfPresent, adminMiddlewar
   if (typeof req.body?.active === 'boolean') data.active = req.body.active
   if (req.body?.notes !== undefined) data.notes = String(req.body.notes || '').trim() || null
   if (typeof req.body?.needsReview === 'boolean') data.needsReview = req.body.needsReview
+  if (req.body?.dateConfidence === 'official' || req.body?.dateConfidence === 'typical' || req.body?.dateConfidence === 'unknown') {
+    data.dateConfidence = req.body.dateConfidence
+  }
 
   const row = await prisma.bursaryOpportunity.update({ where: { id }, data })
   res.json(toAdminBursaryItem(row))

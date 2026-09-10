@@ -1,6 +1,7 @@
 /**
  * Official-page facts for the bursary calendar.
- * Only dates published by the funder. Never invent an opening date.
+ * Official dates: published by the funder this cycle.
+ * Typical dates: last year’s published window, rolled forward and labelled — not confirmed for this year.
  * Last checked: 9 September 2026.
  *
  * Apply to the live database with: node scripts/applyBursaryVerified.js
@@ -24,6 +25,7 @@ export const VERIFIED_ON = '2026-09-09'
  * @property {string | null} [applicationCloses] YYYY-MM-DD
  * @property {string | null} [nextExpectedOpens] YYYY-MM-DD
  * @property {boolean} datesConfirmed
+ * @property {'official' | 'typical' | 'unknown'} [dateConfidence]
  * @property {string[]} [studyLevels]
  * @property {string} [coverage]
  * @property {string} [region]
@@ -40,26 +42,28 @@ export const BURSARY_VERIFIED = [
     applyUrl: 'https://www.nsfas.org.za',
     sourceUrl: 'https://www.nsfas.org.za/content/',
     applicationOpens: null,
-    applicationCloses: '2026-08-23',
+    applicationCloses: '2026-11-15',
     nextExpectedOpens: null,
-    datesConfirmed: true,
+    datesConfirmed: false,
+    dateConfidence: 'typical',
     studyLevels: ['undergraduate', 'tvet'],
     coverage: 'full',
     region: 'nationwide',
     eligibility:
-      'Financial need. Public university or TVET. Apply on myNSFAS. 2027 national cycle dates were not yet published on 9 Sep 2026.',
+      'Financial need. Public university or TVET. Apply on myNSFAS. 2027 national dates were not yet published on 9 Sep 2026.',
     requiredDocs: 'SA ID, proof of household income. Check myNSFAS for any missing-document notice.',
     notes:
-      'National 2026 applications closed 15 Nov 2025. TVET Trimester 3 closed 23 Aug 2026 (14–23 Aug). NSFAS said 2027 national dates “follow soon” — no date published. Do not use the withdrawn 3–14 Sep 2026 TVET window.',
+      'Guide date only. Last national cycle opened 15 Sep 2025 and closed 15 Nov 2025. NSFAS has not published 2027 national dates yet (they said they follow soon). The 23 Aug 2026 date was TVET Trimester 3, not the main university cycle. Confirm on nsfas.org.za before you apply.',
   },
   {
     slug: 'funza-lushaka',
     applyUrl: 'https://www.eservices.gov.za/FunzaLushaka/',
     sourceUrl: 'https://www.funzalushaka.doe.gov.za/',
-    applicationOpens: '2025-10-07',
-    applicationCloses: '2026-02-01',
-    nextExpectedOpens: null,
-    datesConfirmed: true,
+    applicationOpens: '2026-10-07',
+    applicationCloses: '2027-02-01',
+    nextExpectedOpens: '2026-10-07',
+    datesConfirmed: false,
+    dateConfidence: 'typical',
     studyLevels: ['undergraduate'],
     coverage: 'full',
     region: 'nationwide',
@@ -67,7 +71,7 @@ export const BURSARY_VERIFIED = [
       'Teaching qualification in a national-priority subject. First-time applicants must be 30 or younger. Work-back at a public school for each funded year. 2027 dates not published as of 9 Sep 2026.',
     requiredDocs: 'Apply on e-Gov (eservices.gov.za). Police clearance, NSRO and child-protection checks apply.',
     notes:
-      'Funza portal: 2026 opened 7 Oct 2025; returning bursars 30 Nov 2025; new applications 1 Feb 2026. DBE page also listed 24 Jan 2026 for new applicants — use e-Gov and the Funza site before applying. Teaching work-back is required.',
+      'Guide dates only, from the last official 2026 cycle (opened 7 Oct 2025; new applications closed 1 Feb 2026). 2027 dates are not on the Funza site yet. DBE also listed 24 Jan 2026 last year — always check e-Gov before you apply.',
     offersJobAfterGrad: true,
   },
   {
@@ -79,6 +83,7 @@ export const BURSARY_VERIFIED = [
     applicationCloses: '2026-05-17',
     nextExpectedOpens: null,
     datesConfirmed: true,
+    dateConfidence: 'official',
     studyLevels: ['undergraduate'],
     coverage: 'full',
     region: 'nationwide',
@@ -97,6 +102,7 @@ export const BURSARY_VERIFIED = [
     applicationCloses: '2026-08-23',
     nextExpectedOpens: null,
     datesConfirmed: true,
+    dateConfidence: 'official',
     studyLevels: ['undergraduate'],
     coverage: 'full',
     region: 'nationwide',
@@ -121,6 +127,7 @@ export const BURSARY_VERIFIED = [
     applicationCloses: '2026-09-13',
     nextExpectedOpens: null,
     datesConfirmed: true,
+    dateConfidence: 'official',
     studyLevels: ['undergraduate'],
     coverage: 'full',
     region: 'Mpumalanga',
@@ -136,6 +143,7 @@ export const BURSARY_VERIFIED = [
     applicationCloses: '2026-09-15',
     nextExpectedOpens: null,
     datesConfirmed: true,
+    dateConfidence: 'official',
     studyLevels: ['undergraduate', 'honours', 'masters', 'phd'],
     coverage: 'full',
     region: 'nationwide',
@@ -153,6 +161,7 @@ export const BURSARY_VERIFIED = [
     applicationCloses: '2026-09-30',
     nextExpectedOpens: null,
     datesConfirmed: true,
+    dateConfidence: 'official',
     studyLevels: ['undergraduate', 'honours'],
     coverage: 'full',
     region: 'nationwide',
@@ -169,6 +178,7 @@ export const BURSARY_VERIFIED = [
     applicationCloses: '2026-11-23',
     nextExpectedOpens: null,
     datesConfirmed: true,
+    dateConfidence: 'official',
     studyLevels: ['honours', 'masters', 'phd'],
     coverage: 'partial',
     region: 'nationwide',
@@ -186,6 +196,7 @@ export const BURSARY_VERIFIED = [
     applicationCloses: '2026-04-30',
     nextExpectedOpens: null,
     datesConfirmed: true,
+    dateConfidence: 'official',
     studyLevels: ['undergraduate'],
     coverage: 'full',
     region: 'nationwide',
@@ -203,6 +214,7 @@ export const BURSARY_VERIFIED = [
     applicationCloses: '2027-03-31',
     nextExpectedOpens: '2026-10-01',
     datesConfirmed: true,
+    dateConfidence: 'official',
     studyLevels: ['undergraduate'],
     coverage: 'full',
     region: 'nationwide',
@@ -218,6 +230,7 @@ export const BURSARY_VERIFIED = [
     applicationCloses: '2026-10-06',
     nextExpectedOpens: null,
     datesConfirmed: true,
+    dateConfidence: 'official',
     studyLevels: ['masters'],
     coverage: 'full',
     region: 'nationwide',
@@ -234,6 +247,7 @@ export const BURSARY_VERIFIED = [
     applicationCloses: '2026-04-08',
     nextExpectedOpens: null,
     datesConfirmed: true,
+    dateConfidence: 'official',
     studyLevels: ['masters', 'phd'],
     coverage: 'full',
     region: 'nationwide',
@@ -250,6 +264,7 @@ export const BURSARY_VERIFIED = [
     applicationCloses: '2026-05-31',
     nextExpectedOpens: null,
     datesConfirmed: true,
+    dateConfidence: 'official',
     studyLevels: ['undergraduate', 'honours'],
     coverage: 'full',
     region: 'nationwide',
@@ -316,5 +331,108 @@ export const BURSARY_VERIFIED = [
     eligibility:
       'SA citizen or permanent resident. Accredited SA university. Occupation of High Demand (e.g. actuarial, accounting, data science, engineering, IT, medicine, nursing). Financial need via means test. Academic performance standards.',
     notes: 'Official student page has Apply Now but no opening or closing date as of 9 Sep 2026. Do not invent dates.',
+  },
+  {
+    slug: 'investec',
+    applyUrl:
+      'https://www.investec.com/en_za/welcome-to-investec/sustainability/our-community/bursaries/tertiary-bursary-programme.html',
+    sourceUrl:
+      'https://www.investec.com/en_za/welcome-to-investec/sustainability/our-community/bursaries/tertiary-bursary-programme.html',
+    applicationOpens: null,
+    applicationCloses: '2026-09-30',
+    nextExpectedOpens: null,
+    datesConfirmed: true,
+    dateConfidence: 'official',
+    studyLevels: ['undergraduate'],
+    coverage: 'full',
+    region: 'nationwide',
+    eligibility:
+      'SA citizens with academic potential and financial need. Matric exemption with at least 70% in English and Mathematics (not Maths Literacy) and 60% in other subjects. StudyTrust manages the application. Financial-sector-related degrees.',
+    notes: 'Investec tertiary bursary: applications open, close 30 September 2026. Opening date not listed as a calendar day.',
+    offersJobAfterGrad: false,
+  },
+  {
+    slug: 'standard-bank',
+    applyUrl: 'https://studytrust.org.za/standardbank/',
+    sourceUrl: 'https://studytrust.org.za/bursary-applications/',
+    applicationOpens: '2026-06-01',
+    applicationCloses: '2026-09-30',
+    nextExpectedOpens: null,
+    datesConfirmed: true,
+    dateConfidence: 'official',
+    studyLevels: ['undergraduate', 'honours', 'masters'],
+    coverage: 'full',
+    region: 'nationwide',
+    eligibility:
+      'SA citizen, 65%+ average, full-time undergraduate or postgraduate up to Master’s. Fields include accounting, actuarial, commerce, data/computer science, economics, engineering, finance, IT, maths, statistics. Apply on StudyTrust.',
+    notes:
+      'StudyTrust (the apply platform Standard Bank links to) opened 1 June 2026; most funds close 30 September. Standard Bank’s own careers page still showed the 2025 season — use StudyTrust.',
+    offersJobAfterGrad: true,
+  },
+  {
+    slug: 'vodacom',
+    applyUrl: 'https://www.vodacom.com/bursary-programme.php',
+    sourceUrl: 'https://www.vodacom.com/bursary-programme.php',
+    applicationOpens: null,
+    applicationCloses: '2026-08-31',
+    nextExpectedOpens: null,
+    datesConfirmed: true,
+    dateConfidence: 'official',
+    studyLevels: ['undergraduate'],
+    coverage: 'full',
+    region: 'nationwide',
+    eligibility:
+      'Academic merit bursary for full-time first-, second- or third-year STEM students who may lack resources. Apply on Vodacom’s bursary portal.',
+    notes: 'Official Vodacom bursary page: applications close 31 August 2026.',
+    offersJobAfterGrad: true,
+  },
+  {
+    slug: 'old-mutual',
+    applyUrl: 'https://www.oldmutual.co.za/careers/the-old-mutual-education-trust/',
+    sourceUrl: 'https://www.oldmutual.co.za/careers/the-old-mutual-education-trust/',
+    applicationOpens: '2026-07-01',
+    applicationCloses: '2026-08-31',
+    nextExpectedOpens: null,
+    datesConfirmed: true,
+    dateConfidence: 'official',
+    studyLevels: ['undergraduate'],
+    coverage: 'full',
+    region: 'nationwide',
+    eligibility:
+      'Old Mutual Education Trust: applications each year 1 July–31 August. Selection 7–9 October 2026. Separate Old Mutual student bursaries for 2027 closed 30 June 2026.',
+    notes: 'Education Trust 2026 window closed 31 August. Next year the same July–August pattern is what they publish as annual.',
+    offersJobAfterGrad: false,
+  },
+  {
+    slug: 'nedbank',
+    applyUrl: 'https://group.nedbank.co.za/careers/graduates-and-bursaries.html',
+    sourceUrl: 'https://group.nedbank.co.za/careers/graduates-and-bursaries.html',
+    applicationOpens: null,
+    applicationCloses: null,
+    nextExpectedOpens: null,
+    datesConfirmed: false,
+    dateConfidence: 'unknown',
+    studyLevels: ['undergraduate'],
+    coverage: 'full',
+    region: 'nationwide',
+    eligibility:
+      'Nedbank bursary for students who need funding. 2027 academic-year applications are closed. 2028 funding applications open in 2027.',
+    notes:
+      'Official careers page: 2027 academic-year applications are closed. Exact last deadline was not listed, so we did not invent one. 2028 funding applications open in 2027.',
+    offersJobAfterGrad: true,
+  },
+  {
+    slug: 'mintek',
+    applyUrl: 'https://mintek.co.za/careers/bursaries.html',
+    sourceUrl: 'https://mintek.co.za/careers/bursaries.html',
+    applicationOpens: null,
+    applicationCloses: null,
+    nextExpectedOpens: null,
+    datesConfirmed: false,
+    dateConfidence: 'unknown',
+    eligibility:
+      'Full-time postgraduate study on Mintek priority research themes. Engineering, chemistry, physics, geology, biotech, environmental science, materials, applied maths. Calls open when Mintek needs a pipeline.',
+    notes: 'Official page: bursary calls are advertised on the Mintek careers portal when available. No 2026/2027 close date published on 9 Sep 2026.',
+    offersJobAfterGrad: true,
   },
 ]

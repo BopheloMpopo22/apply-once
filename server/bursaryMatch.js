@@ -140,6 +140,7 @@ export function rowToBursary(row) {
     linkStatus: row.linkStatus || 'unknown',
     linkStatusDetail: row.linkStatusDetail ?? null,
     needsReview: Boolean(row.needsReview),
+    dateConfidence: row.dateConfidence || 'unknown',
   }
 }
 
@@ -196,6 +197,7 @@ export function toAdminBursaryItem(row, now = new Date()) {
     linkStatus: b.linkStatus,
     linkStatusDetail: b.linkStatusDetail,
     needsReview: Boolean(b.needsReview),
+    dateConfidence: b.dateConfidence || 'unknown',
   }
 }
 

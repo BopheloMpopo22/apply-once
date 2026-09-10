@@ -13,6 +13,8 @@ ALTER TABLE "BursaryOpportunity"
   ADD COLUMN IF NOT EXISTS "eligibility" TEXT;
 ALTER TABLE "BursaryOpportunity"
   ADD COLUMN IF NOT EXISTS "requiredDocs" TEXT;
+ALTER TABLE "BursaryOpportunity"
+  ADD COLUMN IF NOT EXISTS "dateConfidence" TEXT NOT NULL DEFAULT 'unknown';
 
 -- Previous daily checks unpublished expired bursaries. Keep them on the calendar as Closed.
 UPDATE "BursaryOpportunity"

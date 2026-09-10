@@ -30,6 +30,7 @@ type TrackItem = {
   isOpen: boolean
   applyUrl: string | null
   lastVerifiedAt: string | null
+  dateConfidence?: 'official' | 'typical' | 'unknown'
 }
 
 type TrackResponse = {
@@ -76,6 +77,16 @@ function formatDate(iso: string | null | undefined) {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return 'Not published'
   return d.toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+function DateCell(props: { iso: string | null | undefined; typical?: boolean; unpublished?: boolean }) {
+  if (props.unpublished) return <span className="adminMuted">Not published</span>
+  return (
+    <div>
+      <div>{formatDate(props.iso)}</div>
+      {props.typical ? <div className="bursaryDateTypical">Typical (last year)</div> : null}
+    </div>
+  )
 }
 
 function fieldLabel(slug: string) {
@@ -215,7 +226,9 @@ export function BursaryTrackPage() {
                 <p className="hubDisclaimer">
                   Other public directories are useful starting points, but none of them is a complete official list.
                   Always confirm dates, eligibility, and how to apply on the funder’s own page. We do not invent
-                  opening dates. This is a national and major-scheme calendar, not every bursary in the country.
+                  opening dates. Where this year’s national dates are not out yet (for example NSFAS), we may show
+                  last year’s dates labelled “Typical (last year)” so the listing is not stuck on an old closed
+                  window. This is a national and major-scheme calendar, not every bursary in the country.
                 </p>
               </div>
             </header>
@@ -328,8 +341,16 @@ export function BursaryTrackPage() {
                                   </td>
                                   <td>{fieldsLabel(item.studyFields)}</td>
                                   <td>{levelsLabel(item.studyLevels)}</td>
-                                  <td>{item.opensPublished ? formatDate(item.applicationOpens) : 'Not published'}</td>
-                                  <td>{formatDate(item.applicationCloses)}</td>
+                                  <td>
+                                    <DateCell
+                                      iso={item.applicationOpens}
+                                      unpublished={!item.opensPublished}
+                                      typical={item.dateConfidence === 'typical' && item.opensPublished}
+                                    />
+                                  </td>
+                                  <td>
+                                    <DateCell iso={item.applicationCloses} typical={item.dateConfidence === 'typical'} />
+                                  </td>
                                   <td>
                                     <StatusBadge item={item} />
                                   </td>
@@ -366,9 +387,18 @@ export function BursaryTrackPage() {
                                             <strong>Required documents:</strong> {item.requiredDocs}
                                           </p>
                                         ) : null}
+                                        {item.dateConfidence === 'typical' ? (
+                                          <p>
+                                            <strong>Dates:</strong> Typical (last year’s published window). This year’s
+                                            dates are not confirmed yet — use these as a guide only and check the
+                                            official page before you apply.
+                                          </p>
+                                        ) : null}
                                         {item.nextExpectedOpens ? (
                                           <p>
-                                            <strong>Next expected opening:</strong> {formatDate(item.nextExpectedOpens)}
+                                            <strong>Next expected opening:</strong>{' '}
+                                            {formatDate(item.nextExpectedOpens)}
+                                            {item.dateConfidence === 'typical' ? ' (typical)' : ''}
                                           </p>
                                         ) : null}
                                         {item.notes ? (

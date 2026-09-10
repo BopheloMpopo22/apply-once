@@ -3,7 +3,11 @@ import { PrismaClient } from '@prisma/client'
 import { BURSARY_VERIFIED, VERIFIED_ON } from '../server/data/bursaryVerified.js'
 import { parseCoverage, parseStudyLevels } from '../server/bursaryCalendar.js'
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+  datasources: {
+    db: { url: process.env.DIRECT_URL || process.env.DATABASE_URL },
+  },
+})
 
 function endOfDay(isoDate) {
   if (!isoDate) return undefined
@@ -36,6 +40,7 @@ async function main() {
       notes: row.notes || null,
       lastVerifiedAt: verifiedAt,
       needsReview: !row.datesConfirmed,
+      dateConfidence: row.dateConfidence || (row.datesConfirmed ? 'official' : 'unknown'),
     }
     if (row.name) data.name = row.name
     if (row.provider) data.provider = row.provider
@@ -48,7 +53,9 @@ async function main() {
     if (row.region) data.region = row.region
     if (row.eligibility) data.eligibility = row.eligibility
     if (row.requiredDocs) data.requiredDocs = row.requiredDocs
-    if (row.datesConfirmed) {
+    if (row.dateConfidence) data.dateConfidence = row.dateConfidence
+    const writeDates = Boolean(row.datesConfirmed || row.dateConfidence === 'typical')
+    if (writeDates) {
       if (row.applicationCloses) data.applicationCloses = endOfDay(row.applicationCloses)
       data.applicationOpens = row.applicationOpens ? startOfDay(row.applicationOpens) : null
       data.nextExpectedOpens = row.nextExpectedOpens ? startOfDay(row.nextExpectedOpens) : null
@@ -85,6 +92,7 @@ async function main() {
           active: true,
           lastVerifiedAt: verifiedAt,
           needsReview: !row.datesConfirmed,
+          dateConfidence: row.dateConfidence || (row.datesConfirmed ? 'official' : 'unknown'),
           linkStatus: row.applyUrl ? 'unknown' : 'no_url',
         },
       })
