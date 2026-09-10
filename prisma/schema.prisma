@@ -313,7 +313,7 @@ model NewsletterSubscriber {
   @@index([createdAt])
 }
 
-/// One weekly magazine piece on /newsletter — main brief or industry deep-dive.
+/// One magazine piece on /newsletter — main brief, industry deep-dive, or mini-track issue.
 model NewsletterIssue {
   id            String    @id @default(cuid())
   slug          String    @unique
@@ -324,7 +324,7 @@ model NewsletterIssue {
   summary       String    @default("")
   /// Main body (plain text; blank lines = paragraphs; lines starting with # = headings; - = bullets).
   body          String    @default("")
-  /// "main" = weekly multi-industry brief; "industry" = career/sector piece.
+  /// main | industry | courses | certifications | opportunities | studying-abroad
   articleType   String    @default("main")
   /// industry slug when articleType is industry (e.g. mining, banking).
   industry      String    @default("")

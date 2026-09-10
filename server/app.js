@@ -2908,8 +2908,17 @@ function slugifyNewsletter(title) {
     .slice(0, 80)
 }
 
+const NEWSLETTER_TRACK_TYPES = new Set(['courses', 'certifications', 'opportunities', 'studying-abroad'])
+
+function normalizeNewsletterArticleType(raw) {
+  const v = String(raw || 'main').trim().toLowerCase()
+  if (v === 'industry') return 'industry'
+  if (NEWSLETTER_TRACK_TYPES.has(v)) return v
+  return 'main'
+}
+
 function issuePublicJson(issue, { fullBody = false } = {}) {
-  const articleType = issue.articleType === 'industry' ? 'industry' : 'main'
+  const articleType = normalizeNewsletterArticleType(issue.articleType)
   return {
     id: issue.id,
     slug: issue.slug,
@@ -3117,7 +3126,7 @@ app.post('/api/admin/newsletter/issues', attachSupabaseEmailIfPresent, adminMidd
   const summary = String(req.body?.summary || '').trim()
   const body = String(req.body?.body || '').trim()
   const publishNow = Boolean(req.body?.publish)
-  const articleType = req.body?.articleType === 'industry' ? 'industry' : 'main'
+  const articleType = normalizeNewsletterArticleType(req.body?.articleType)
   const industry =
     articleType === 'industry' ? String(req.body?.industry || '').trim().toLowerCase() : ''
   if (articleType === 'industry' && !industry) {
@@ -3160,14 +3169,15 @@ app.put('/api/admin/newsletter/issues/:id', attachSupabaseEmailIfPresent, adminM
   if (typeof req.body?.slug === 'string' && req.body.slug.trim()) {
     data.slug = slugifyNewsletter(req.body.slug)
   }
-  if (req.body?.articleType === 'main' || req.body?.articleType === 'industry') {
-    data.articleType = req.body.articleType
+  if (req.body?.articleType !== undefined) {
+    data.articleType = normalizeNewsletterArticleType(req.body.articleType)
   }
   if (typeof req.body?.industry === 'string') {
     data.industry = String(req.body.industry || '').trim().toLowerCase()
   }
-  if (data.articleType === 'main') data.industry = ''
-  if (data.articleType === 'industry' || (data.articleType == null && existing.articleType === 'industry')) {
+  const nextType = data.articleType ?? existing.articleType
+  if (nextType !== 'industry') data.industry = ''
+  if (nextType === 'industry') {
     const industryVal = data.industry != null ? data.industry : existing.industry
     if (!industryVal) {
       return res.status(400).json({ error: 'Pick an industry for industry articles.' })

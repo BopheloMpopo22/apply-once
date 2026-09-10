@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { adminApi } from '../../api/adminClient'
 import { NEWSLETTER_INDUSTRIES } from '../../data/newsletterIndustries'
+import {
+  NEWSLETTER_TRACKS,
+  isNewsletterTrack,
+  normalizeNewsletterArticleType,
+  trackLabel,
+  type NewsletterArticleType,
+} from '../../data/newsletterTracks'
 import { ISSUE_0_TEMPLATE } from '../../utils/newsletterContent'
 
 type AdminIssue = {
@@ -10,12 +17,18 @@ type AdminIssue = {
   kicker: string
   summary: string
   body: string
-  articleType: 'main' | 'industry'
+  articleType: NewsletterArticleType
   industry: string
   issueNumber: number
   published: boolean
   publishedAt: string | null
   emailSentAt: string | null
+}
+
+function issueTypeLabel(issue: AdminIssue): string {
+  if (issue.articleType === 'industry') return `Industry · ${issue.industry || '—'}`
+  if (isNewsletterTrack(issue.articleType)) return `Track · ${trackLabel(issue.articleType)}`
+  return 'Main brief'
 }
 
 export function AdminNewsletterPanel(props: { onError: (msg: string | null) => void }) {
@@ -30,7 +43,7 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
   const [summary, setSummary] = useState('')
   const [body, setBody] = useState('')
   const [slug, setSlug] = useState('')
-  const [articleType, setArticleType] = useState<'main' | 'industry'>('main')
+  const [articleType, setArticleType] = useState<NewsletterArticleType>('main')
   const [industry, setIndustry] = useState('')
 
   const refresh = useCallback(async () => {
@@ -73,7 +86,7 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
     setSummary(issue.summary)
     setBody(issue.body)
     setSlug(issue.slug)
-    setArticleType(issue.articleType === 'industry' ? 'industry' : 'main')
+    setArticleType(normalizeNewsletterArticleType(issue.articleType))
     setIndustry(issue.industry || '')
     setMessage(null)
   }
@@ -158,8 +171,8 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
           <h2 className="adminCardTitle">School → Industry magazine</h2>
           <p className="adminCardLead">
             Public at <code className="adminMono">/newsletter</code> · {activeCount} active subscriber
-            {activeCount === 1 ? '' : 's'}. Publish a <strong>main</strong> weekly brief and optional{' '}
-            <strong>industry</strong> deep-dives.
+            {activeCount === 1 ? '' : 's'}. Publish a <strong>main</strong> weekly brief,{' '}
+            <strong>industry</strong> deep-dives, and weekly issues in the four mini-newsletter tracks.
           </p>
         </div>
         <div className="adminNewsletterActions">
@@ -183,10 +196,15 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
             <span>Article type</span>
             <select
               value={articleType}
-              onChange={(e) => setArticleType(e.target.value === 'industry' ? 'industry' : 'main')}
+              onChange={(e) => setArticleType(normalizeNewsletterArticleType(e.target.value))}
             >
               <option value="main">Main weekly brief</option>
               <option value="industry">Industry / career deep-dive</option>
+              {NEWSLETTER_TRACKS.map((track) => (
+                <option key={track.id} value={track.id}>
+                  Track · {track.label}
+                </option>
+              ))}
             </select>
           </label>
           {articleType === 'industry' ? (
@@ -261,9 +279,7 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
                   #{issue.issueNumber} · {issue.title}
                 </strong>
                 <p className="adminMuted">
-                  {issue.articleType === 'industry'
-                    ? `Industry · ${issue.industry || '—'}`
-                    : 'Main brief'}
+                  {issueTypeLabel(issue)}
                   {' · '}
                   {issue.published ? 'Published' : 'Draft'}
                   {issue.emailSentAt
