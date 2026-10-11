@@ -328,6 +328,8 @@ model NewsletterIssue {
   articleType   String    @default("main")
   /// industry slug when articleType is industry (e.g. mining, banking).
   industry      String    @default("")
+  /// JSON string array of industry ids covered in a main weekly brief.
+  coveredIndustries String @default("[]")
   issueNumber   Int
   published     Boolean   @default(false)
   publishedAt   DateTime?

@@ -21,8 +21,10 @@ import { AboutPage } from './pages/AboutPage'
 import { TermsPage } from './pages/TermsPage'
 import { ContactPage } from './pages/ContactPage'
 import {
+  NewsletterArchivePage,
   NewsletterIssuePage,
   NewsletterPage,
+  NewsletterTrackPage,
   NewsletterUnsubscribePage,
 } from './pages/NewsletterPage'
 
@@ -63,6 +65,11 @@ export default function App() {
       <Route path="/bursary_track" element={<Navigate to="/bursary-track" replace />} />
       <Route path="/newsletter" element={<NewsletterPage />} />
       <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribePage />} />
+      <Route path="/newsletter/archive" element={<NewsletterArchivePage />} />
+      <Route path="/newsletter/courses" element={<NewsletterTrackPage />} />
+      <Route path="/newsletter/certifications" element={<NewsletterTrackPage />} />
+      <Route path="/newsletter/opportunities" element={<NewsletterTrackPage />} />
+      <Route path="/newsletter/studying-abroad" element={<NewsletterTrackPage />} />
       <Route path="/newsletter/:slug" element={<NewsletterIssuePage />} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/terms" element={<TermsPage />} />

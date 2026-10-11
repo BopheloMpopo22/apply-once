@@ -9472,10 +9472,72 @@ body.navMenuOpen {
   font-size: 0.86rem;
 }
 
-.nlNewsBrand {
+.nlNewsBrand,
+.nlNewsBrandLink {
   font-weight: 800;
   letter-spacing: -0.01em;
   color: var(--nl-ink);
+  text-decoration: none;
+}
+
+.nlNewsBrandLink:hover {
+  color: var(--nl-accent);
+}
+
+.nlBreadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: baseline;
+  margin: 0 0 0.75rem;
+  font-size: 0.86rem;
+  color: var(--nl-muted);
+}
+
+.nlBreadcrumb a {
+  color: var(--nl-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.nlBreadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.nlTrackPageLead {
+  margin: 0 0 1.25rem;
+  color: var(--nl-muted);
+  line-height: 1.5;
+}
+
+.nlInlineLink {
+  color: var(--nl-accent);
+  font-weight: 600;
+}
+
+.nlArchiveFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0 0 1.25rem;
+}
+
+.nlArchiveChip {
+  appearance: none;
+  border: 1px solid var(--nl-rule);
+  background: #fff;
+  color: var(--nl-ink);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.nlArchiveChipActive {
+  background: var(--nl-ink);
+  border-color: var(--nl-ink);
+  color: #fff;
 }
 
 .nlNewsMastDot {
@@ -9548,6 +9610,7 @@ body.navMenuOpen {
   color: var(--nl-ink);
   cursor: pointer;
   font: inherit;
+  text-decoration: none;
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 
@@ -9852,6 +9915,8 @@ body.navMenuOpen {
   line-height: 1.35;
   color: var(--nl-ink);
   cursor: pointer;
+  text-decoration: none;
+  display: block;
   text-decoration: underline;
   text-decoration-color: transparent;
   text-underline-offset: 2px;
@@ -9866,6 +9931,26 @@ body.navMenuOpen {
   color: var(--nl-accent);
   font-weight: 700;
   text-decoration-color: var(--nl-accent);
+}
+
+.nlNewsAsideLinkMuted {
+  color: #a3a3a3;
+  cursor: default;
+  text-decoration: none;
+}
+
+a.nlNewsListLink {
+  display: grid;
+  gap: 0.15rem;
+  width: 100%;
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  padding: 0.65rem 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
 }
 
 .nlNewsAsideDate {
@@ -9921,6 +10006,62 @@ body.navMenuOpen {
   flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
+}
+
+.adminNewsletterTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 0.35rem;
+}
+
+.adminNewsletterTab {
+  appearance: none;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  background: #fff;
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: inherit;
+}
+
+.adminNewsletterTabActive {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #fff;
+}
+
+.adminNewsletterTabHint {
+  margin: 0 0 1rem;
+}
+
+.adminNewsletterIndustries {
+  margin: 0 0 0.5rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+}
+
+.adminNewsletterIndustries legend {
+  padding: 0 0.35rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.adminNewsletterIndustryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.35rem 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.adminNewsletterIndustryCheck {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  cursor: pointer;
 }
 
 .adminNewsletterForm {

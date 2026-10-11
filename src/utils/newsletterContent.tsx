@@ -1,4 +1,13 @@
 import type { ReactNode } from 'react'
+import { NEWSLETTER_INDUSTRIES } from '../data/newsletterIndustries'
+
+function headingIndustryId(headingText: string): string | undefined {
+  const normalized = headingText.trim().toLowerCase()
+  const hit = NEWSLETTER_INDUSTRIES.find(
+    (ind) => ind.label.toLowerCase() === normalized || ind.id === normalized,
+  )
+  return hit ? `industry-${hit.id}` : undefined
+}
 
 /** Lightweight body renderer for newsletter plain-text format. */
 export function renderNewsletterBody(body: string): ReactNode[] {
@@ -8,23 +17,26 @@ export function renderNewsletterBody(body: string): ReactNode[] {
     const first = lines[0]?.trim() ?? ''
 
     if (first.startsWith('### ')) {
+      const text = first.slice(4)
       return (
-        <h4 key={i} className="nlBodyH4">
-          {inlineFormat(first.slice(4))}
+        <h4 key={i} className="nlBodyH4" id={headingIndustryId(text)}>
+          {inlineFormat(text)}
         </h4>
       )
     }
     if (first.startsWith('## ')) {
+      const text = first.slice(3)
       return (
-        <h3 key={i} className="nlBodyH3">
-          {inlineFormat(first.slice(3))}
+        <h3 key={i} className="nlBodyH3" id={headingIndustryId(text)}>
+          {inlineFormat(text)}
         </h3>
       )
     }
     if (first.startsWith('# ')) {
+      const text = first.slice(2)
       return (
-        <h2 key={i} className="nlBodyH2">
-          {inlineFormat(first.slice(2))}
+        <h2 key={i} className="nlBodyH2" id={headingIndustryId(text)}>
+          {inlineFormat(text)}
         </h2>
       )
     }

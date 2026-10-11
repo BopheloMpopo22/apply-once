@@ -2909,6 +2909,25 @@ function slugifyNewsletter(title) {
 }
 
 const NEWSLETTER_TRACK_TYPES = new Set(['courses', 'certifications', 'opportunities', 'studying-abroad'])
+const NEWSLETTER_RESERVED_SLUGS = new Set(['unsubscribe', 'archive', ...NEWSLETTER_TRACK_TYPES])
+const NEWSLETTER_INDUSTRY_IDS = new Set([
+  'mining',
+  'banking',
+  'finance',
+  'accounting',
+  'engineering',
+  'technology',
+  'healthcare',
+  'education',
+  'energy',
+  'agriculture',
+  'law',
+  'marketing',
+  'hospitality',
+  'logistics',
+  'media',
+  'public-service',
+])
 
 function normalizeNewsletterArticleType(raw) {
   const v = String(raw || 'main').trim().toLowerCase()
@@ -2917,8 +2936,24 @@ function normalizeNewsletterArticleType(raw) {
   return 'main'
 }
 
+function parseCoveredIndustries(raw) {
+  let list = []
+  if (Array.isArray(raw)) list = raw
+  else if (typeof raw === 'string' && raw.trim()) {
+    try {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) list = parsed
+    } catch {
+      list = raw.split(/[,]+/)
+    }
+  }
+  return [...new Set(list.map((x) => String(x || '').trim().toLowerCase()).filter((id) => NEWSLETTER_INDUSTRY_IDS.has(id)))]
+}
+
 function issuePublicJson(issue, { fullBody = false } = {}) {
   const articleType = normalizeNewsletterArticleType(issue.articleType)
+  const coveredIndustries =
+    articleType === 'main' ? parseCoveredIndustries(issue.coveredIndustries) : []
   return {
     id: issue.id,
     slug: issue.slug,
@@ -2928,6 +2963,7 @@ function issuePublicJson(issue, { fullBody = false } = {}) {
     body: fullBody ? issue.body || '' : undefined,
     articleType,
     industry: articleType === 'industry' ? String(issue.industry || '') : '',
+    coveredIndustries,
     issueNumber: issue.issueNumber,
     published: issue.published,
     publishedAt: issue.publishedAt,
@@ -2945,30 +2981,37 @@ async function findActiveSubscriberByToken(token) {
 
 async function sendNewsletterIssueEmail(subscriber, issue) {
   if (!RESEND_API_KEY) throw new Error('RESEND_API_KEY is not configured')
-  const readUrl = `${PUBLIC_SITE_URL}/newsletter/${issue.slug}?token=${encodeURIComponent(subscriber.accessToken)}`
+  const articleType = normalizeNewsletterArticleType(issue.articleType)
+  const path =
+    NEWSLETTER_TRACK_TYPES.has(articleType)
+      ? `/newsletter/${articleType}?article=${encodeURIComponent(issue.slug)}`
+      : `/newsletter/${issue.slug}`
+  const readUrl = `${PUBLIC_SITE_URL}${path}${path.includes('?') ? '&' : '?'}token=${encodeURIComponent(subscriber.accessToken)}`
   const unsubUrl = `${PUBLIC_SITE_URL}/newsletter/unsubscribe?token=${encodeURIComponent(subscriber.accessToken)}`
   const first = subscriber.firstName || 'there'
+  const label =
+    articleType === 'main'
+      ? 'School → Industry Weekly'
+      : NEWSLETTER_TRACK_TYPES.has(articleType)
+        ? `School → Industry · ${articleType}`
+        : 'School → Industry'
   const plain = [
     `Hi ${first},`,
     '',
-    `School → Industry Weekly — Issue ${issue.issueNumber}`,
+    `${label} — Issue ${issue.issueNumber}`,
     issue.title,
     '',
     issue.summary || '',
     '',
-    `Read this week's edition: ${readUrl}`,
+    `Read this edition: ${readUrl}`,
     '',
-    `Opportunities hub: ${PUBLIC_SITE_URL}/programmes-for-work`,
+    `Newsletter home: ${PUBLIC_SITE_URL}/newsletter`,
     '',
     `Unsubscribe: ${unsubUrl}`,
     '',
     '— Apply Once',
   ].join('\n')
-  await sendResendEmail(
-    subscriber.email,
-    `School → Industry #${issue.issueNumber}: ${issue.title}`,
-    plain,
-  )
+  await sendResendEmail(subscriber.email, `${label} #${issue.issueNumber}: ${issue.title}`, plain)
 }
 
 app.post('/api/newsletter/subscribe', async (req, res) => {
@@ -3132,10 +3175,13 @@ app.post('/api/admin/newsletter/issues', attachSupabaseEmailIfPresent, adminMidd
   if (articleType === 'industry' && !industry) {
     return res.status(400).json({ error: 'Pick an industry for industry articles.' })
   }
+  const coveredIndustries =
+    articleType === 'main' ? parseCoveredIndustries(req.body?.coveredIndustries) : []
 
   const max = await prisma.newsletterIssue.aggregate({ _max: { issueNumber: true } })
   const issueNumber = (max._max.issueNumber || 0) + 1
   let slug = slugifyNewsletter(req.body?.slug || title) || `issue-${issueNumber}`
+  if (NEWSLETTER_RESERVED_SLUGS.has(slug)) slug = `${slug}-issue-${issueNumber}`
   const clash = await prisma.newsletterIssue.findUnique({ where: { slug } })
   if (clash) slug = `${slug}-${issueNumber}`
 
@@ -3149,6 +3195,7 @@ app.post('/api/admin/newsletter/issues', attachSupabaseEmailIfPresent, adminMidd
       issueNumber,
       articleType,
       industry,
+      coveredIndustries: JSON.stringify(coveredIndustries),
       published: publishNow,
       publishedAt: publishNow ? new Date() : null,
     },
@@ -3175,8 +3222,12 @@ app.put('/api/admin/newsletter/issues/:id', attachSupabaseEmailIfPresent, adminM
   if (typeof req.body?.industry === 'string') {
     data.industry = String(req.body.industry || '').trim().toLowerCase()
   }
+  if (req.body?.coveredIndustries !== undefined) {
+    data.coveredIndustries = JSON.stringify(parseCoveredIndustries(req.body.coveredIndustries))
+  }
   const nextType = data.articleType ?? existing.articleType
   if (nextType !== 'industry') data.industry = ''
+  if (nextType !== 'main') data.coveredIndustries = '[]'
   if (nextType === 'industry') {
     const industryVal = data.industry != null ? data.industry : existing.industry
     if (!industryVal) {
@@ -3187,6 +3238,9 @@ app.put('/api/admin/newsletter/issues/:id', attachSupabaseEmailIfPresent, adminM
     data.published = req.body.published
     if (req.body.published && !existing.publishedAt) data.publishedAt = new Date()
     if (!req.body.published) data.publishedAt = null
+  }
+  if (data.slug && NEWSLETTER_RESERVED_SLUGS.has(data.slug)) {
+    return res.status(400).json({ error: 'That URL slug is reserved for a newsletter section page.' })
   }
 
   try {

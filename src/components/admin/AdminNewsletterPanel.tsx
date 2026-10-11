@@ -1,12 +1,12 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { adminApi } from '../../api/adminClient'
 import { NEWSLETTER_INDUSTRIES } from '../../data/newsletterIndustries'
 import {
   NEWSLETTER_TRACKS,
   isNewsletterTrack,
-  normalizeNewsletterArticleType,
   trackLabel,
   type NewsletterArticleType,
+  type NewsletterTrackId,
 } from '../../data/newsletterTracks'
 import { ISSUE_0_TEMPLATE } from '../../utils/newsletterContent'
 
@@ -19,16 +19,36 @@ type AdminIssue = {
   body: string
   articleType: NewsletterArticleType
   industry: string
+  coveredIndustries?: string[]
   issueNumber: number
   published: boolean
   publishedAt: string | null
   emailSentAt: string | null
 }
 
+type AdminTab = 'main' | NewsletterTrackId | 'archive'
+
+const TABS: { id: AdminTab; label: string; hint: string }[] = [
+  { id: 'main', label: "This week's brief", hint: 'The main weekly newsletter on /newsletter' },
+  ...NEWSLETTER_TRACKS.map((t) => ({
+    id: t.id as AdminTab,
+    label: t.label,
+    hint: `Posts to /newsletter/${t.id}`,
+  })),
+  { id: 'archive', label: 'Archive', hint: 'Every saved draft and published issue' },
+]
+
 function issueTypeLabel(issue: AdminIssue): string {
   if (issue.articleType === 'industry') return `Industry · ${issue.industry || '—'}`
-  if (isNewsletterTrack(issue.articleType)) return `Track · ${trackLabel(issue.articleType)}`
-  return 'Main brief'
+  if (isNewsletterTrack(issue.articleType)) return trackLabel(issue.articleType)
+  return 'Weekly brief'
+}
+
+function publicPath(issue: AdminIssue): string {
+  if (isNewsletterTrack(issue.articleType)) {
+    return `/newsletter/${issue.articleType}?article=${issue.slug}`
+  }
+  return `/newsletter/${issue.slug}`
 }
 
 export function AdminNewsletterPanel(props: { onError: (msg: string | null) => void }) {
@@ -37,14 +57,17 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
   const [activeCount, setActiveCount] = useState(0)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
+  const [tab, setTab] = useState<AdminTab>('main')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [title, setTitle] = useState('')
   const [kicker, setKicker] = useState('')
   const [summary, setSummary] = useState('')
   const [body, setBody] = useState('')
   const [slug, setSlug] = useState('')
-  const [articleType, setArticleType] = useState<NewsletterArticleType>('main')
-  const [industry, setIndustry] = useState('')
+  const [coveredIndustries, setCoveredIndustries] = useState<string[]>([])
+
+  const articleTypeForTab = (t: AdminTab): NewsletterArticleType =>
+    t === 'archive' ? 'main' : t
 
   const refresh = useCallback(async () => {
     setBusy(true)
@@ -67,43 +90,79 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
     void refresh()
   }, [refresh])
 
-  function startNew() {
+  const listForTab = useMemo(() => {
+    if (tab === 'archive') return issues
+    return issues.filter((i) => i.articleType === tab)
+  }, [issues, tab])
+
+  function resetForm(forTab: AdminTab) {
     setEditingId(null)
     setTitle('')
     setKicker('')
     setSummary('')
     setBody('')
     setSlug('')
-    setArticleType('main')
-    setIndustry('')
+    setCoveredIndustries([])
     setMessage(null)
+    if (forTab !== 'archive' && forTab !== 'main') {
+      setKicker(`Week of · ${trackLabel(forTab)}`)
+    }
+  }
+
+  function switchTab(next: AdminTab) {
+    setTab(next)
+    resetForm(next)
   }
 
   function startEdit(issue: AdminIssue) {
+    if (issue.articleType === 'main' || isNewsletterTrack(issue.articleType)) {
+      setTab(issue.articleType)
+    } else {
+      setTab('archive')
+    }
     setEditingId(issue.id)
     setTitle(issue.title)
     setKicker(issue.kicker)
     setSummary(issue.summary)
     setBody(issue.body)
     setSlug(issue.slug)
-    setArticleType(normalizeNewsletterArticleType(issue.articleType))
-    setIndustry(issue.industry || '')
+    setCoveredIndustries(issue.coveredIndustries || [])
     setMessage(null)
   }
 
   function loadTemplate() {
-    setArticleType('main')
-    setIndustry('')
+    setTab('main')
+    setEditingId(null)
     setTitle(ISSUE_0_TEMPLATE.title)
     setKicker(ISSUE_0_TEMPLATE.kicker)
     setSummary(ISSUE_0_TEMPLATE.summary)
     setBody(ISSUE_0_TEMPLATE.body)
     setSlug('welcome-school-to-industry')
-    setMessage('Loaded welcome main brief — edit, then save & publish.')
+    setCoveredIndustries([])
+    setMessage('Loaded welcome weekly brief — tick industries you cover, then save & publish.')
+  }
+
+  function toggleIndustry(id: string) {
+    setCoveredIndustries((prev) => {
+      const on = prev.includes(id)
+      const next = on ? prev.filter((x) => x !== id) : [...prev, id]
+      if (!on) {
+        const label = NEWSLETTER_INDUSTRIES.find((i) => i.id === id)?.label || id
+        const heading = `## ${label}`
+        if (!body.includes(heading)) {
+          setBody((b) => `${b.trim()}${b.trim() ? '\n\n' : ''}${heading}\n\nWrite about ${label} here.\n`)
+        }
+      }
+      return next
+    })
   }
 
   async function onSave(e: FormEvent, publish: boolean) {
     e.preventDefault()
+    if (tab === 'archive') {
+      onError('Pick a newsletter tab (This week’s brief or a mini newsletter) to write.')
+      return
+    }
     setBusy(true)
     onError(null)
     setMessage(null)
@@ -114,8 +173,9 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
         summary,
         body,
         slug,
-        articleType,
-        industry: articleType === 'industry' ? industry : '',
+        articleType: articleTypeForTab(tab),
+        industry: '',
+        coveredIndustries: tab === 'main' ? coveredIndustries : [],
         published: publish,
         publish,
       }
@@ -124,7 +184,7 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
           method: 'PUT',
           json: payload,
         })
-        setMessage(publish ? 'Article updated and published.' : 'Article saved as draft.')
+        setMessage(publish ? 'Posted — it is live on the site.' : 'Saved as draft.')
       } else {
         const res = await adminApi<{ issue: AdminIssue }>('/api/admin/newsletter/issues', {
           method: 'POST',
@@ -132,7 +192,7 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
         })
         setEditingId(res.issue.id)
         setSlug(res.issue.slug)
-        setMessage(publish ? 'Article created and published.' : 'Draft created.')
+        setMessage(publish ? 'Posted — it is live on the site.' : 'Draft created.')
       }
       await refresh()
     } catch (err) {
@@ -164,115 +224,139 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
     }
   }
 
+  const tabMeta = TABS.find((t) => t.id === tab)
+  const showEditor = tab !== 'archive'
+
   return (
     <section className="adminCard adminNewsletterCard">
       <div className="adminCardHeadRow">
         <div>
           <h2 className="adminCardTitle">School → Industry magazine</h2>
           <p className="adminCardLead">
-            Public at <code className="adminMono">/newsletter</code> · {activeCount} active subscriber
-            {activeCount === 1 ? '' : 's'}. Publish a <strong>main</strong> weekly brief,{' '}
-            <strong>industry</strong> deep-dives, and weekly issues in the four mini-newsletter tracks.
+            Public at <code className="adminMono">/newsletter</code> · {activeCount} subscriber
+            {activeCount === 1 ? '' : 's'}. Each tab is its own newsletter space — write, post, email.
           </p>
         </div>
         <div className="adminNewsletterActions">
           <button type="button" className="btn btnOutline btnSmall" disabled={busy} onClick={() => void refresh()}>
             Refresh
           </button>
-          <button type="button" className="btn btnOutline btnSmall" onClick={startNew}>
-            New article
-          </button>
+          {showEditor ? (
+            <button type="button" className="btn btnOutline btnSmall" onClick={() => resetForm(tab)}>
+              New blank issue
+            </button>
+          ) : null}
           <button type="button" className="btn btnGhost btnSmall" onClick={loadTemplate}>
             Load welcome template
           </button>
         </div>
       </div>
 
+      <div className="adminNewsletterTabs" role="tablist" aria-label="Newsletter spaces">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.id}
+            className={tab === t.id ? 'adminNewsletterTab adminNewsletterTabActive' : 'adminNewsletterTab'}
+            onClick={() => switchTab(t.id)}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+      {tabMeta ? <p className="adminMuted adminNewsletterTabHint">{tabMeta.hint}</p> : null}
+
       {message ? <p className="adminOkMessage">{message}</p> : null}
 
-      <form className="adminNewsletterForm" onSubmit={(e) => void onSave(e, false)}>
-        <div className="adminNewsletterRow2">
-          <label className="field">
-            <span>Article type</span>
-            <select
-              value={articleType}
-              onChange={(e) => setArticleType(normalizeNewsletterArticleType(e.target.value))}
-            >
-              <option value="main">Main weekly brief</option>
-              <option value="industry">Industry / career deep-dive</option>
-              {NEWSLETTER_TRACKS.map((track) => (
-                <option key={track.id} value={track.id}>
-                  Track · {track.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          {articleType === 'industry' ? (
-            <label className="field">
-              <span>Industry</span>
-              <select value={industry} onChange={(e) => setIndustry(e.target.value)} required>
-                <option value="">Select industry…</option>
+      {showEditor ? (
+        <form className="adminNewsletterForm" onSubmit={(e) => void onSave(e, false)}>
+          {tab === 'main' ? (
+            <fieldset className="adminNewsletterIndustries">
+              <legend>Industries in this week&apos;s brief</legend>
+              <p className="adminMuted">
+                Tick an industry when you write about it. That turns the right-side link on for readers
+                and adds a <code>## Heading</code> in the body for you to fill in.
+              </p>
+              <div className="adminNewsletterIndustryGrid">
                 {NEWSLETTER_INDUSTRIES.map((ind) => (
-                  <option key={ind.id} value={ind.id}>
-                    {ind.label}
-                  </option>
+                  <label key={ind.id} className="adminNewsletterIndustryCheck">
+                    <input
+                      type="checkbox"
+                      checked={coveredIndustries.includes(ind.id)}
+                      onChange={() => toggleIndustry(ind.id)}
+                    />
+                    <span>{ind.label}</span>
+                  </label>
                 ))}
-              </select>
-            </label>
+              </div>
+            </fieldset>
           ) : null}
-        </div>
-        <label className="field">
-          <span>Title</span>
-          <input value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="Article title" />
-        </label>
-        <label className="field">
-          <span>Kicker (week line)</span>
-          <input
-            value={kicker}
-            onChange={(e) => setKicker(e.target.value)}
-            placeholder="Week of 10 Aug · SA & Africa"
-          />
-        </label>
-        <label className="field">
-          <span>Summary (teaser under title)</span>
-          <input value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="One or two sentences" />
-        </label>
-        <label className="field">
-          <span>URL slug (optional)</span>
-          <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto-from-title" />
-        </label>
-        <label className="field">
-          <span>Body (plain text: # Headings, - bullets, **bold**, blank line between paragraphs)</span>
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            rows={16}
-            className="adminNewsletterBody"
-            placeholder="# This week in industry…"
-            required
-          />
-        </label>
-        <div className="adminNewsletterFormActions">
-          <button type="submit" className="btn btnOutline" disabled={busy || !title.trim()}>
-            Save draft
-          </button>
-          <button
-            type="button"
-            className="btn btnDark"
-            disabled={busy || !title.trim()}
-            onClick={(e) => void onSave(e, true)}
-          >
-            Save & publish
-          </button>
-        </div>
-      </form>
 
-      <h3 className="adminSubhead">Published & drafts</h3>
-      {issues.length === 0 ? (
-        <p className="adminMuted">No articles yet — load the welcome template and publish the main brief.</p>
+          <label className="field">
+            <span>Title</span>
+            <input value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="Issue title" />
+          </label>
+          <label className="field">
+            <span>Kicker (week line)</span>
+            <input
+              value={kicker}
+              onChange={(e) => setKicker(e.target.value)}
+              placeholder="Week of 12 Oct · SA & Africa"
+            />
+          </label>
+          <label className="field">
+            <span>Summary (teaser)</span>
+            <input value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="One or two sentences" />
+          </label>
+          <label className="field">
+            <span>URL slug (optional)</span>
+            <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto-from-title" />
+          </label>
+          <label className="field">
+            <span>Body (plain text: # Headings, - bullets, **bold**)</span>
+            <textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              rows={16}
+              className="adminNewsletterBody"
+              placeholder={
+                tab === 'main'
+                  ? '# This week…\n\n## Mining\n\n…'
+                  : `# ${tabMeta?.label || 'Issue'}\n\nWrite this week’s finds…`
+              }
+              required
+            />
+          </label>
+          <div className="adminNewsletterFormActions">
+            <button type="submit" className="btn btnOutline" disabled={busy || !title.trim()}>
+              Save draft
+            </button>
+            <button
+              type="button"
+              className="btn btnDark"
+              disabled={busy || !title.trim()}
+              onClick={(e) => void onSave(e, true)}
+            >
+              Post (publish)
+            </button>
+          </div>
+        </form>
+      ) : null}
+
+      <h3 className="adminSubhead">
+        {tab === 'archive' ? 'All issues' : `Issues in ${tabMeta?.label || 'this space'}`}
+      </h3>
+      {listForTab.length === 0 ? (
+        <p className="adminMuted">
+          {tab === 'archive'
+            ? 'Nothing saved yet.'
+            : 'Blank space ready — write above and press Post. Older posts stay listed here.'}
+        </p>
       ) : (
         <ul className="adminNewsletterIssueList">
-          {issues.map((issue) => (
+          {listForTab.map((issue) => (
             <li key={issue.id} className="adminNewsletterIssueRow">
               <div>
                 <strong>
@@ -282,19 +366,20 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
                   {issueTypeLabel(issue)}
                   {' · '}
                   {issue.published ? 'Published' : 'Draft'}
+                  {issue.articleType === 'main' && issue.coveredIndustries?.length
+                    ? ` · industries: ${issue.coveredIndustries.join(', ')}`
+                    : ''}
                   {issue.emailSentAt
                     ? ` · emailed ${new Date(issue.emailSentAt).toLocaleString()}`
-                    : issue.articleType === 'main'
-                      ? ' · not emailed yet'
-                      : ''}{' '}
-                  · /newsletter?article={issue.slug}
+                    : ' · not emailed yet'}{' '}
+                  · {publicPath(issue)}
                 </p>
               </div>
               <div className="adminNewsletterRowActions">
                 <button type="button" className="btn btnGhost btnSmall" onClick={() => startEdit(issue)}>
                   Edit
                 </button>
-                {issue.published && issue.articleType === 'main' ? (
+                {issue.published ? (
                   <button
                     type="button"
                     className="btn btnBrand btnSmall"

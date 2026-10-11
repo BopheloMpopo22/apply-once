@@ -50,3 +50,14 @@ export function normalizeNewsletterArticleType(raw: unknown): NewsletterArticleT
   if (isNewsletterTrack(v)) return v
   return 'main'
 }
+
+/** Reserved path segments under /newsletter — not usable as issue slugs. */
+export const NEWSLETTER_RESERVED_SLUGS = new Set([
+  'unsubscribe',
+  'archive',
+  ...NEWSLETTER_TRACKS.map((t) => t.id),
+])
+
+export function isNewsletterTrackPath(slug: string): slug is NewsletterTrackId {
+  return isNewsletterTrack(slug)
+}

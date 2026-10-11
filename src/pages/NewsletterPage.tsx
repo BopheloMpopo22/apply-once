@@ -1,15 +1,21 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ApplyOnceLogo } from '../components/ApplyOnceLogo'
 import { Navbar } from '../components/Navbar'
 import { SiteFooter } from '../components/SiteFooter'
+import {
+  formatNewsletterDate,
+  type IssuesResponse,
+  type MagArticle,
+} from '../components/newsletter/newsletterTypes'
 import { api } from '../api/client'
 import { NEWSLETTER_INDUSTRIES, industryLabel } from '../data/newsletterIndustries'
 import {
+  NEWSLETTER_RESERVED_SLUGS,
   NEWSLETTER_TRACKS,
   isNewsletterTrack,
   trackLabel,
-  type NewsletterArticleType,
+  trackMeta,
   type NewsletterTrackId,
 } from '../data/newsletterTracks'
 import {
@@ -23,39 +29,16 @@ import {
   renderNewsletterBody,
 } from '../utils/newsletterContent'
 
-type MagArticle = {
-  id: string
-  slug: string
-  title: string
-  kicker: string
-  summary: string
-  body?: string
-  articleType: NewsletterArticleType
-  industry: string
-  issueNumber: number
-  publishedAt: string | null
-}
-
-type IssuesResponse = {
-  unlocked: boolean
-  brand: { name: string; tagline: string }
-  issues: MagArticle[]
-  subscriber: { firstName: string; lastName: string; email: string } | null
-}
-
-function formatDate(iso: string | null): string {
-  if (!iso) return ''
-  return new Date(iso).toLocaleDateString('en-ZA', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
-}
-
 function articleTeaser(article: MagArticle): string {
   if (article.summary?.trim()) return article.summary.trim()
   if (article.body) return firstBodyParagraph(article.body)
   return ''
+}
+
+function storyTypeLabel(item: MagArticle): string {
+  if (item.articleType === 'industry') return industryLabel(item.industry)
+  if (isNewsletterTrack(item.articleType)) return trackLabel(item.articleType)
+  return 'This week'
 }
 
 function SubscribeGate(props: {
@@ -80,13 +63,13 @@ function SubscribeGate(props: {
           Free weekly industry news for learners
         </h1>
         <p className="nlGateLead">
-          What&apos;s moving in South Africa and across Africa — industries, school pathways, and where to
-          apply. One brief each week, plus deeper stories by career.
+          What you wish someone had told you in matric, at university, and after — plus courses,
+          certifications, opportunities, and studying abroad.
         </p>
         <ul className="nlGateBullets">
-          <li>Main weekly briefing — what you wish someone had told you earlier</li>
-          <li>Mini newsletters: courses, certifications, opportunities, studying abroad</li>
-          <li>Industry deep-dives plus free online reading · emailed to the same address</li>
+          <li>Main weekly briefing</li>
+          <li>Four mini newsletters with their own pages</li>
+          <li>Archive of every past issue · free to read online</li>
         </ul>
         <form className="nlGateForm" onSubmit={onSubmit}>
           <label className="nlGateField">
@@ -126,16 +109,197 @@ function SubscribeGate(props: {
           </button>
         </form>
         <p className="nlGateFoot">
-          We only use your details for this free brief.{' '}
-          <Link to="/">Back to Apply Once</Link>
+          We only use your details for this free brief. <Link to="/">Back to Apply Once</Link>
         </p>
       </div>
     </div>
   )
 }
 
-export function NewsletterPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
+function NewsletterChrome(props: {
+  showGate: boolean
+  gate: ReactNode
+  subscriberName?: string
+  onSignOut: () => void
+  children: ReactNode
+}) {
+  return (
+    <div className={`appShell nlShell ${props.showGate ? 'nlShellLocked' : ''}`}>
+      <Navbar
+        variant="light"
+        logo={<ApplyOnceLogo />}
+        links={[
+          { label: 'Home', to: '/' },
+          { label: 'Bursaries', to: '/bursary-track' },
+          { label: 'Programmes', to: '/programmes-for-work' },
+          { label: 'Newsletter', to: '/newsletter', accent: 'red' },
+        ]}
+      />
+      {props.showGate ? props.gate : null}
+      <main className="container nlNews">
+        <div className="nlNewsMasthead">
+          <Link to="/newsletter" className="nlNewsBrandLink">
+            {NEWSLETTER_BRAND.name}
+          </Link>
+          <span className="nlNewsMastDot" aria-hidden>
+            ·
+          </span>
+          <span className="nlNewsMastMeta">SA &amp; Africa</span>
+          {props.subscriberName ? (
+            <>
+              <span className="nlNewsMastDot" aria-hidden>
+                ·
+              </span>
+              <button type="button" className="nlNewsTextBtn" onClick={props.onSignOut}>
+                Signed in as {props.subscriberName}
+              </button>
+            </>
+          ) : null}
+        </div>
+        {props.children}
+      </main>
+      <SiteFooter
+        brand={{ name: 'Apply Once', description: 'School to industry — one profile, clearer options.' }}
+        legalLinks={[
+          { label: 'About', to: '/about' },
+          { label: 'Newsletter', to: '/newsletter', accent: 'red' },
+          { label: 'Terms', to: '/terms' },
+          { label: 'Contact', to: '/contact' },
+        ]}
+      />
+    </div>
+  )
+}
+
+function NewsletterAside(props: {
+  activeTrack?: NewsletterTrackId | null
+  coveredIndustryIds?: Set<string>
+  archivePreview?: MagArticle[]
+}) {
+  const covered = props.coveredIndustryIds ?? new Set<string>()
+  return (
+    <aside className="nlNewsAside" aria-label="Sections">
+      <p className="nlNewsAsideTitle">Sections</p>
+      <ul className="nlNewsAsideLinks">
+        <li>
+          <Link to="/newsletter" className="nlNewsAsideLink">
+            This week&apos;s brief
+          </Link>
+        </li>
+        <li>
+          <Link to="/newsletter/archive" className="nlNewsAsideLink">
+            Archive
+          </Link>
+        </li>
+      </ul>
+
+      <p className="nlNewsAsideTitle">Mini newsletters</p>
+      <ul className="nlNewsAsideLinks">
+        {NEWSLETTER_TRACKS.map((track) => (
+          <li key={track.id}>
+            <Link
+              to={`/newsletter/${track.id}`}
+              className={`nlNewsAsideLink ${props.activeTrack === track.id ? 'nlNewsAsideLinkActive' : ''}`}
+            >
+              {track.shortLabel}
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      <p className="nlNewsAsideTitle">Industries this week</p>
+      <ul className="nlNewsAsideLinks">
+        {NEWSLETTER_INDUSTRIES.map((ind) => {
+          const live = covered.has(ind.id)
+          return (
+            <li key={ind.id}>
+              {live ? (
+                <Link
+                  to={`/newsletter?industry=${encodeURIComponent(ind.id)}`}
+                  className="nlNewsAsideLink"
+                >
+                  {ind.label}
+                </Link>
+              ) : (
+                <span className="nlNewsAsideLink nlNewsAsideLinkMuted" title="Not in this week’s brief">
+                  {ind.label}
+                </span>
+              )}
+            </li>
+          )
+        })}
+      </ul>
+
+      {props.archivePreview && props.archivePreview.length > 0 ? (
+        <>
+          <p className="nlNewsAsideTitle">Recent archive</p>
+          <ul className="nlNewsAsideLinks">
+            {props.archivePreview.map((item) => (
+              <li key={item.id}>
+                <Link to={articleHref(item)} className="nlNewsAsideLink">
+                  {item.title}
+                  {item.publishedAt ? (
+                    <span className="nlNewsAsideDate">{formatNewsletterDate(item.publishedAt)}</span>
+                  ) : null}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
+    </aside>
+  )
+}
+
+function articleHref(article: MagArticle): string {
+  if (isNewsletterTrack(article.articleType)) {
+    return `/newsletter/${article.articleType}?article=${encodeURIComponent(article.slug)}`
+  }
+  return `/newsletter/${article.slug}`
+}
+
+function ArticleReader(props: {
+  article: MagArticle
+  expanded: boolean
+  onToggle: () => void
+  sectionLabel: string
+}) {
+  const { article, expanded, onToggle, sectionLabel } = props
+  const teaser = articleTeaser(article)
+  return (
+    <article className="nlNewsArticle">
+      <p className="nlNewsSection">{sectionLabel}</p>
+      <h1 className="nlNewsHeadline">{article.title}</h1>
+      <p className="nlNewsByline">
+        By Apply Once
+        {article.publishedAt ? (
+          <>
+            <span aria-hidden> · </span>
+            <time dateTime={article.publishedAt}>{formatNewsletterDate(article.publishedAt)}</time>
+          </>
+        ) : null}
+        {article.kicker ? (
+          <>
+            <span aria-hidden> · </span>
+            <span>{article.kicker}</span>
+          </>
+        ) : null}
+      </p>
+      {teaser ? <p className="nlNewsStandfirst">{teaser}</p> : null}
+      {expanded && article.body ? (
+        <div className="nlNewsBody">{renderNewsletterBody(article.body)}</div>
+      ) : null}
+      {article.body ? (
+        <button type="button" className="nlNewsContinue" aria-expanded={expanded} onClick={onToggle}>
+          {expanded ? 'Show less ▲' : 'Continue reading ▼'}
+        </button>
+      ) : null}
+    </article>
+  )
+}
+
+function useNewsletterAccess() {
+  const [searchParams] = useSearchParams()
   const [token, setToken] = useState(() => searchParams.get('token') || readNewsletterToken())
   const [data, setData] = useState<IssuesResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -144,12 +308,6 @@ export function NewsletterPage() {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
-  const [expanded, setExpanded] = useState(false)
-  const [activeIndustry, setActiveIndustry] = useState<string | null>(null)
-  const [activeTrack, setActiveTrack] = useState<NewsletterTrackId | null>(null)
-  const [selectedSlug, setSelectedSlug] = useState<string | null>(
-    () => searchParams.get('article') || null,
-  )
 
   const load = useCallback(async (accessToken: string | null) => {
     setLoading(true)
@@ -174,11 +332,6 @@ export function NewsletterPage() {
     void load(fromUrl || readNewsletterToken())
   }, [load, searchParams])
 
-  useEffect(() => {
-    const a = searchParams.get('article')
-    if (a) setSelectedSlug(a)
-  }, [searchParams])
-
   async function onSubscribe(e: FormEvent) {
     e.preventDefault()
     setBusy(true)
@@ -202,443 +355,518 @@ export function NewsletterPage() {
     clearNewsletterToken()
     setToken(null)
     setData((prev) => (prev ? { ...prev, unlocked: false, subscriber: null, issues: [] } : prev))
-    setExpanded(false)
     void load(null)
   }
 
   const unlocked = Boolean(data?.unlocked && token)
-  const issues = data?.issues ?? []
-  const mainArticles = useMemo(() => issues.filter((i) => i.articleType === 'main'), [issues])
-  const industryArticles = useMemo(
-    () => issues.filter((i) => i.articleType === 'industry'),
-    [issues],
-  )
-  const trackArticles = useMemo(() => {
-    const map = Object.fromEntries(NEWSLETTER_TRACKS.map((t) => [t.id, [] as MagArticle[]])) as Record<
-      NewsletterTrackId,
-      MagArticle[]
-    >
-    for (const issue of issues) {
-      if (isNewsletterTrack(issue.articleType)) map[issue.articleType].push(issue)
-    }
-    return map
-  }, [issues])
-
-  const featured: MagArticle | null = useMemo(() => {
-    if (selectedSlug) {
-      const found = issues.find((i) => i.slug === selectedSlug)
-      if (found) return found
-    }
-    if (activeTrack) {
-      const forTrack = trackArticles[activeTrack]
-      if (forTrack[0]) return forTrack[0]
-    }
-    if (activeIndustry) {
-      const forIndustry = industryArticles.filter((i) => i.industry === activeIndustry)
-      if (forIndustry[0]) return forIndustry[0]
-    }
-    return mainArticles[0] ?? industryArticles[0] ?? null
-  }, [selectedSlug, activeTrack, activeIndustry, issues, mainArticles, industryArticles, trackArticles])
-
-  useEffect(() => {
-    setExpanded(false)
-  }, [featured?.id])
-
-  useEffect(() => {
-    if (!featured) return
-    if (featured.articleType === 'industry' && featured.industry) {
-      setActiveIndustry(featured.industry)
-      setActiveTrack(null)
-    } else if (isNewsletterTrack(featured.articleType)) {
-      setActiveTrack(featured.articleType)
-      setActiveIndustry(null)
-    }
-  }, [featured])
-
-  function openArticle(article: MagArticle) {
-    setSelectedSlug(article.slug)
-    if (article.articleType === 'industry' && article.industry) {
-      setActiveIndustry(article.industry)
-      setActiveTrack(null)
-    } else if (isNewsletterTrack(article.articleType)) {
-      setActiveTrack(article.articleType)
-      setActiveIndustry(null)
-    } else {
-      setActiveIndustry(null)
-      setActiveTrack(null)
-    }
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev)
-        next.set('article', article.slug)
-        next.delete('token')
-        return next
-      },
-      { replace: true },
-    )
-    setExpanded(false)
-  }
-
-  function clearArticleParam() {
-    setSelectedSlug(null)
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev)
-        next.delete('article')
-        return next
-      },
-      { replace: true },
-    )
-  }
-
-  function openBrief() {
-    setActiveIndustry(null)
-    setActiveTrack(null)
-    if (mainArticles[0]) openArticle(mainArticles[0])
-    else clearArticleParam()
-  }
-
-  function selectIndustry(id: string) {
-    setActiveIndustry(id)
-    setActiveTrack(null)
-    const hit = industryArticles.find((a) => a.industry === id)
-    if (hit) openArticle(hit)
-    else clearArticleParam()
-  }
-
-  function selectTrack(id: NewsletterTrackId) {
-    setActiveTrack(id)
-    setActiveIndustry(null)
-    const hit = trackArticles[id][0]
-    if (hit) openArticle(hit)
-    else clearArticleParam()
-  }
-
-  const moreStories = useMemo(() => {
-    return issues.filter((i) => i.id !== featured?.id)
-  }, [issues, featured?.id])
-
-  const teaser = featured ? articleTeaser(featured) : ''
   const showGate = !unlocked && (!token || !loading)
 
-  const sectionLabel = featured
-    ? featured.articleType === 'industry'
-      ? industryLabel(featured.industry)
-      : isNewsletterTrack(featured.articleType)
-        ? trackLabel(featured.articleType)
-        : 'This week'
-    : activeTrack
-      ? trackLabel(activeTrack)
-      : activeIndustry
-        ? industryLabel(activeIndustry)
-        : 'Briefing'
-
-  function storyTypeLabel(item: MagArticle): string {
-    if (item.articleType === 'industry') return industryLabel(item.industry)
-    if (isNewsletterTrack(item.articleType)) return trackLabel(item.articleType)
-    return 'This week'
+  return {
+    token,
+    data,
+    loading,
+    error,
+    busy,
+    firstName,
+    lastName,
+    email,
+    setFirstName,
+    setLastName,
+    setEmail,
+    onSubscribe,
+    onSignOut,
+    unlocked,
+    showGate,
+    issues: data?.issues ?? [],
   }
+}
+
+/** Hub: /newsletter — this week’s brief + mini-newsletter boxes */
+export function NewsletterPage() {
+  const [searchParams] = useSearchParams()
+  const access = useNewsletterAccess()
+  const [expanded, setExpanded] = useState(true)
+  const industryJump = searchParams.get('industry')
+
+  const mainArticles = useMemo(
+    () => access.issues.filter((i) => i.articleType === 'main'),
+    [access.issues],
+  )
+  const latestMain = mainArticles[0] ?? null
+  const trackLatest = useMemo(() => {
+    const map = Object.fromEntries(NEWSLETTER_TRACKS.map((t) => [t.id, null as MagArticle | null])) as Record<
+      NewsletterTrackId,
+      MagArticle | null
+    >
+    for (const issue of access.issues) {
+      if (isNewsletterTrack(issue.articleType) && !map[issue.articleType]) {
+        map[issue.articleType] = issue
+      }
+    }
+    return map
+  }, [access.issues])
+
+  const covered = useMemo(() => new Set(latestMain?.coveredIndustries || []), [latestMain])
+
+  useEffect(() => {
+    if (!industryJump || !latestMain || !access.unlocked) return
+    if (!(latestMain.coveredIndustries || []).includes(industryJump)) return
+    const id = `industry-${industryJump}`
+    const t = window.setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 120)
+    return () => window.clearTimeout(t)
+  }, [industryJump, latestMain, access.unlocked, expanded])
+
+  useEffect(() => {
+    if (industryJump) setExpanded(true)
+  }, [industryJump])
 
   return (
-    <div className={`appShell nlShell ${showGate ? 'nlShellLocked' : ''}`}>
-      <Navbar
-        variant="light"
-        logo={<ApplyOnceLogo />}
-        links={[
-          { label: 'Home', to: '/' },
-          { label: 'Bursaries', to: '/bursary-track' },
-          { label: 'Programmes', to: '/programmes-for-work' },
-          { label: 'Newsletter', to: '/newsletter', accent: 'red' },
-        ]}
-      />
-
-      {showGate ? (
+    <NewsletterChrome
+      showGate={access.showGate}
+      subscriberName={access.data?.subscriber?.firstName}
+      onSignOut={access.onSignOut}
+      gate={
         <SubscribeGate
-          busy={busy}
-          error={error}
-          firstName={firstName}
-          lastName={lastName}
-          email={email}
-          onFirstName={setFirstName}
-          onLastName={setLastName}
-          onEmail={setEmail}
-          onSubmit={(e) => void onSubscribe(e)}
+          busy={access.busy}
+          error={access.error}
+          firstName={access.firstName}
+          lastName={access.lastName}
+          email={access.email}
+          onFirstName={access.setFirstName}
+          onLastName={access.setLastName}
+          onEmail={access.setEmail}
+          onSubmit={(e) => void access.onSubscribe(e)}
         />
+      }
+    >
+      {access.loading ? <p className="nlNewsLoading">Loading edition…</p> : null}
+      {!access.loading && access.unlocked && access.error ? (
+        <div className="formError">{access.error}</div>
       ) : null}
 
-      <main className="container nlNews">
-        {loading ? <p className="nlNewsLoading">Loading edition…</p> : null}
-        {!loading && unlocked && error ? <div className="formError">{error}</div> : null}
-
-        {!loading && unlocked ? (
-          <div className="nlNewsGrid">
-            <div className="nlNewsStoryCol">
-              <div className="nlNewsMasthead">
-                <span className="nlNewsBrand">{NEWSLETTER_BRAND.name}</span>
-                <span className="nlNewsMastDot" aria-hidden>
-                  ·
-                </span>
-                <span className="nlNewsMastMeta">SA &amp; Africa</span>
-                {data?.subscriber ? (
-                  <>
-                    <span className="nlNewsMastDot" aria-hidden>
-                      ·
-                    </span>
-                    <button type="button" className="nlNewsTextBtn" onClick={onSignOut}>
-                      Signed in as {data.subscriber.firstName}
-                    </button>
-                  </>
-                ) : null}
-              </div>
-
-              <section className="nlTrackGrid" aria-label="Mini newsletters">
-                <div className="nlTrackGridHead">
-                  <h2 className="nlTrackGridTitle">Mini newsletters</h2>
-                  <p className="nlTrackGridLead">
-                    Four weekly lanes — the things that are hard to find in one place. Open a box, then read
-                    that week&apos;s issue below.
-                  </p>
-                </div>
-                <div className="nlTrackBoxes">
-                  {NEWSLETTER_TRACKS.map((track) => {
-                    const latest = trackArticles[track.id][0]
-                    const count = trackArticles[track.id].length
-                    const active = activeTrack === track.id
-                    return (
-                      <button
-                        key={track.id}
-                        type="button"
-                        className={`nlTrackBox ${active ? 'nlTrackBoxActive' : ''}`}
-                        onClick={() => selectTrack(track.id)}
-                        aria-pressed={active}
-                      >
-                        <span className="nlTrackBoxLabel">{track.label}</span>
-                        <span className="nlTrackBoxBlurb">{track.blurb}</span>
-                        {latest ? (
-                          <span className="nlTrackBoxLatest">
-                            <span className="nlTrackBoxLatestEyebrow">
-                              Latest{count > 1 ? ` · ${count} issues` : ''}
-                            </span>
-                            <span className="nlTrackBoxLatestTitle">{latest.title}</span>
-                          </span>
-                        ) : (
-                          <span className="nlTrackBoxEmpty">First issue soon</span>
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-              </section>
-
-              {featured ? (
-                <article className="nlNewsArticle">
-                  <p className="nlNewsSection">{sectionLabel}</p>
-                  <h1 className="nlNewsHeadline">{featured.title}</h1>
-                  <p className="nlNewsByline">
-                    By Apply Once
-                    {featured.publishedAt ? (
-                      <>
-                        <span aria-hidden> · </span>
-                        <time dateTime={featured.publishedAt}>{formatDate(featured.publishedAt)}</time>
-                      </>
-                    ) : null}
-                    {featured.kicker ? (
-                      <>
-                        <span aria-hidden> · </span>
-                        <span>{featured.kicker}</span>
-                      </>
-                    ) : null}
-                  </p>
-
-                  {teaser ? <p className="nlNewsStandfirst">{teaser}</p> : null}
-
-                  {expanded && featured.body ? (
-                    <div className="nlNewsBody">{renderNewsletterBody(featured.body)}</div>
-                  ) : null}
-
-                  {featured.body ? (
-                    <button
-                      type="button"
-                      className="nlNewsContinue"
-                      aria-expanded={expanded}
-                      onClick={() => setExpanded((v) => !v)}
-                    >
-                      {expanded ? 'Show less ▲' : 'Continue reading ▼'}
-                    </button>
-                  ) : null}
-                </article>
-              ) : activeTrack ? (
-                <article className="nlNewsArticle">
-                  <p className="nlNewsSection">{trackLabel(activeTrack)}</p>
-                  <h1 className="nlNewsHeadline">First issue soon</h1>
-                  <p className="nlNewsStandfirst">
-                    This mini-newsletter is ready for weekly issues — guides and finds that are hard to
-                    piece together on your own. Check back after the next publish, or read this week&apos;s
-                    main brief.
-                  </p>
-                  <button type="button" className="nlNewsContinue" onClick={openBrief}>
-                    Back to this week&apos;s brief
-                  </button>
-                </article>
-              ) : activeIndustry ? (
-                <article className="nlNewsArticle">
-                  <p className="nlNewsSection">{industryLabel(activeIndustry)}</p>
-                  <h1 className="nlNewsHeadline">Story coming soon</h1>
-                  <p className="nlNewsStandfirst">
-                    We&apos;re building industry deep-dives each week. Read this week&apos;s main brief, or
-                    choose another career on the right.
-                  </p>
-                  <button type="button" className="nlNewsContinue" onClick={openBrief}>
-                    Back to this week&apos;s brief
-                  </button>
-                </article>
-              ) : (
-                <article className="nlNewsArticle">
-                  <p className="nlNewsSection">Briefing</p>
-                  <h1 className="nlNewsHeadline">First edition coming soon</h1>
-                  <p className="nlNewsStandfirst">
-                    You&apos;re unlocked. The next weekly brief will land here — headline first, full story
-                    below.
-                  </p>
-                </article>
-              )}
-
-              {moreStories.length > 0 ? (
-                <section className="nlNewsList" aria-label="More stories">
-                  <h2 className="nlNewsListTitle">More stories</h2>
-                  <ul className="nlNewsListItems">
-                    {moreStories.map((item) => (
-                      <li key={item.id}>
-                        <button type="button" className="nlNewsListLink" onClick={() => openArticle(item)}>
-                          <span className="nlNewsListLabel">{storyTypeLabel(item)}</span>
-                          <span className="nlNewsListHeadline">{item.title}</span>
-                          {item.publishedAt ? (
-                            <time className="nlNewsListDate" dateTime={item.publishedAt}>
-                              {formatDate(item.publishedAt)}
-                            </time>
-                          ) : null}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              ) : null}
-
-              <section className="nlNewsFooterLinks">
-                <p>
-                  Turn reading into applying —{' '}
-                  <Link to="/programmes-for-work">programmes for work</Link>
-                  {' · '}
-                  <Link to="/application">application form</Link>
+      {!access.loading && access.unlocked ? (
+        <div className="nlNewsGrid">
+          <div className="nlNewsStoryCol">
+            <section className="nlTrackGrid" aria-label="Mini newsletters">
+              <div className="nlTrackGridHead">
+                <h2 className="nlTrackGridTitle">Mini newsletters</h2>
+                <p className="nlTrackGridLead">
+                  Each box opens its own page. New posts stay on top; older ones move into that page’s
+                  archive.
                 </p>
-              </section>
-            </div>
+              </div>
+              <div className="nlTrackBoxes">
+                {NEWSLETTER_TRACKS.map((track) => {
+                  const latest = trackLatest[track.id]
+                  return (
+                    <Link key={track.id} to={`/newsletter/${track.id}`} className="nlTrackBox">
+                      <span className="nlTrackBoxLabel">{track.label}</span>
+                      <span className="nlTrackBoxBlurb">{track.blurb}</span>
+                      {latest ? (
+                        <span className="nlTrackBoxLatest">
+                          <span className="nlTrackBoxLatestEyebrow">Latest</span>
+                          <span className="nlTrackBoxLatestTitle">{latest.title}</span>
+                        </span>
+                      ) : (
+                        <span className="nlTrackBoxEmpty">Open page · first issue soon</span>
+                      )}
+                    </Link>
+                  )
+                })}
+              </div>
+            </section>
 
-            <aside className="nlNewsAside" aria-label="Sections and industries">
-              <p className="nlNewsAsideTitle">Sections</p>
-              <ul className="nlNewsAsideLinks">
-                <li>
-                  <button
-                    type="button"
-                    className={`nlNewsAsideLink ${!activeIndustry && !activeTrack ? 'nlNewsAsideLinkActive' : ''}`}
-                    onClick={openBrief}
-                  >
-                    This week&apos;s brief
-                  </button>
-                </li>
-              </ul>
+            {latestMain ? (
+              <ArticleReader
+                article={latestMain}
+                expanded={expanded}
+                onToggle={() => setExpanded((v) => !v)}
+                sectionLabel="This week"
+              />
+            ) : (
+              <article className="nlNewsArticle">
+                <p className="nlNewsSection">Briefing</p>
+                <h1 className="nlNewsHeadline">First edition coming soon</h1>
+                <p className="nlNewsStandfirst">
+                  You&apos;re unlocked. The next weekly brief will land here.
+                </p>
+              </article>
+            )}
 
-              <p className="nlNewsAsideTitle">Mini newsletters</p>
-              <ul className="nlNewsAsideLinks">
-                {NEWSLETTER_TRACKS.map((track) => (
-                  <li key={track.id}>
-                    <button
-                      type="button"
-                      className={`nlNewsAsideLink ${activeTrack === track.id ? 'nlNewsAsideLinkActive' : ''}`}
-                      onClick={() => selectTrack(track.id)}
-                    >
-                      {track.shortLabel}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-
-              <p className="nlNewsAsideTitle">Industries</p>
-              <ul className="nlNewsAsideLinks">
-                {NEWSLETTER_INDUSTRIES.map((ind) => (
-                  <li key={ind.id}>
-                    <button
-                      type="button"
-                      className={`nlNewsAsideLink ${activeIndustry === ind.id ? 'nlNewsAsideLinkActive' : ''}`}
-                      onClick={() => selectIndustry(ind.id)}
-                    >
-                      {ind.label}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-
-              {mainArticles.length > 1 ? (
-                <>
-                  <p className="nlNewsAsideTitle">From the archive</p>
-                  <ul className="nlNewsAsideLinks">
-                    {mainArticles.slice(1, 6).map((item) => (
-                      <li key={item.id}>
-                        <button
-                          type="button"
-                          className="nlNewsAsideLink"
-                          onClick={() => openArticle(item)}
-                        >
-                          {item.title}
-                          {item.publishedAt ? (
-                            <span className="nlNewsAsideDate">{formatDate(item.publishedAt)}</span>
-                          ) : null}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : null}
-            </aside>
+            <section className="nlNewsList" aria-label="Archive shortcut">
+              <h2 className="nlNewsListTitle">Old articles</h2>
+              <p className="nlTrackGridLead" style={{ marginBottom: '0.75rem' }}>
+                Every published issue is saved.{' '}
+                <Link to="/newsletter/archive" className="nlInlineLink">
+                  Open the full archive
+                </Link>
+              </p>
+              {mainArticles.slice(1, 5).length > 0 ? (
+                <ul className="nlNewsListItems">
+                  {mainArticles.slice(1, 5).map((item) => (
+                    <li key={item.id}>
+                      <Link to={articleHref(item)} className="nlNewsListLink">
+                        <span className="nlNewsListLabel">{storyTypeLabel(item)}</span>
+                        <span className="nlNewsListHeadline">{item.title}</span>
+                        {item.publishedAt ? (
+                          <time className="nlNewsListDate" dateTime={item.publishedAt}>
+                            {formatNewsletterDate(item.publishedAt)}
+                          </time>
+                        ) : null}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="nlNewsStandfirst">Past weekly briefs will appear here after you publish more.</p>
+              )}
+            </section>
           </div>
-        ) : null}
 
-        {!loading && !unlocked ? (
-          <p className="nlNewsLoading">Subscribe to open this week&apos;s edition.</p>
-        ) : null}
-      </main>
+          <NewsletterAside
+            coveredIndustryIds={covered}
+            archivePreview={access.issues.filter((i) => i.id !== latestMain?.id).slice(0, 5)}
+          />
+        </div>
+      ) : null}
 
-      <SiteFooter
-        brand={{ name: 'Apply Once', description: 'School to industry — one profile, clearer options.' }}
-        legalLinks={[
-          { label: 'About', to: '/about' },
-          { label: 'Newsletter', to: '/newsletter', accent: 'red' },
-          { label: 'Terms', to: '/terms' },
-          { label: 'Contact', to: '/contact' },
-        ]}
-      />
-    </div>
+      {!access.loading && !access.unlocked ? (
+        <p className="nlNewsLoading">Subscribe to open this week&apos;s edition.</p>
+      ) : null}
+    </NewsletterChrome>
   )
 }
 
+/** Track page: /newsletter/courses etc. */
+export function NewsletterTrackPage() {
+  const { pathname } = useLocation()
+  const trackId =
+    NEWSLETTER_TRACKS.find((t) => pathname === `/newsletter/${t.id}` || pathname.startsWith(`/newsletter/${t.id}?`))
+      ?.id || ''
+  const [searchParams, setSearchParams] = useSearchParams()
+  const access = useNewsletterAccess()
+  const [expanded, setExpanded] = useState(true)
+  const track = trackMeta(trackId)
+
+  const trackIssues = useMemo(
+    () => access.issues.filter((i) => i.articleType === trackId),
+    [access.issues, trackId],
+  )
+  const selectedSlug = searchParams.get('article')
+  const featured =
+    (selectedSlug && trackIssues.find((i) => i.slug === selectedSlug)) || trackIssues[0] || null
+  const older = trackIssues.filter((i) => i.id !== featured?.id)
+
+  useEffect(() => {
+    setExpanded(true)
+  }, [featured?.id])
+
+  if (!track || !isNewsletterTrack(trackId)) {
+    return (
+      <div className="appShell nlShell">
+        <main className="container nlNews">
+          <p className="nlNewsLoading">
+            Unknown newsletter. <Link to="/newsletter">Back home</Link>
+          </p>
+        </main>
+      </div>
+    )
+  }
+
+  return (
+    <NewsletterChrome
+      showGate={access.showGate}
+      subscriberName={access.data?.subscriber?.firstName}
+      onSignOut={access.onSignOut}
+      gate={
+        <SubscribeGate
+          busy={access.busy}
+          error={access.error}
+          firstName={access.firstName}
+          lastName={access.lastName}
+          email={access.email}
+          onFirstName={access.setFirstName}
+          onLastName={access.setLastName}
+          onEmail={access.setEmail}
+          onSubmit={(e) => void access.onSubscribe(e)}
+        />
+      }
+    >
+      {access.loading ? <p className="nlNewsLoading">Loading…</p> : null}
+      {!access.loading && access.unlocked ? (
+        <div className="nlNewsGrid">
+          <div className="nlNewsStoryCol">
+            <nav className="nlBreadcrumb" aria-label="Breadcrumb">
+              <Link to="/newsletter">Newsletter</Link>
+              <span aria-hidden>/</span>
+              <span>{track.label}</span>
+            </nav>
+            <p className="nlTrackPageLead">{track.blurb}</p>
+
+            {featured ? (
+              <ArticleReader
+                article={featured}
+                expanded={expanded}
+                onToggle={() => setExpanded((v) => !v)}
+                sectionLabel={track.label}
+              />
+            ) : (
+              <article className="nlNewsArticle">
+                <p className="nlNewsSection">{track.label}</p>
+                <h1 className="nlNewsHeadline">First issue soon</h1>
+                <p className="nlNewsStandfirst">
+                  This page is ready. When the next {track.label.toLowerCase()} issue is posted, it
+                  will show here.
+                </p>
+                <Link className="nlNewsContinue" to="/newsletter">
+                  Back to this week&apos;s brief
+                </Link>
+              </article>
+            )}
+
+            <section className="nlNewsList" aria-label="Past issues">
+              <h2 className="nlNewsListTitle">Past {track.shortLabel.toLowerCase()} issues</h2>
+              {older.length === 0 ? (
+                <p className="nlNewsStandfirst">
+                  Older issues stay here when a new one is posted.{' '}
+                  <Link to="/newsletter/archive" className="nlInlineLink">
+                    Full archive
+                  </Link>
+                </p>
+              ) : (
+                <ul className="nlNewsListItems">
+                  {older.map((item) => (
+                    <li key={item.id}>
+                      <button
+                        type="button"
+                        className="nlNewsListLink"
+                        onClick={() => {
+                          setSearchParams(
+                            (prev) => {
+                              const next = new URLSearchParams(prev)
+                              next.set('article', item.slug)
+                              next.delete('token')
+                              return next
+                            },
+                            { replace: true },
+                          )
+                          window.scrollTo({ top: 0, behavior: 'smooth' })
+                        }}
+                      >
+                        <span className="nlNewsListLabel">{track.shortLabel}</span>
+                        <span className="nlNewsListHeadline">{item.title}</span>
+                        {item.publishedAt ? (
+                          <time className="nlNewsListDate" dateTime={item.publishedAt}>
+                            {formatNewsletterDate(item.publishedAt)}
+                          </time>
+                        ) : null}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          </div>
+          <NewsletterAside activeTrack={track.id} />
+        </div>
+      ) : null}
+      {!access.loading && !access.unlocked ? (
+        <p className="nlNewsLoading">Subscribe to open this newsletter.</p>
+      ) : null}
+    </NewsletterChrome>
+  )
+}
+
+/** Full archive: /newsletter/archive */
+export function NewsletterArchivePage() {
+  const access = useNewsletterAccess()
+  const [filter, setFilter] = useState<'all' | 'main' | NewsletterTrackId>('all')
+
+  const filtered = useMemo(() => {
+    if (filter === 'all') return access.issues
+    return access.issues.filter((i) => i.articleType === filter)
+  }, [access.issues, filter])
+
+  return (
+    <NewsletterChrome
+      showGate={access.showGate}
+      subscriberName={access.data?.subscriber?.firstName}
+      onSignOut={access.onSignOut}
+      gate={
+        <SubscribeGate
+          busy={access.busy}
+          error={access.error}
+          firstName={access.firstName}
+          lastName={access.lastName}
+          email={access.email}
+          onFirstName={access.setFirstName}
+          onLastName={access.setLastName}
+          onEmail={access.setEmail}
+          onSubmit={(e) => void access.onSubscribe(e)}
+        />
+      }
+    >
+      {access.loading ? <p className="nlNewsLoading">Loading archive…</p> : null}
+      {!access.loading && access.unlocked ? (
+        <div className="nlNewsGrid">
+          <div className="nlNewsStoryCol">
+            <nav className="nlBreadcrumb" aria-label="Breadcrumb">
+              <Link to="/newsletter">Newsletter</Link>
+              <span aria-hidden>/</span>
+              <span>Archive</span>
+            </nav>
+            <article className="nlNewsArticle">
+              <p className="nlNewsSection">Archive</p>
+              <h1 className="nlNewsHeadline">Old articles</h1>
+              <p className="nlNewsStandfirst">
+                Every posted newsletter is saved here — weekly briefs and mini-newsletter issues.
+              </p>
+            </article>
+
+            <div className="nlArchiveFilters" role="tablist" aria-label="Filter archive">
+              <button
+                type="button"
+                className={filter === 'all' ? 'nlArchiveChip nlArchiveChipActive' : 'nlArchiveChip'}
+                onClick={() => setFilter('all')}
+              >
+                All
+              </button>
+              <button
+                type="button"
+                className={filter === 'main' ? 'nlArchiveChip nlArchiveChipActive' : 'nlArchiveChip'}
+                onClick={() => setFilter('main')}
+              >
+                Weekly brief
+              </button>
+              {NEWSLETTER_TRACKS.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  className={filter === t.id ? 'nlArchiveChip nlArchiveChipActive' : 'nlArchiveChip'}
+                  onClick={() => setFilter(t.id)}
+                >
+                  {t.shortLabel}
+                </button>
+              ))}
+            </div>
+
+            {filtered.length === 0 ? (
+              <p className="nlNewsStandfirst">No issues in this filter yet.</p>
+            ) : (
+              <section className="nlNewsList">
+                <ul className="nlNewsListItems">
+                  {filtered.map((item) => (
+                    <li key={item.id}>
+                      <Link to={articleHref(item)} className="nlNewsListLink">
+                        <span className="nlNewsListLabel">{storyTypeLabel(item)}</span>
+                        <span className="nlNewsListHeadline">{item.title}</span>
+                        {item.publishedAt ? (
+                          <time className="nlNewsListDate" dateTime={item.publishedAt}>
+                            {formatNewsletterDate(item.publishedAt)}
+                          </time>
+                        ) : null}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+          </div>
+          <NewsletterAside />
+        </div>
+      ) : null}
+      {!access.loading && !access.unlocked ? (
+        <p className="nlNewsLoading">Subscribe to open the archive.</p>
+      ) : null}
+    </NewsletterChrome>
+  )
+}
+
+/** Single issue by slug: /newsletter/:slug */
 export function NewsletterIssuePage() {
   const { slug = '' } = useParams()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const access = useNewsletterAccess()
+  const [expanded, setExpanded] = useState(true)
 
   useEffect(() => {
     const token = searchParams.get('token')
     if (token) writeNewsletterToken(token)
-    const q = new URLSearchParams()
-    if (token) q.set('token', token)
-    if (slug) q.set('article', slug)
-    navigate(`/newsletter?${q.toString()}`, { replace: true })
-  }, [navigate, searchParams, slug])
+  }, [searchParams])
+
+  useEffect(() => {
+    if (!slug) return
+    if (NEWSLETTER_RESERVED_SLUGS.has(slug)) return
+    if (!access.unlocked || access.loading) return
+    const found = access.issues.find((i) => i.slug === slug)
+    if (found && isNewsletterTrack(found.articleType)) {
+      navigate(`/newsletter/${found.articleType}?article=${encodeURIComponent(slug)}`, { replace: true })
+    }
+  }, [slug, access.unlocked, access.loading, access.issues, navigate])
+
+  if (NEWSLETTER_RESERVED_SLUGS.has(slug)) {
+    return null
+  }
+
+  const article = access.issues.find((i) => i.slug === slug) || null
 
   return (
-    <div className="appShell nlShell">
-      <p className="nlNewsLoading">Opening story…</p>
-    </div>
+    <NewsletterChrome
+      showGate={access.showGate}
+      subscriberName={access.data?.subscriber?.firstName}
+      onSignOut={access.onSignOut}
+      gate={
+        <SubscribeGate
+          busy={access.busy}
+          error={access.error}
+          firstName={access.firstName}
+          lastName={access.lastName}
+          email={access.email}
+          onFirstName={access.setFirstName}
+          onLastName={access.setLastName}
+          onEmail={access.setEmail}
+          onSubmit={(e) => void access.onSubscribe(e)}
+        />
+      }
+    >
+      {access.loading ? <p className="nlNewsLoading">Opening story…</p> : null}
+      {!access.loading && access.unlocked ? (
+        <div className="nlNewsGrid">
+          <div className="nlNewsStoryCol">
+            <nav className="nlBreadcrumb" aria-label="Breadcrumb">
+              <Link to="/newsletter">Newsletter</Link>
+              <span aria-hidden>/</span>
+              <Link to="/newsletter/archive">Archive</Link>
+              <span aria-hidden>/</span>
+              <span>{article?.title || 'Story'}</span>
+            </nav>
+            {article ? (
+              <ArticleReader
+                article={article}
+                expanded={expanded}
+                onToggle={() => setExpanded((v) => !v)}
+                sectionLabel={storyTypeLabel(article)}
+              />
+            ) : (
+              <article className="nlNewsArticle">
+                <p className="nlNewsSection">Archive</p>
+                <h1 className="nlNewsHeadline">Story not found</h1>
+                <p className="nlNewsStandfirst">
+                  That issue may be unpublished.{' '}
+                  <Link to="/newsletter/archive" className="nlInlineLink">
+                    Browse the archive
+                  </Link>
+                </p>
+              </article>
+            )}
+          </div>
+          <NewsletterAside />
+        </div>
+      ) : null}
+    </NewsletterChrome>
   )
 }
 
