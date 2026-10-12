@@ -39,6 +39,11 @@ import {
   paymentAmountCentsForPlan,
   paymentAmountLabelForPlan,
 } from './paymentAmounts.js'
+import {
+  backfillLifecycleMessages,
+  maybeNotifyApplicationCompleteAwaitingPayment,
+  maybeNotifyPaymentMilestone,
+} from './studentLifecycleMessages.js'
 const YOCO_SECRET_KEY = String(process.env.YOCO_SECRET_KEY || '').trim()
 const RESEND_API_KEY = String(process.env.RESEND_API_KEY || '').trim()
 const EMAIL_FROM = String(process.env.EMAIL_FROM || 'Apply Once <onboarding@resend.dev>').trim()
@@ -1045,6 +1050,7 @@ app.post('/api/payments/yoco/charge', authMiddleware, async (req, res) => {
       where: { id: payment.id },
       data: { status: 'paid', amountPaidCents: amountInCents, providerChargeId: chargeId },
     })
+    void maybeNotifyPaymentMilestone(prisma, RESEND_API_KEY ? sendResendEmail : null, req.userId)
     return res.json({ ok: true, paymentId: payment.id, chargeId, amountInCents })
   } catch (e) {
     await prisma.payment.update({
@@ -1161,6 +1167,11 @@ app.put('/api/profile', authMiddleware, async (req, res) => {
     create: { userId: req.userId, ...data },
     update: data,
   })
+  void maybeNotifyApplicationCompleteAwaitingPayment(
+    prisma,
+    RESEND_API_KEY ? sendResendEmail : null,
+    req.userId,
+  )
   res.json(profile)
 })
 
@@ -1403,6 +1414,11 @@ app.put('/api/application', authMiddleware, async (req, res) => {
   } catch {
     parsed = {}
   }
+  void maybeNotifyApplicationCompleteAwaitingPayment(
+    prisma,
+    RESEND_API_KEY ? sendResendEmail : null,
+    req.userId,
+  )
   res.json({ ...draft, payload: parsed })
 })
 
@@ -2281,6 +2297,8 @@ app.post('/api/admin/students/:id/payments/record', adminMiddleware, async (req,
     select: { amountPaidCents: true },
   })
 
+  void maybeNotifyPaymentMilestone(prisma, RESEND_API_KEY ? sendResendEmail : null, user.id)
+
   res.json({
     ok: true,
     payment,
@@ -2503,6 +2521,15 @@ app.get('/api/admin/students/:id/documents/:docId/file', adminMiddleware, async 
   } catch {
     return res.status(404).json({ error: 'File not found' })
   }
+})
+
+app.post('/api/admin/lifecycle-messages/backfill', attachSupabaseEmailIfPresent, adminMiddleware, async (_req, res) => {
+  const summary = await backfillLifecycleMessages(prisma, RESEND_API_KEY ? sendResendEmail : null)
+  res.json({
+    ok: true,
+    ...summary,
+    emailConfigured: Boolean(RESEND_API_KEY),
+  })
 })
 
 app.post('/api/admin/students/:id/email', adminMiddleware, async (req, res) => {

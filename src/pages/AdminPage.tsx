@@ -162,6 +162,8 @@ export function AdminPage() {
   const [bulkEmailBody, setBulkEmailBody] = useState('')
   const [bulkEmailBusy, setBulkEmailBusy] = useState(false)
   const [bulkEmailMessage, setBulkEmailMessage] = useState<string | null>(null)
+  const [lifecycleBusy, setLifecycleBusy] = useState(false)
+  const [lifecycleMessage, setLifecycleMessage] = useState<string | null>(null)
 
   const [varsityYear, setVarsityYear] = useState(2026)
   const [varsityBusy, setVarsityBusy] = useState(false)
@@ -546,12 +548,54 @@ export function AdminPage() {
               <Link className="btn btnOutline btnSmall" to="/bursary-track">
                 Bursary track
               </Link>
+              <button
+                type="button"
+                className="btn btnBrand btnSmall"
+                disabled={lifecycleBusy}
+                onClick={() => {
+                  void (async () => {
+                    if (
+                      !window.confirm(
+                        'Send automatic “what’s next” chat + email to students who finished the form (step 8) or already paid? Each message is only sent once.',
+                      )
+                    ) {
+                      return
+                    }
+                    setLifecycleBusy(true)
+                    setLifecycleMessage(null)
+                    setError(null)
+                    try {
+                      const res = await adminApi<{
+                        scanned: number
+                        appCompletePay: number
+                        paymentPartial: number
+                        paymentFull: number
+                        skipped: number
+                        emailConfigured: boolean
+                        errors?: string[]
+                      }>('/api/admin/lifecycle-messages/backfill', { method: 'POST', json: {} })
+                      setLifecycleMessage(
+                        `Lifecycle messages: scanned ${res.scanned} · pay reminders ${res.appCompletePay} · first payment ${res.paymentPartial} · paid in full ${res.paymentFull} · skipped ${res.skipped}` +
+                          (res.emailConfigured ? '' : ' · email not configured (chat/inbox still sent)') +
+                          (res.errors?.length ? ` · errors: ${res.errors[0]}` : ''),
+                      )
+                    } catch (e) {
+                      setError(e instanceof Error ? e.message : 'Could not send lifecycle messages')
+                    } finally {
+                      setLifecycleBusy(false)
+                    }
+                  })()
+                }}
+              >
+                {lifecycleBusy ? 'Sending…' : 'Send “what’s next” to finished students'}
+              </button>
               <p className="adminToolbarMeta">
                 {students.length} student{students.length === 1 ? '' : 's'} — data lives in SQLite (see Prisma schema).
               </p>
             </div>
 
             {error ? <div className="formError adminError">{error}</div> : null}
+            {lifecycleMessage ? <p className="adminOkMessage">{lifecycleMessage}</p> : null}
             {varsityError ? <div className="formError adminError">{varsityError}</div> : null}
 
             <section className="adminCard adminBursaryTrackBanner">
