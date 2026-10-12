@@ -9769,6 +9769,28 @@ body.navMenuOpen {
   margin-bottom: 0.35rem;
 }
 
+.nlBodyFigure {
+  margin: 0 0 1.25rem;
+}
+
+.nlBodyImage {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--nl-rule);
+}
+
+.nlBodyImageInline {
+  margin: 0.75rem 0;
+}
+
+.nlBodyCaption {
+  margin-top: 0.4rem;
+  font-size: 0.88rem;
+  color: var(--nl-muted);
+  line-height: 1.4;
+}
+
 .nlNewsBody a {
   color: var(--nl-accent);
   text-decoration: underline;
@@ -10089,6 +10111,19 @@ a.nlNewsListLink {
   line-height: 1.45;
   resize: vertical;
   min-height: 12rem;
+}
+
+.adminNewsletterImageRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.45rem;
+}
+
+.adminNewsletterUploadBtn {
+  cursor: pointer;
+  margin: 0;
 }
 
 .adminOkMessage {

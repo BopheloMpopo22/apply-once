@@ -3291,6 +3291,80 @@ app.post('/api/admin/newsletter/issues/:id/send', attachSupabaseEmailIfPresent, 
   res.json({ sent, failed, total: subscribers.length, errors })
 })
 
+const newsletterImageUpload = multer({
+  storage: useRemoteFiles() ? multer.memoryStorage() : documentDiskStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: avatarImageFilter,
+})
+
+app.post(
+  '/api/admin/newsletter/upload-image',
+  attachSupabaseEmailIfPresent,
+  adminMiddleware,
+  (req, res, next) => {
+    newsletterImageUpload.single('file')(req, res, next)
+  },
+  async (req, res, next) => {
+    try {
+      if (vercelNeedsRemoteFiles() && !useRemoteFiles()) {
+        return res.status(503).json({
+          error:
+            'Image uploads on Vercel need Supabase Storage. Set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, and SUPABASE_STORAGE_BUCKET.',
+        })
+      }
+      if (!req.file) return res.status(400).json({ error: 'Image file required.' })
+      const ext = path.extname(req.file.originalname || '').toLowerCase()
+      const safeExt = ['.jpg', '.jpeg', '.png', '.webp', '.gif'].includes(ext) ? ext : '.jpg'
+      const filename = `${Date.now()}-${crypto.randomBytes(4).toString('hex')}${safeExt}`
+      let storagePath
+      if (useRemoteFiles()) {
+        storagePath = `newsletter/${filename}`
+        await remotePut(storagePath, req.file.buffer, req.file.mimetype)
+      } else {
+        const dir = path.join(uploadsRoot, 'newsletter')
+        fs.mkdirSync(dir, { recursive: true })
+        const abs = path.join(dir, filename)
+        if (req.file.buffer) {
+          fs.writeFileSync(abs, req.file.buffer)
+        } else if (req.file.path) {
+          fs.copyFileSync(req.file.path, abs)
+        }
+        storagePath = `uploads/newsletter/${filename}`
+      }
+      const url = `/api/newsletter/media/${filename}`
+      res.json({ url, storagePath })
+    } catch (err) {
+      next(err)
+    }
+  },
+)
+
+app.get('/api/newsletter/media/:filename', async (req, res) => {
+  const filename = String(req.params.filename || '').replace(/[^a-zA-Z0-9._-]/g, '')
+  if (!filename) return res.status(404).end()
+  const remoteKey = `newsletter/${filename}`
+  const localRel = `uploads/newsletter/${filename}`
+  if (useRemoteFiles()) {
+    try {
+      const buf = await remoteDownloadBuffer(remoteKey)
+      const ext = path.extname(filename).toLowerCase()
+      res.setHeader('Content-Type', mimeFromExt(ext))
+      res.setHeader('Cache-Control', 'public, max-age=86400')
+      return res.send(buf)
+    } catch {
+      return res.status(404).end()
+    }
+  }
+  const abs = absFromStorage(localRel)
+  if (!abs.startsWith(uploadsRoot) || !fs.existsSync(abs)) {
+    return res.status(404).end()
+  }
+  const ext = path.extname(abs).toLowerCase()
+  res.setHeader('Content-Type', mimeFromExt(ext))
+  res.setHeader('Cache-Control', 'public, max-age=86400')
+  return res.sendFile(abs)
+})
+
 app.use((err, _req, res, _next) => {
   console.error(err)
   if (err && err.code === 'INVALID_FILE_TYPE') {

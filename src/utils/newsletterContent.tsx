@@ -9,12 +9,25 @@ function headingIndustryId(headingText: string): string | undefined {
   return hit ? `industry-${hit.id}` : undefined
 }
 
+const IMAGE_MARKDOWN = /^!\[([^\]]*)\]\(([^)]+)\)$/
+
 /** Lightweight body renderer for newsletter plain-text format. */
 export function renderNewsletterBody(body: string): ReactNode[] {
   const blocks = body.replace(/\r\n/g, '\n').trim().split(/\n{2,}/)
   return blocks.map((block, i) => {
     const lines = block.split('\n').map((l) => l.trimEnd())
     const first = lines[0]?.trim() ?? ''
+    const imageMatch = first.match(IMAGE_MARKDOWN)
+    if (imageMatch && lines.filter((l) => l.trim()).length === 1) {
+      const alt = imageMatch[1].trim()
+      const src = imageMatch[2].trim()
+      return (
+        <figure key={i} className="nlBodyFigure">
+          <img src={src} alt={alt || 'Newsletter image'} className="nlBodyImage" loading="lazy" />
+          {alt ? <figcaption className="nlBodyCaption">{alt}</figcaption> : null}
+        </figure>
+      )
+    }
 
     if (first.startsWith('### ')) {
       const text = first.slice(4)
@@ -68,23 +81,40 @@ export function renderNewsletterBody(body: string): ReactNode[] {
 }
 
 function inlineFormat(text: string): ReactNode {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g)
-  return parts.map((part, i) => {
+  const withImages = text.split(/(!\[[^\]]*\]\([^)]+\))/g)
+  return withImages.map((segment, si) => {
+    const img = segment.match(IMAGE_MARKDOWN)
+    if (img) {
+      const alt = img[1].trim()
+      const src = img[2].trim()
+      return (
+        <img
+          key={`img-${si}`}
+          src={src}
+          alt={alt || 'Newsletter image'}
+          className="nlBodyImage nlBodyImageInline"
+          loading="lazy"
+        />
+      )
+    }
+    const parts = segment.split(/(\*\*[^*]+\*\*)/g)
+    return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
-      return <strong key={i}>{part.slice(2, -2)}</strong>
+      return <strong key={`${si}-${i}`}>{part.slice(2, -2)}</strong>
     }
     // Autolink bare urls
     const urlParts = part.split(/(https?:\/\/[^\s]+)/g)
     return urlParts.map((u, j) => {
       if (/^https?:\/\//.test(u)) {
         return (
-          <a key={`${i}-${j}`} href={u} target="_blank" rel="noopener noreferrer">
+          <a key={`${si}-${i}-${j}`} href={u} target="_blank" rel="noopener noreferrer">
             {u}
           </a>
         )
       }
-      return <span key={`${i}-${j}`}>{u}</span>
+      return <span key={`${si}-${i}-${j}`}>{u}</span>
     })
+  })
   })
 }
 

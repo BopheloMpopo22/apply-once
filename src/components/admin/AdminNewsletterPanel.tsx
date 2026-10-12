@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
-import { adminApi } from '../../api/adminClient'
+import { useCallback, useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
+import { adminApi, adminUploadFile } from '../../api/adminClient'
 import { NEWSLETTER_INDUSTRIES } from '../../data/newsletterIndustries'
 import {
   NEWSLETTER_TRACKS,
@@ -65,6 +65,7 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
   const [body, setBody] = useState('')
   const [slug, setSlug] = useState('')
   const [coveredIndustries, setCoveredIndustries] = useState<string[]>([])
+  const [uploadBusy, setUploadBusy] = useState(false)
 
   const articleTypeForTab = (t: AdminTab): NewsletterArticleType =>
     t === 'archive' ? 'main' : t
@@ -202,6 +203,25 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
     }
   }
 
+  async function onImageUpload(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setUploadBusy(true)
+    onError(null)
+    try {
+      const res = await adminUploadFile<{ url: string }>('/api/admin/newsletter/upload-image', file)
+      const caption = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ')
+      const markdown = `\n\n![${caption}](${res.url})\n\n`
+      setBody((b) => `${b.trim()}${markdown}`)
+      setMessage('Image uploaded — markdown added to the body. Edit the caption if you like.')
+    } catch (err) {
+      onError(err instanceof Error ? err.message : 'Could not upload image')
+    } finally {
+      setUploadBusy(false)
+    }
+  }
+
   async function onSend(issueId: string) {
     if (!window.confirm(`Email this issue to all ${activeCount} active subscriber(s)?`)) return
     setBusy(true)
@@ -315,7 +335,22 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
             <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto-from-title" />
           </label>
           <label className="field">
-            <span>Body (plain text: # Headings, - bullets, **bold**)</span>
+            <span>Body (plain text: # Headings, - bullets, **bold**, images)</span>
+            <div className="adminNewsletterImageRow">
+              <label className="btn btnOutline btnSmall adminNewsletterUploadBtn">
+                {uploadBusy ? 'Uploading…' : 'Upload image'}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  disabled={uploadBusy || busy}
+                  onChange={(ev) => void onImageUpload(ev)}
+                  hidden
+                />
+              </label>
+              <span className="adminMuted">
+                Inserts <code>![caption](url)</code> into the body. Or paste that line yourself.
+              </span>
+            </div>
             <textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
@@ -323,7 +358,7 @@ export function AdminNewsletterPanel(props: { onError: (msg: string | null) => v
               className="adminNewsletterBody"
               placeholder={
                 tab === 'main'
-                  ? '# This week…\n\n## Mining\n\n…'
+                  ? '# This week…\n\n## Mining\n\n…\n\n![Photo caption](/api/newsletter/media/example.jpg)'
                   : `# ${tabMeta?.label || 'Issue'}\n\nWrite this week’s finds…`
               }
               required

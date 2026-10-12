@@ -47,6 +47,27 @@ export async function adminApi<T>(
   return data as T
 }
 
+export async function adminUploadFile<T>(path: string, file: File, fieldName = 'file'): Promise<T> {
+  const headers = new Headers()
+  const bearer = await getBearerToken()
+  if (bearer) headers.set('Authorization', `Bearer ${bearer}`)
+  const legacy = getAdminToken()
+  if (legacy) headers.set('X-Admin-Token', legacy)
+  const body = new FormData()
+  body.append(fieldName, file)
+  const res = await fetch(path, { method: 'POST', headers, body })
+  const text = await res.text()
+  const data = parseJsonResponse(text, path)
+  if (!res.ok) {
+    const msg =
+      typeof data === 'object' && data !== null && !Array.isArray(data) && 'error' in data
+        ? String((data as { error: string }).error)
+        : res.statusText
+    throw new Error(msg)
+  }
+  return data as T
+}
+
 export async function adminDownloadFile(path: string, filename: string) {
   const headers = new Headers()
   const bearer = await getBearerToken()
